@@ -200,13 +200,28 @@ let lesson = null;
 let exIndex = 0;
 let selectedOption = null;
 let correctCount = 0;
+let retryQueue = [];      // задания, где нажали «Не знаю»
+let retryRound = false;
 
 async function startLesson(languageId) {
   try {
     lesson = await api(`/lesson/${languageId}`);
   } catch (e) { if (e.message !== "limit") tg.showAlert("Не удалось загрузить урок"); return; }
+  startLessonFlow();
+}
+
+async function startRepeat(lessonId) {
+  try {
+    lesson = await api(`/repeat/${lessonId}`);
+  } catch (e) { if (e.message !== "limit") tg.showAlert("Не удалось загрузить урок"); return; }
+  startLessonFlow();
+}
+
+function startLessonFlow() {
   exIndex = 0;
   correctCount = 0;
+  retryQueue = [];
+  retryRound = false;
   document.getElementById("lesson-title").textContent = lesson.title;
   showScreen("screen-lesson");
   renderExercise();
@@ -215,10 +230,14 @@ async function startLesson(languageId) {
 function renderExercise() {
   selectedOption = null;
   const ex = lesson.exercises[exIndex];
+  const total = lesson.exercises.length;
   document.getElementById("lesson-progress").style.width =
-    (exIndex / lesson.exercises.length * 100) + "%";
-  document.getElementById("exercise-box").innerHTML =
-    `<p class="muted">${exIndex + 1} / ${lesson.exercises.length}</p><h2>${ex.prompt}</h2>`;
+    (exIndex / total * 100) + "%";
+  let promptHtml = `<p class="muted">${exIndex + 1} / ${total}${retryRound ? " · повтор" : ""}</p><h2>${ex.prompt}</h2>`;
+  if (ex.type === "gap" && ex.payload.sentence) {
+    promptHtml += `<p class="sentence-text">${ex.payload.sentence}</p>`;
+  }
+  document.getElementById("exercise-box").innerHTML = promptHtml;
 
   const box = document.getElementById("exercise-options");
   box.innerHTML = "";
@@ -228,25 +247,49 @@ function renderExercise() {
   checkBtn.textContent = "Проверить";
   checkBtn.onclick = () => checkAnswer(ex);
 
+  const dontKnowBtn = document.getElementById("btn-dontknow");
   if (ex.type === "pairs") {
+    dontKnowBtn.style.display = "none";
     renderPairs(ex, box);
     checkBtn.style.display = "none";
-  } else if (ex.type === "sentence") {
-    renderSentence(ex, box);
   } else {
-    const options = [...ex.payload.options].sort(() => Math.random() - 0.5);
-    options.forEach(opt => {
-      const btn = document.createElement("button");
-      btn.className = "card option";
-      btn.textContent = opt;
-      btn.onclick = () => {
-        box.querySelectorAll(".option").forEach(b => b.classList.remove("selected"));
-        btn.classList.add("selected");
-        selectedOption = opt;
-      };
-      box.appendChild(btn);
-    });
+    dontKnowBtn.style.display = "";
+    dontKnowBtn.textContent = "Не знаю";
+    dontKnowBtn.disabled = false;
+    dontKnowBtn.onclick = () => dontKnow(ex);
+    if (ex.type === "sentence") {
+      renderSentence(ex, box);
+    } else {
+      const options = [...ex.payload.options].sort(() => Math.random() - 0.5);
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "card option";
+        btn.textContent = opt;
+        btn.onclick = () => {
+          box.querySelectorAll(".option").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          selectedOption = opt;
+        };
+        box.appendChild(btn);
+      });
+    }
   }
+}
+
+// «Не знаю»: показываем ответ, задание уйдёт в повторную очередь
+function dontKnow(ex) {
+  const box = document.getElementById("exercise-options");
+  box.querySelectorAll(".option").forEach(b => {
+    b.disabled = true;
+    if (b.textContent === ex.payload.correct) b.classList.add("correct");
+  });
+  const line = document.getElementById("sentence-line");
+  if (line) line.classList.add("revealed");
+  if (!retryRound) retryQueue.push(ex);
+  const checkBtn = document.getElementById("btn-check");
+  checkBtn.textContent = "Дальше";
+  checkBtn.onclick = nextExercise;
+  document.getElementById("btn-dontknow").disabled = true;
 }
 
 function renderPairs(ex, box) {
@@ -363,9 +406,18 @@ async function nextExercise() {
   exIndex++;
   document.getElementById("btn-check").textContent = "Проверить";
   if (exIndex >= lesson.exercises.length) {
+    if (!retryRound && retryQueue.length) {
+      // второй круг: прогоняем задания, где было «Не знаю»
+      retryRound = true;
+      lesson = { ...lesson, exercises: retryQueue };
+      exIndex = 0;
+      tg.showAlert("Повторим задания, которые вызвали сложности");
+      renderExercise();
+      return;
+    }
     document.getElementById("lesson-progress").style.width = "100%";
     const result = await api(`/lesson/${lesson.lesson_id}/complete`, "POST");
-    if (result.level && result.level !== lesson.level) {
+    if (result.level && !lesson.repeat && result.level !== lesson.level) {
       setTimeout(() => tg.showAlert(`Новый уровень: ${result.level}! Поздравляем!`), 600);
     }
     document.getElementById("res-correct").textContent =
@@ -403,21 +455,38 @@ async function showBoard() {
 // ---------- Профиль ----------
 async function showProfile() {
   showScreen("screen-loading");
-  const [me, board, progress] = await Promise.all(
-    [api("/me"), api("/leaderboard"), api("/progress")]);
+  const [me, board, progress, history] = await Promise.all(
+    [api("/me"), api("/leaderboard"), api("/progress"), api("/history")]);
   const lessonsDone = progress.items.filter(i => i.completed).length;
   document.getElementById("profile-name").textContent = me.first_name || "Ученик";
   document.getElementById("profile-sub").textContent = me.has_subscription
     ? `Подписка активна · ${me.subscription_days_left} дн.` : "Бесплатный аккаунт";
   document.getElementById("p-xp").textContent = me.xp;
   document.getElementById("p-streak").textContent = me.streak;
-  document.getElementById("p-lessons").textContent = lessonsDone;
+  document.getElementById("p-lessons").textContent =
+    progress.items.length ? lessonsDone : (history.items.length || 0);
   document.getElementById("p-rank").textContent = board.my_rank;
   document.getElementById("btn-share").onclick = () => {
-    const text = `Учу языки в Krolingo вместе с кенгуру! 🔥 Мой стрик: ${me.streak} дн.`;
+    const text = `Учу языки в Krolingo вместе с кенгуру! Мой стрик: ${me.streak} дн.`;
     tg.openTelegramLink(
       `https://t.me/share/url?url=${encodeURIComponent("https://t.me/KrolingoBot")}&text=${encodeURIComponent(text)}`);
   };
+  const hlist = document.getElementById("history-list");
+  hlist.innerHTML = "";
+  if (!history.items.length) {
+    hlist.innerHTML = `<p class="muted">Пока нет пройденных уроков</p>`;
+  }
+  history.items.forEach(h => {
+    const row = document.createElement("button");
+    row.className = "card";
+    row.innerHTML = `<div style="flex:1">
+        <b>${h.title}</b><br>
+        <span class="muted" style="margin:0">${h.language_name} · ${h.level} · ${h.completed_at}</span>
+      </div>
+      <svg class="ic"><use href="#i-play"/></svg>`;
+    row.onclick = () => startRepeat(h.lesson_id);
+    hlist.appendChild(row);
+  });
   showScreen("screen-profile");
 }
 

@@ -120,6 +120,19 @@ h2 { font-size: 21px; font-weight: 900; }
 .option.correct { border-color: var(--green); background: #efffe3; color: var(--green-dark); }
 .option.wrong { border-color: var(--red); background: #ffe8e8; color: var(--red); }
 
+.sentence-text {
+  font-size: 19px; font-weight: 800;
+  background: var(--card); border: 2px solid var(--line);
+  border-radius: 14px; padding: 14px 16px; margin-top: 10px;
+}
+
+.lesson-actions { display: flex; gap: 10px; }
+.lesson-actions .btn-primary { flex: 1; }
+.btn-dontknow {
+  width: auto; padding: 15px 20px;
+  color: var(--muted); background: var(--card);
+}
+
 /* сборка предложения */
 .sentence-line {
   min-height: 56px; border-bottom: 2px solid var(--line);

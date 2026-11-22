@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import FREE_DAILY_LESSONS, PLANS
 from ..db import get_session
-from ..models import (Exercise, Language, Lesson, User, UserLanguage)
+from ..models import (Exercise, Language, Lesson, LessonCompletion, User,
+                     UserLanguage)
 from ..services import (LEVELS, active_subscription, can_start_lesson,
                         complete_lesson, get_or_create_user,
                         lessons_done_today, next_level, prev_level)
@@ -15,7 +16,7 @@ from .deps import get_telegram_user
 
 router = APIRouter(prefix="/api")
 
-LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний"}
+LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний", "B2": "Продвинутый"}
 
 
 class LanguageIn(BaseModel):
@@ -234,6 +235,59 @@ async def placement_finish(data: PlacementFinishIn,
 @router.get("/plans")
 async def plans():
     return [{"key": k, **v} for k, v in PLANS.items()]
+
+
+@router.get("/history")
+async def history(user_tg: dict = Depends(get_telegram_user),
+                  session: AsyncSession = Depends(get_session)):
+    user = await get_or_create_user(session, user_tg["id"])
+    rows = (await session.execute(
+        select(LessonCompletion, Lesson, Language)
+        .join(Lesson, Lesson.id == LessonCompletion.lesson_id)
+        .join(Language, Language.id == Lesson.language_id)
+        .where(LessonCompletion.user_id == user.id)
+        .order_by(LessonCompletion.completed_at.desc())
+        .limit(30))).all()
+    items = []
+    for comp, lesson, lang in rows:
+        items.append({
+            "lesson_id": lesson.id,
+            "title": lesson.title,
+            "level": lesson.level,
+            "language_name": lang.name,
+            "completed_at": comp.completed_at.strftime("%d.%m.%Y"),
+        })
+    return {"items": items}
+
+
+@router.get("/repeat/{lesson_id}")
+async def repeat_lesson(lesson_id: int,
+                        user_tg: dict = Depends(get_telegram_user),
+                        session: AsyncSession = Depends(get_session)):
+    """Урок для повторения: без проверки лимита, не двигает прогресс."""
+    user = await get_or_create_user(session, user_tg["id"])
+    lesson = await session.get(Lesson, lesson_id)
+    if not lesson:
+        raise HTTPException(404, "Lesson not found")
+    ul = (await session.execute(
+        select(UserLanguage).where(
+            UserLanguage.user_id == user.id,
+            UserLanguage.language_id == lesson.language_id))).scalar_one_or_none()
+    if not ul:
+        raise HTTPException(404, "Language not chosen")
+    exercises = (await session.execute(
+        select(Exercise).where(Exercise.lesson_id == lesson.id))).scalars().all()
+    return {
+        "lesson_id": lesson.id,
+        "number": lesson.number,
+        "level": lesson.level,
+        "title": f"Повторение · {lesson.title}",
+        "repeat": True,
+        "exercises": [
+            {"id": e.id, "type": e.type, "prompt": e.prompt, "payload": e.payload}
+            for e in exercises
+        ],
+    }
 
 
 @router.get("/leaderboard")

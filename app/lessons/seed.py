@@ -10,7 +10,7 @@ LANGS = [
     {"code": "es", "name": "Испанский", "flag": "🇪🇸"},
 ]
 
-LEVELS = ["A1", "A2", "B1"]
+LEVELS = ["A1", "A2", "B1", "B2"]
 LEVEL_TITLES = {
     "A1": ["Первые слова", "Семья и друзья", "Еда и напитки", "Дом", "Природа",
            "Действия", "Описания", "Цвета", "Числа", "Дни и время"],
@@ -18,8 +18,10 @@ LEVEL_TITLES = {
            "Здоровье", "Путешествия", "Погода", "Хобби", "Свободное время"],
     "B1": ["Мнения", "Планы", "Отношения", "Новости", "Технологии",
            "Образование", "Культура", "Спорт", "Бизнес", "Общество"],
+    "B2": ["Наука", "Экология", "Экономика", "Политика", "Психология",
+           "Медиа", "Искусство", "Инновации", "Глобализация", "Философия"],
 }
-LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний"}
+LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний", "B2": "Продвинутый"}
 
 # Слова: (слово, перевод)
 WORDS = {
@@ -55,6 +57,20 @@ WORDS = {
                ("competition", "соревнование"), ("training", "тренировка"), ("coach", "тренер"), ("victory", "победа"),
                ("customer", "клиент"), ("contract", "контракт"), ("profit", "прибыль"), ("deadline", "срок"),
                ("society", "общество"), ("law", "закон"), ("rights", "права"), ("volunteer", "волонтёр")],
+        "B2": [("research", "исследование"), ("hypothesis", "гипотеза"), ("evidence", "доказательство"),
+               ("experiment", "эксперимент"), ("discovery", "открытие"),
+               ("climate", "климат"), ("pollution", "загрязнение"), ("recycling", "переработка"),
+               ("species", "вид"), ("extinction", "вымирание"),
+               ("inflation", "инфляция"), ("investment", "инвестиции"), ("budget", "бюджет"),
+               ("debt", "долг"), ("crisis", "кризис"),
+               ("policy", "политика"), ("election", "выборы"), ("parliament", "парламент"),
+               ("democracy", "демократия"), ("corruption", "коррупция"),
+               ("behaviour", "поведение"), ("motivation", "мотивация"), ("anxiety", "тревога"),
+               ("cognitive", "познавательный"), ("therapy", "терапия"),
+               ("audience", "аудитория"), ("censorship", "цензура"), ("propaganda", "пропаганда"),
+               ("headline", "заголовок"), ("broadcast", "трансляция"),
+               ("masterpiece", "шедевр"), ("exhibition", "выставка"), ("genre", "жанр"),
+               ("critic", "критик"), ("aesthetic", "эстетический")],
     },
     "es": {
         "A1": [("gato", "кот"), ("perro", "собака"), ("casa", "дом"), ("agua", "вода"),
@@ -88,6 +104,20 @@ WORDS = {
                ("competición", "соревнование"), ("entrenamiento", "тренировка"), ("entrenador", "тренер"), ("victoria", "победа"),
                ("cliente", "клиент"), ("contrato", "контракт"), ("beneficio", "прибыль"), ("plazo", "срок"),
                ("sociedad", "общество"), ("ley", "закон"), ("derechos", "права"), ("voluntario", "волонтёр")],
+        "B2": [("investigación", "исследование"), ("hipótesis", "гипотеза"), ("evidencia", "доказательство"),
+               ("experimento", "эксперимент"), ("descubrimiento", "открытие"),
+               ("clima", "климат"), ("contaminación", "загрязнение"), ("reciclaje", "переработка"),
+               ("especie", "вид"), ("extinción", "вымирание"),
+               ("inflación", "инфляция"), ("inversión", "инвестиции"), ("presupuesto", "бюджет"),
+               ("deuda", "долг"), ("crisis", "кризис"),
+               ("política", "политика"), ("elecciones", "выборы"), ("parlamento", "парламент"),
+               ("democracia", "демократия"), ("corrupción", "коррупция"),
+               ("conducta", "поведение"), ("motivación", "мотивация"), ("ansiedad", "тревога"),
+               ("cognitivo", "познавательный"), ("terapia", "терапия"),
+               ("audiencia", "аудитория"), ("censura", "цензура"), ("propaganda", "пропаганда"),
+               ("titular", "заголовок"), ("transmisión", "трансляция"),
+               ("obra maestra", "шедевр"), ("exposición", "выставка"), ("género", "жанр"),
+               ("crítico", "критик"), ("estético", "эстетический")],
     },
 }
 
@@ -106,6 +136,10 @@ SENTENCES = {
                ("Мы обсуждаем новости", "We discuss the news"), ("Она доверяет своему тренеру", "She trusts her coach"),
                ("Компания получает прибыль", "The company makes a profit"), ("Они планируют путешествие", "They plan a trip"),
                ("Студент сдаёт экзамен", "The student takes an exam"), ("Закон защищает права", "The law protects rights")],
+        "B2": [("Учёные проводят исследование", "Scientists conduct research"), ("Эксперимент подтвердил гипотезу", "The experiment confirmed the hypothesis"),
+               ("Климат меняется быстро", "The climate is changing rapidly"), ("Переработка сокращает загрязнение", "Recycling reduces pollution"),
+               ("Инфляция влияет на бюджет", "Inflation affects the budget"), ("Парламент принимает законы", "Parliament passes laws"),
+               ("Терапия помогает при тревоге", "Therapy helps with anxiety"), ("Газета публикует заголовок", "The newspaper publishes a headline")],
     },
     "es": {
         "A1": [("Я пью воду", "Yo bebo agua"), ("Кот ест хлеб", "El gato come pan"),
@@ -120,6 +154,10 @@ SENTENCES = {
                ("Мы обсуждаем новости", "Discutimos las noticias"), ("Она доверяет своему тренеру", "Ella confía en su entrenador"),
                ("Компания получает прибыль", "La empresa obtiene beneficios"), ("Они планируют путешествие", "Ellos planean un viaje"),
                ("Студент сдаёт экзамен", "El estudiante hace un examen"), ("Закон защищает права", "La ley protege los derechos")],
+        "B2": [("Учёные проводят исследование", "Los científicos realizan una investigación"), ("Эксперимент подтвердил гипотезу", "El experimento confirmó la hipótesis"),
+               ("Климат меняется быстро", "El clima cambia rápidamente"), ("Переработка сокращает загрязнение", "El reciclaje reduce la contaminación"),
+               ("Инфляция влияет на бюджет", "La inflación afecta el presupuesto"), ("Парламент принимает законы", "El parlamento aprueba leyes"),
+               ("Терапия помогает при тревоге", "La terapia ayuda con la ansiedad"), ("Газета публикует заголовок", "El periódico publica un titular")],
     },
 }
 
@@ -129,22 +167,32 @@ DECOYS = {
 }
 
 
-def make_exercises(words, sentences, rng, lang_code):
+def make_exercises(words, sentences, rng, lang_code, lesson_num):
     exercises = []
     n = min(len(words), 10)
     translations = dict(words)
+    word_strings = [w for w, _ in words]
     for i in range(n):
         word, translation = words[i]
         distractors = rng.sample([w for w, _ in words if w != word], 3)
         exercises.append(("choice", f"Как переводится «{word}»?",
                           {"options": [translation] + [translations[d] for d in distractors],
                            "correct": translation}))
-    words2 = words[10:20] if len(words) > 10 else words[:10]
-    for word, _t in words2[:5]:
-        distractors = rng.sample([w for w, _ in words if w != word], 3)
-        exercises.append(("gap", f"Вставь слово: I see a ___ .",
-                          {"sentence": "I see a ___ .", "options": distractors + [word],
-                           "correct": word}))
+    # gap: пропущенное слово в настоящем предложении — правильный ответ ровно один
+    for gi in range(3):
+        _src, correct_sentence = sentences[(lesson_num - 1 + gi) % len(sentences)]
+        ws = correct_sentence.split()
+        candidates = [i for i in range(1, len(ws) - 1) if len(ws[i]) > 2]
+        if not candidates:
+            continue
+        idx = rng.choice(candidates)
+        correct_word = ws[idx]
+        distractors = rng.sample([w for w in word_strings if w != correct_word], 3)
+        blank_sentence = " ".join(ws[:idx] + ["___"] + ws[idx + 1:])
+        exercises.append(("gap", "Вставь пропущенное слово:",
+                          {"sentence": blank_sentence,
+                           "options": distractors + [correct_word],
+                           "correct": correct_word}))
     pairs = rng.sample(words, min(5, len(words)))
     exercises.append(("pairs", "Соедини пары:",
                       {"pairs": [[w, t] for w, t in pairs]}))
@@ -169,14 +217,16 @@ async def seed_if_empty(session: AsyncSession) -> None:
             words = WORDS[lang["code"]][level]
             sentences = SENTENCES[lang["code"]][level]
             for num, title in enumerate(LEVEL_TITLES[level], start=1):
-                chunk = words[(num - 1) * 4:(num - 1) * 4 + 10] or words[:10]
+                start = (num - 1) * 4
+                chunk = [words[(start + i) % len(words)] for i in range(10)]
                 sents = [sentences[(num - 1) * 2 % len(sentences)],
                          sentences[((num - 1) * 2 + 1) % len(sentences)]]
                 lesson = Lesson(language_id=language.id, level=level, number=num,
                                 title=f"{title}")
                 session.add(lesson)
                 await session.flush()
-                for etype, prompt, payload in make_exercises(chunk, sents, rng, lang["code"]):
+                for etype, prompt, payload in make_exercises(
+                        chunk, sents, rng, lang["code"], num):
                     session.add(Exercise(lesson_id=lesson.id, type=etype,
                                          prompt=prompt, payload=payload))
     await session.commit()

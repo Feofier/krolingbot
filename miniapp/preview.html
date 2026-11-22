@@ -17,10 +17,14 @@
       if (path === "/progress") return location.search.includes("onboarding")
         ? { items: [], lessons_done_today: 0, free_daily_limit: 2, can_start: true }
         : { items: [{ language_id: 1, language_name: "Английский", level: "A1", level_name: "Начальный", current_lesson: 3, lesson_title: "Еда и напитки", completed: false }], lessons_done_today: 1, free_daily_limit: 2, can_start: true };
-      if (path === "/lesson/1") return { lesson_id: 11, number: 3, title: "3. Еда", exercises: [
+      if (path === "/lesson/1") return { lesson_id: 11, number: 3, level: "A1", title: "Еда и напитки", exercises: [
         { id: 1, type: "choice", prompt: "Как переводится «bread»?", payload: { options: ["хлеб", "вода", "молоко", "сыр"], correct: "хлеб" } },
-        { id: 2, type: "sentence", prompt: "Переведи: «Я пью воду»", payload: { bank: ["I", "drink", "water", "blue", "they"], correct: "I drink water" } },
-        { id: 3, type: "pairs", prompt: "Соедини пары:", payload: { pairs: [["cat","кот"],["dog","собака"],["sun","солнце"]] } },
+        { id: 2, type: "gap", prompt: "Вставь пропущенное слово:", payload: { sentence: "The cat ___ bread", options: ["reads", "eats", "sleeps", "runs"], correct: "eats" } },
+        { id: 3, type: "sentence", prompt: "Переведи: «Я пью воду»", payload: { bank: ["I", "drink", "water", "blue", "they"], correct: "I drink water" } },
+      ] };
+      if (path === "/history") return { items: [
+        { lesson_id: 11, title: "Еда и напитки", level: "A1", language_name: "Английский", completed_at: "22.11.2026" },
+        { lesson_id: 7, title: "Первые слова", level: "A1", language_name: "Английский", completed_at: "21.11.2026" },
       ] };
       if (path === "/leaderboard") return { items: [
         { rank: 1, name: "Даня", xp: 120, is_me: true },
@@ -102,7 +106,10 @@
       <h2 id="lesson-title"></h2>
       <div id="exercise-box"></div>
       <div id="exercise-options" class="card-list"></div>
-      <button id="btn-check" class="btn btn-primary">Проверить</button>
+      <div class="lesson-actions">
+        <button id="btn-dontknow" class="btn btn-dontknow">Не знаю</button>
+        <button id="btn-check" class="btn btn-primary">Проверить</button>
+      </div>
     </div>
     <div id="screen-result" class="screen center">
       <img class="mascot" src="assets/logo.png" alt="">
@@ -150,6 +157,8 @@
         <button class="card row" onclick="showPlans()"><svg class="ic"><use href="#i-star"/></svg> Подписка</button>
         <button class="card row" id="btn-share"><svg class="ic"><use href="#i-share"/></svg> Поделиться с другом</button>
       </div>
+      <h2 style="margin-bottom:10px">История уроков</h2>
+      <div id="history-list" class="card-list"></div>
     </div>
     <nav id="tabbar">
       <button class="tab active" data-tab="home"><svg class="ic"><use href="#i-book"/></svg><span>Учить</span></button>

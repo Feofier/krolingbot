@@ -83,7 +83,10 @@
       <h2 id="lesson-title"></h2>
       <div id="exercise-box"></div>
       <div id="exercise-options" class="card-list"></div>
-      <button id="btn-check" class="btn btn-primary">Проверить</button>
+      <div class="lesson-actions">
+        <button id="btn-dontknow" class="btn btn-dontknow">Не знаю</button>
+        <button id="btn-check" class="btn btn-primary">Проверить</button>
+      </div>
     </div>
 
     <!-- Результат -->
@@ -141,6 +144,8 @@
         <button class="card row" onclick="showPlans()"><svg class="ic"><use href="#i-star"/></svg> Подписка</button>
         <button class="card row" id="btn-share"><svg class="ic"><use href="#i-share"/></svg> Поделиться с другом</button>
       </div>
+      <h2 style="margin-bottom:10px">История уроков</h2>
+      <div id="history-list" class="card-list"></div>
     </div>
 
     <!-- Нижняя навигация -->

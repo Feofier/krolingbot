@@ -12,7 +12,7 @@ def msk_today() -> date:
     return (datetime.utcnow() + timedelta(hours=3)).date()
 
 
-LEVELS = ["A1", "A2", "B1"]
+LEVELS = ["A1", "A2", "B1", "B2"]
 
 
 def next_level(level: str) -> str:

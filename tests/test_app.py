@@ -8,13 +8,14 @@ os.environ["BOT_TOKEN"] = "test-token-123"
 os.environ["DB_URL"] = "sqlite+aiosqlite:///:memory:"
 
 import pytest
+from sqlalchemy import select
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.api.deps import validate_init_data
 from app.db import Base, engine, SessionLocal
 from app.main import app
-from app.models import Language, Lesson, User, UserLanguage
+from app.models import Exercise, Language, Lesson, User, UserLanguage
 from app.services import (can_start_lesson, complete_lesson,
                           get_or_create_user, grant_subscription)
 
@@ -155,3 +156,34 @@ async def test_placement_flow():
         # урок выдаётся по уровню A1
         lesson = (await client.get(f"/api/lesson/{langs[0]['id']}", headers=h)).json()
         assert lesson["level"] == "A1"
+
+
+@pytest.mark.asyncio
+async def test_gap_has_single_correct_option():
+    async with SessionLocal() as s:
+        gaps = (await s.execute(
+            select(Exercise).where(Exercise.type == "gap"))).scalars().all()
+        assert len(gaps) > 50
+        for ex in gaps:
+            assert ex.payload["options"].count(ex.payload["correct"]) == 1
+            assert "___" in ex.payload["sentence"]
+
+
+@pytest.mark.asyncio
+async def test_history_and_repeat():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        h = {"X-Init-Data": make_init_data(88)}
+        langs = (await client.get("/api/languages", headers=h)).json()
+        await client.post("/api/languages", headers=h,
+                          json={"language_id": langs[0]["id"]})
+        lesson = (await client.get(f"/api/lesson/{langs[0]['id']}", headers=h)).json()
+        await client.post(f"/api/lesson/{lesson['lesson_id']}/complete", headers=h)
+        hist = (await client.get("/api/history", headers=h)).json()
+        assert len(hist["items"]) == 1
+        assert hist["items"][0]["lesson_id"] == lesson["lesson_id"]
+        # повтор: тот же урок, без проверки лимита
+        rep = (await client.get(
+            f"/api/repeat/{lesson['lesson_id']}", headers=h)).json()
+        assert rep["repeat"] is True
+        assert len(rep["exercises"]) == len(lesson["exercises"])
