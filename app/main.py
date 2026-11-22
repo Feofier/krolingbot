@@ -6,6 +6,7 @@ from pathlib import Path
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
@@ -67,6 +68,14 @@ app.mount("/miniapp", StaticFiles(directory=MINIAPP_DIR, html=True), name="minia
 @app.get("/")
 async def root():
     return {"app": "Krolingo", "miniapp": MINIAPP_URL}
+
+
+@app.exception_handler(Exception)
+async def debug_errors(request: Request, exc: Exception):
+    import traceback
+    return JSONResponse(
+        status_code=500,
+        content={"error": repr(exc), "trace": traceback.format_exc()[-2000:]})
 
 
 @app.post("/webhook")
