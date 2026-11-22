@@ -51,14 +51,14 @@ async def lifespan(app: FastAPI):
     await bot.session.close()
 
 
-app = FastAPI(title="LinguaTap", lifespan=lifespan)
+app = FastAPI(title="Krolingo", lifespan=lifespan)
 app.include_router(api_router)
 app.mount("/miniapp", StaticFiles(directory=MINIAPP_DIR, html=True), name="miniapp")
 
 
 @app.get("/")
 async def root():
-    return {"app": "LinguaTap", "miniapp": MINIAPP_URL}
+    return {"app": "Krolingo", "miniapp": MINIAPP_URL}
 
 
 @app.post("/webhook")

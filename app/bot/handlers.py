@@ -25,7 +25,7 @@ async def cmd_start(message: Message) -> None:
                                  message.from_user.username,
                                  message.from_user.first_name)
     await message.answer(
-        "Привет! Это LinguaTap — учи языки по 5 минут в день. "
+        "Привет! Это Krolingo — учи языки по 5 минут в день. "
         "Бесплатно доступно 2 урока в день.",
         reply_markup=miniapp_keyboard())
 

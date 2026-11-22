@@ -2,7 +2,7 @@ import os
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 MINIAPP_URL = os.getenv("MINIAPP_URL", "https://example.com/miniapp")  # URL Mini App из BotFather
-DB_URL = os.getenv("DB_URL", "sqlite+aiosqlite:///./linguatap.db")
+DB_URL = os.getenv("DB_URL", "sqlite+aiosqlite:///./krolingo.db")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")  # если пусто — long polling
 
 FREE_DAILY_LESSONS = 2

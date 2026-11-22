@@ -1,5 +1,5 @@
 ---
-title: LinguaTap
+title: Krolingo
 emoji: 🦜
 colorFrom: green
 colorTo: blue
