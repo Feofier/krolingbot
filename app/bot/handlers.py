@@ -25,9 +25,11 @@ async def cmd_start(message: Message) -> None:
                                  message.from_user.username,
                                  message.from_user.first_name)
     await message.answer(
-        "Привет! Это Krolingo — учи языки по 5 минут в день. "
-        "Бесплатно доступно 2 урока в день.",
-        reply_markup=miniapp_keyboard())
+        "Привет! Это Krolingo — учи языки по 5 минут в день.\n"
+        "Открой Mini App: @KrolingoBot → кнопка «Menu» справа от поля ввода.\n"
+        "Если кнопки нет — @BotFather → /setmenubutton → "
+        "https://krolingbot.onrender.com/miniapp/\n\n"
+        "Бесплатно доступно 2 урока в день.")
 
 
 @router.message(F.text.in_({p["title"] for p in PLANS.values()}))
