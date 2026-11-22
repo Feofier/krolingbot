@@ -3,7 +3,7 @@ import random
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Exercise, Language, Lesson
+from ..models import Exercise, Language, Lesson, LessonCompletion
 from .extra_langs import EXTRA_LANGS
 
 LANGS = [

@@ -38,7 +38,12 @@ async def init_db() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # сид и миграции — в фоне, чтобы деплой не падал по таймауту healthcheck
-    init_task = asyncio.create_task(init_db())
+    async def _init():
+        try:
+            await init_db()
+        except Exception:
+            logging.exception("init_db failed")
+    init_task = asyncio.create_task(_init())
     app.state.bot = None
     if not BOT_TOKEN:
         yield
