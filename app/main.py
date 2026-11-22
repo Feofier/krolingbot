@@ -35,7 +35,8 @@ async def init_db() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
+    # сид и миграции — в фоне, чтобы деплой не падал по таймауту healthcheck
+    init_task = asyncio.create_task(init_db())
     app.state.bot = None
     if not BOT_TOKEN:
         yield
@@ -54,6 +55,7 @@ async def lifespan(app: FastAPI):
     app.state.bot = bot
     yield
     polling_task.cancel()
+    init_task.cancel()
     await bot.session.close()
 
 
