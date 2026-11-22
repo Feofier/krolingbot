@@ -16,8 +16,12 @@
       if (path === "/languages") return [{ id: 1, code: "en", name: "Английский", flag: "🇬🇧" }, { id: 2, code: "es", name: "Испанский", flag: "🇪🇸" }];
       if (path === "/progress") return location.search.includes("onboarding")
         ? { items: [], lessons_done_today: 0, free_daily_limit: 2, can_start: true }
-        : { items: [{ language_id: 1, language_name: "Английский", level: "A1", level_name: "Начальный", current_lesson: 3, lesson_title: "Еда и напитки", completed: false }], lessons_done_today: 1, free_daily_limit: 2, can_start: true };
-      if (path === "/lesson/1") return { lesson_id: 11, number: 3, level: "A1", title: "Еда и напитки", exercises: [
+        : { items: [{ language_id: 1, language_name: "Английский", level: "A1", level_name: "Начальный", next_level: "A2", current_lesson: 2, lesson_title: "Семья и друзья", completed: false, level_done: 1, level_total: 35, exam_open: false,
+            path: [{ number: 1, lesson_id: 11, title: "Первые слова", done: true },
+                   { number: 2, lesson_id: 12, title: "Семья и друзья", done: false },
+                   ...Array.from({length: 33}, (_, i) => ({ number: i + 3, lesson_id: 13 + i, title: "Урок " + (i + 3), done: false }))] }],
+          lessons_done_today: 1, free_daily_limit: 2, can_start: true };
+      if (path === "/lesson/1") return { lesson_id: 11, number: 3, level: "A1", title: "Еда и напитки", intro_words: [["bread","хлеб"],["milk","молоко"],["water","вода"],["apple","яблоко"]], exercises: [
         { id: 1, type: "choice", prompt: "Как переводится «bread»?", payload: { options: ["хлеб", "вода", "молоко", "сыр"], correct: "хлеб" } },
         { id: 2, type: "gap", prompt: "Вставь пропущенное слово:", payload: { sentence: "The cat ___ bread", options: ["reads", "eats", "sleeps", "runs"], correct: "eats" } },
         { id: 3, type: "sentence", prompt: "Переведи: «Я пью воду»", payload: { bank: ["I", "drink", "water", "blue", "they"], correct: "I drink water" } },

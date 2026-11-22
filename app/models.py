@@ -54,6 +54,8 @@ class Lesson(Base):
     level: Mapped[str] = mapped_column(String(4), default="A1")
     number: Mapped[int] = mapped_column(Integer)
     title: Mapped[str] = mapped_column(String(128))
+    intro: Mapped[dict] = mapped_column(JSON, default=dict)
+    # intro: {"words": [["cat","кот"], ...]} — слова для экрана знакомства
 
     language: Mapped[Language] = relationship()
 

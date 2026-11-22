@@ -210,3 +210,43 @@ async def test_gift_every_third_streak_day():
         result = await complete_lesson(s, user, ul, lessons[0])
         assert result["gift"] is True
         assert user.streak == 3
+
+
+@pytest.mark.asyncio
+async def test_exam_required_for_level_up():
+    async with SessionLocal() as s:
+        user = await get_or_create_user(s, 123)
+        lang = (await s.execute(select(Language)
+                                .where(Language.code == "en"))).scalar_one()
+        lessons = (await s.execute(select(Lesson)
+                                   .where(Lesson.language_id == lang.id,
+                                          Lesson.level == "A1")
+                                   .order_by(Lesson.number))).scalars().all()
+        assert len(lessons) == 35
+        ul = UserLanguage(user_id=user.id, language_id=lang.id)
+        s.add(ul)
+        await s.commit()
+        # экзамен закрыт, пока не пройдены все уроки
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://t") as c:
+            h = {"X-Init-Data": make_init_data(123)}
+            r = await c.get(f"/api/exam/{lang.id}", headers=h)
+            assert r.status_code == 403
+        for lesson in lessons:
+            await complete_lesson(s, user, ul, lesson)
+        assert ul.level == "A1"  # авто-апгрейда нет
+        async with AsyncClient(transport=transport, base_url="http://t") as c:
+            h = {"X-Init-Data": make_init_data(123)}
+            r = await c.get(f"/api/exam/{lang.id}", headers=h)
+            assert r.status_code == 200
+            qs = r.json()["questions"]
+            assert 10 <= len(qs) <= 20
+            # сдаём на 70%+
+            r = await c.post(f"/api/exam/{lang.id}/finish", headers=h,
+                             json={"score": int(len(qs) * 0.75), "total": len(qs)})
+            assert r.json()["passed"] is True
+            assert r.json()["level"] == "A2"
+            # недопуск: 50% не проходит
+            r = await c.post(f"/api/exam/{lang.id}/finish", headers=h,
+                             json={"score": len(qs) // 2, "total": len(qs)})
+            assert r.json()["passed"] is False

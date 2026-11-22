@@ -164,17 +164,53 @@ async function nextQuizQuestion() {
   }
 }
 
+// Мысли питомца: факты об английском языке
+const PET_FACTS = [
+  "Знаешь? В английском больше слов, чем в любом другом языке — оценки доходят до миллиона!",
+  "Слово «goodbye» — это сокращение от «God be with you» — «да будет Бог с тобой».",
+  "Самая частая буква в английском — E. Она составляет около 11% любого текста.",
+  "Слово «salary» происходит от латинского salarium — «сольные деньги». Римляне платили солью!",
+  "Слово «queue» — пять букв, а произносится только первая. [кью]!",
+  "Панграмма «The quick brown fox jumps over the lazy dog» содержит все 26 букв алфавита.",
+  "Английский — официальный язык неба: все пилоты мира общаются на нём.",
+  "Слово «robot» придумал чешский писатель Карел Чапек в 1920 году.",
+  "«Orange» почти не рифмуется ни с чем — поэты его обходят стороной.",
+  "Слово «dog» появилось около 1050 года — раньше, чем многие современные слова.",
+  "«Typewriter» можно набрать, не убирая пальцев с верхней строки клавиатуры.",
+  "Слово «emoji» японское: «э» — картинка, «модзи» — буква. Не имеет отношения к «emotions»!",
+  "В словаре Оксфорда самое многозначное слово — «set»: более 400 значений.",
+  "Годовщину 25 лет называют silver jubilee, а 50 — golden jubilee.",
+  "«Butterfly» — «масляная муха»: возможно, от «butter-colored fly» — «жёлтая, как масло».",
+];
+
+const WORD_EMOJI = {
+  "cat": "🐱", "dog": "🐶", "sun": "☀️", "water": "💧", "apple": "🍎",
+  "book": "📖", "house": "🏠", "milk": "🥛", "bread": "🍞", "tree": "🌳",
+  "friend": "🧑‍🤝‍🧑", "school": "🏫", "city": "🏙️", "river": "🏞️", "music": "🎵",
+  "hand": "✋", "day": "📅", "night": "🌙", "family": "👨‍👩‍👧", "time": "⏰",
+  "run": "🏃", "eat": "🍽️", "drink": "🥤", "sleep": "😴", "read": "📚",
+  "write": "✍️", "red": "🔴", "blue": "🔵", "green": "🟢", "white": "⚪",
+  "big": "🐘", "small": "🐭", "happy": "😊", "good": "👍", "new": "✨",
+  "old": "🧓", "shop": "🛒", "money": "💰", "price": "🏷️", "menu": "📋",
+  "bus": "🚌", "train": "🚆", "ticket": "🎫", "hotel": "🏨", "rain": "🌧️",
+  "snow": "❄️", "wind": "💨", "game": "🎮", "party": "🎉", "gift": "🎁",
+};
+
 // ---------- Главная ----------
 async function goHome() {
   showScreen("screen-loading");
   const [me, progress] = await Promise.all([api("/me"), api("/progress")]);
   document.getElementById("streak").textContent = me.streak;
   document.getElementById("xp").textContent = me.xp;
-  document.getElementById("hello-name").textContent =
-    (me.first_name ? me.first_name + ", п" : "П") + "родолжим учиться?";
   document.getElementById("limit-info").textContent = me.has_subscription
     ? `Подписка активна · осталось ${me.subscription_days_left} дн.`
     : `Сегодня: ${progress.lessons_done_today} из ${progress.free_daily_limit} бесплатных уроков`;
+
+  const pet = document.getElementById("home-pet");
+  pet.src = me.pet_mood === "happy" ? "assets/pet_happy.svg" : "assets/pet_sad.svg";
+  const fact = PET_FACTS[Math.floor(Math.random() * PET_FACTS.length)];
+  document.getElementById("pet-thought").textContent =
+    (me.pet_mood === "happy" ? "" : "Скучаю… давай урок! А пока — факт: ") + fact;
 
   const list = document.getElementById("progress-list");
   list.innerHTML = "";
@@ -184,17 +220,7 @@ async function goHome() {
     return;
   }
   progress.items.forEach(item => {
-    const btn = document.createElement("button");
-    btn.className = "lesson-card" + (item.completed ? " completed" : "");
-    btn.innerHTML = item.completed
-      ? `<div class="lc-icon"><svg class="ic"><use href="#i-crown"/></svg></div>
-         <div><div class="lc-title">Все уроки пройдены</div>
-         <div class="lc-sub">Ты молодец! Скоро добавим ещё</div></div>`
-      : `<div class="lc-icon"><svg class="ic"><use href="#i-play"/></svg></div>
-         <div><div class="lc-title">${item.lesson_title}</div>
-         <div class="lc-sub">${item.language_name} · уровень ${item.level} (${item.level_name})</div></div>`;
-    if (!item.completed) btn.onclick = () => startLesson(item.language_id);
-    list.appendChild(btn);
+    list.appendChild(renderPath(item, progress.can_start));
   });
   if (me.has_subscription) {
     const add = document.createElement("button");
@@ -204,6 +230,45 @@ async function goHome() {
     list.appendChild(add);
   }
   showScreen("screen-home");
+}
+
+function renderPath(item, canStart) {
+  const wrap = document.createElement("div");
+  wrap.className = "path-wrap";
+  const toNext = item.level_total - item.level_done;
+  wrap.innerHTML = `<div class="path-header">
+      <b>${item.language_name} · ${item.level} (${item.level_name})</b><br>
+      <span class="path-progress-line">до следующего уровня: ${toNext} уроков</span>
+    </div>`;
+  const path = document.createElement("div");
+  path.className = "path";
+  item.path.forEach((node, i) => {
+    if (i > 0) {
+      const conn = document.createElement("div");
+      conn.className = "path-connector";
+      path.appendChild(conn);
+    }
+    const btn = document.createElement("button");
+    const isCurrent = !node.done && (i === 0 || item.path[i - 1].done);
+    btn.className = "path-node " + (node.done ? "done" : (isCurrent && canStart ? "current" : "locked"));
+    btn.textContent = node.done ? "✓" : node.number;
+    if (node.done) btn.onclick = () => startRepeat(node.lesson_id);
+    else if (isCurrent && canStart) btn.onclick = () => startLesson(item.language_id);
+    else if (isCurrent && !canStart) btn.onclick = () => showScreen("screen-limit");
+    path.appendChild(btn);
+  });
+  if (item.exam_open) {
+    const conn = document.createElement("div");
+    conn.className = "path-connector";
+    path.appendChild(conn);
+    const exam = document.createElement("button");
+    exam.className = "path-node path-exam";
+    exam.innerHTML = `<svg class="ic" style="width:26px;height:26px"><use href="#i-crown"/></svg>`;
+    exam.onclick = () => startExam(item.language_id);
+    path.appendChild(exam);
+  }
+  wrap.appendChild(path);
+  return wrap;
 }
 
 // ---------- Урок ----------
@@ -233,9 +298,111 @@ function startLessonFlow() {
   correctCount = 0;
   retryQueue = [];
   retryRound = false;
+  // экран знакомства со словами
+  const intro = lesson.intro_words || [];
+  if (intro.length && !lesson.repeat) {
+    document.getElementById("intro-title").textContent =
+      `${lesson.title} · ${lesson.level}`;
+    const grid = document.getElementById("intro-words");
+    grid.innerHTML = "";
+    intro.forEach(([word, trans], i) => {
+      const card = document.createElement("div");
+      card.className = "word-card";
+      card.style.animationDelay = (i * 0.07) + "s";
+      const emoji = WORD_EMOJI[word.toLowerCase()] || "🔤";
+      card.innerHTML = `<span class="w-emoji">${emoji}</span>
+        <div><div class="w-word">${word}</div><div class="w-trans">${trans}</div></div>`;
+      grid.appendChild(card);
+    });
+    document.getElementById("btn-intro-start").onclick = () => {
+      document.getElementById("lesson-title").textContent = lesson.title;
+      showScreen("screen-lesson");
+      renderExercise();
+    };
+    showScreen("screen-intro");
+    return;
+  }
   document.getElementById("lesson-title").textContent = lesson.title;
   showScreen("screen-lesson");
   renderExercise();
+}
+
+// ---------- Экзамен ----------
+let examQuestions = [];
+let examIndex = 0;
+let examScore = 0;
+let examLang = null;
+
+async function startExam(languageId) {
+  examLang = languageId;
+  try {
+    const data = await api(`/exam/${languageId}`);
+    examQuestions = data.questions;
+    examIndex = 0;
+    examScore = 0;
+    showScreen("screen-exam");
+    renderExamQuestion();
+  } catch (e) {
+    if (e.message !== "limit") showModal("Ошибка", "Не удалось загрузить экзамен.");
+  }
+}
+
+function renderExamQuestion() {
+  const q = examQuestions[examIndex];
+  document.getElementById("exam-progress").style.width =
+    (examIndex / examQuestions.length * 100) + "%";
+  document.getElementById("exam-step").textContent =
+    `Экзамен · вопрос ${examIndex + 1} из ${examQuestions.length}`;
+  document.getElementById("exam-prompt").textContent = q.prompt;
+  const sent = document.getElementById("exam-sentence");
+  if (q.type === "gap" && q.sentence) {
+    sent.style.display = "";
+    sent.textContent = q.sentence;
+  } else {
+    sent.style.display = "none";
+  }
+  const box = document.getElementById("exam-options");
+  box.innerHTML = "";
+  [...q.payload.options].sort(() => Math.random() - 0.5).forEach(opt => {
+    const b = document.createElement("button");
+    b.className = "card option";
+    b.textContent = opt;
+    b.onclick = async () => {
+      box.querySelectorAll(".option").forEach(x => {
+        x.disabled = true;
+        if (x.textContent === q.payload.correct) x.classList.add("correct");
+      });
+      if (opt === q.payload.correct) {
+        examScore++;
+        setTimeout(nextExamQuestion, 450);
+      } else {
+        b.classList.add("wrong");
+        setTimeout(nextExamQuestion, 1100);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+
+async function nextExamQuestion() {
+  examIndex++;
+  if (examIndex >= examQuestions.length) {
+    document.getElementById("exam-progress").style.width = "100%";
+    const res = await api(`/exam/${examLang}/finish`, "POST",
+      { score: examScore, total: examQuestions.length });
+    if (res.passed) {
+      showModal("Экзамен сдан!",
+        `Результат: <b>${res.percent}%</b>. Новый уровень: <b>${res.level} (${res.level_name})</b>!`,
+        "assets/pet_happy.svg");
+    } else {
+      showModal("Пока не получилось",
+        `Результат: <b>${res.percent}%</b>, нужно минимум 70%. Повтори уроки и попробуй снова!`,
+        "assets/pet_sad.svg");
+    }
+    goHome();
+  } else {
+    renderExamQuestion();
+  }
 }
 
 function renderExercise() {
@@ -485,8 +652,7 @@ async function showProfile() {
     ? `Подписка активна · ${me.subscription_days_left} дн.` : "Бесплатный аккаунт";
   document.getElementById("p-xp").textContent = me.xp;
   document.getElementById("p-streak").textContent = me.streak;
-  document.getElementById("p-lessons").textContent =
-    progress.items.length ? lessonsDone : (history.items.length || 0);
+  document.getElementById("p-lessons").textContent = history.items.length;
   document.getElementById("p-rank").textContent = board.my_rank;
   document.getElementById("btn-share").onclick = () => {
     const text = `Учу языки в Krolingo вместе с кенгуру! Мой стрик: ${me.streak} дн.`;

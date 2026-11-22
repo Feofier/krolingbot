@@ -7,6 +7,7 @@ from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 
 from .bot.handlers import setup_dp
 from .config import BOT_TOKEN, MINIAPP_URL, WEBHOOK_URL
@@ -22,6 +23,12 @@ MINIAPP_DIR = Path(__file__).resolve().parent.parent / "miniapp"
 async def init_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # миграции без Alembic: добавляем новые колонки, если их нет
+        try:
+            await conn.execute(text(
+                "ALTER TABLE lessons ADD COLUMN IF NOT EXISTS intro JSON"))
+        except Exception:
+            pass
     async with SessionLocal() as session:
         await seed_if_empty(session)
 

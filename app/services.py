@@ -105,9 +105,8 @@ async def complete_lesson(session: AsyncSession, user: User, user_lang: UserLang
     if next_count and lesson.number < (max_num or 0):
         user_lang.current_lesson = lesson.number + 1
     else:
-        # уровень пройден — переходим на следующий
-        user_lang.current_lesson = 1
-        user_lang.level = next_level(user_lang.level)
+        # уровень пройден — переход только через экзамен (>= 70%)
+        user_lang.current_lesson = lesson.number
     session.add(user_lang)
 
     await session.commit()

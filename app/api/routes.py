@@ -98,20 +98,31 @@ async def progress(user_tg: dict = Depends(get_telegram_user),
         select(UserLanguage).where(UserLanguage.user_id == user.id))).scalars().all()
     result = []
     for ul in rows:
-        lesson = (await session.execute(
+        lessons = (await session.execute(
             select(Lesson).where(
                 Lesson.language_id == ul.language_id,
-                Lesson.level == ul.level,
-                Lesson.number == ul.current_lesson))).scalar_one_or_none()
+                Lesson.level == ul.level).order_by(Lesson.number))).scalars().all()
+        done_ids = set((await session.execute(
+            select(LessonCompletion.lesson_id)
+            .where(LessonCompletion.user_id == user.id))).scalars().all())
+        path = [{"number": l.number, "lesson_id": l.id,
+                 "title": l.title, "done": l.id in done_ids} for l in lessons]
+        done_count = sum(1 for p in path if p["done"])
         lang = await session.get(Language, ul.language_id)
+        current = next((p for p in path if not p["done"]), None)
         result.append({
             "language_id": ul.language_id,
             "language_name": lang.name if lang else "",
             "level": ul.level,
             "level_name": LEVEL_NAMES.get(ul.level, ul.level),
-            "current_lesson": ul.current_lesson,
-            "lesson_title": lesson.title if lesson else "Всё пройдено!",
-            "completed": lesson is None,
+            "next_level": next_level(ul.level),
+            "current_lesson": current["number"] if current else ul.current_lesson,
+            "lesson_title": current["title"] if current else "Время экзамена!",
+            "completed": current is None,
+            "level_done": done_count,
+            "level_total": len(path),
+            "exam_open": current is None and len(path) > 0,
+            "path": path,
         })
     done_today = await lessons_done_today(session, user.id)
     return {
@@ -148,11 +159,81 @@ async def get_lesson(language_id: int, user_tg: dict = Depends(get_telegram_user
         "number": lesson.number,
         "level": lesson.level,
         "title": f"{lesson.title}",
+        "intro_words": lesson.intro.get("words", []) if lesson.intro else [],
         "exercises": [
             {"id": e.id, "type": e.type, "prompt": e.prompt, "payload": e.payload}
             for e in exercises
         ],
     }
+
+
+class ExamFinishIn(BaseModel):
+    score: int
+    total: int
+
+
+@router.get("/exam/{language_id}")
+async def exam_start(language_id: int, user_tg: dict = Depends(get_telegram_user),
+                     session: AsyncSession = Depends(get_session)):
+    """Экзамен на переход уровня: 20 вопросов по всем урокам текущего уровня.
+    Лимит бесплатных уроков не тратит — экзамен это награда, а не урок."""
+    user = await get_or_create_user(session, user_tg["id"])
+    ul = (await session.execute(
+        select(UserLanguage).where(
+            UserLanguage.user_id == user.id,
+            UserLanguage.language_id == language_id))).scalar_one_or_none()
+    if not ul:
+        raise HTTPException(404, "Language not chosen")
+    lessons = (await session.execute(
+        select(Lesson).where(
+            Lesson.language_id == language_id,
+            Lesson.level == ul.level).order_by(Lesson.number))).scalars().all()
+    done_ids = set((await session.execute(
+        select(LessonCompletion.lesson_id)
+        .where(LessonCompletion.user_id == user.id))).scalars().all())
+    if any(l.id not in done_ids for l in lessons):
+        raise HTTPException(403, "Сначала пройди все уроки уровня")
+    import random
+    rng = random.Random(language_id * 1000 + user.id)
+    questions = []
+    for lesson in lessons:
+        exs = (await session.execute(
+            select(Exercise).where(
+                Exercise.lesson_id == lesson.id,
+                Exercise.type.in_(["choice", "gap"])))).scalars().all()
+        for ex in rng.sample(exs, min(1, len(exs))):
+            payload = ex.payload
+            if ex.type == "gap":
+                payload = {**payload,
+                           "options": payload["options"] + []}
+            questions.append({"type": ex.type, "prompt": ex.prompt,
+                              "sentence": payload.get("sentence", ""),
+                              "payload": payload})
+    rng.shuffle(questions)
+    return {"level": ul.level, "questions": questions[:20]}
+
+
+@router.post("/exam/{language_id}/finish")
+async def exam_finish(language_id: int, data: ExamFinishIn,
+                      user_tg: dict = Depends(get_telegram_user),
+                      session: AsyncSession = Depends(get_session)):
+    user = await get_or_create_user(session, user_tg["id"])
+    ul = (await session.execute(
+        select(UserLanguage).where(
+            UserLanguage.user_id == user.id,
+            UserLanguage.language_id == language_id))).scalar_one_or_none()
+    if not ul:
+        raise HTTPException(404, "Language not chosen")
+    passed = data.total > 0 and data.score / data.total >= 0.7
+    if passed:
+        ul.level = next_level(ul.level)
+        ul.current_lesson = 1
+        session.add(ul)
+        await session.commit()
+    return {"passed": passed,
+            "percent": round(data.score / data.total * 100) if data.total else 0,
+            "level": ul.level,
+            "level_name": LEVEL_NAMES.get(ul.level, ul.level)}
 
 
 @router.post("/lesson/{lesson_id}/complete")

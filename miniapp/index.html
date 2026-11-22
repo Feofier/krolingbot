@@ -64,14 +64,33 @@
         <div class="pill"><svg class="ic gem"><use href="#i-gem"/></svg><b id="xp">0</b></div>
         <button id="btn-plans" class="pill pill-btn"><svg class="ic"><use href="#i-star"/></svg></button>
       </div>
-      <div class="hero">
-        <img class="hero-logo" src="assets/logo.png" alt="">
-        <div>
-          <h2 id="hello-name">Привет!</h2>
-          <p id="limit-info" class="muted"></p>
-        </div>
+      <div class="pet-box">
+        <img id="home-pet" class="home-pet" src="assets/pet_happy.svg" alt="Кенгу">
+        <div class="thought-bubble" id="pet-thought"></div>
       </div>
-      <div id="progress-list" class="card-list"></div>
+      <p id="limit-info" class="muted"></p>
+      <div id="progress-list"></div>
+    </div>
+
+    <!-- Знакомство со словами урока -->
+    <div id="screen-intro" class="screen">
+      <h2 id="intro-title"></h2>
+      <p class="muted">Сначала познакомься со словами урока</p>
+      <img class="mascot intro-pet" src="assets/pet_happy.svg" alt="">
+      <div id="intro-words" class="word-grid"></div>
+      <button id="btn-intro-start" class="btn btn-primary">Начать урок</button>
+    </div>
+
+    <!-- Экзамен -->
+    <div id="screen-exam" class="screen">
+      <div class="lesson-top">
+        <button class="icon-btn" onclick="goHome()"><svg class="ic"><use href="#i-close"/></svg></button>
+        <div class="progress-bar"><div id="exam-progress"></div></div>
+      </div>
+      <p class="muted" id="exam-step"></p>
+      <h2 id="exam-prompt"></h2>
+      <p id="exam-sentence" class="sentence-text" style="display:none"></p>
+      <div id="exam-options" class="card-list"></div>
     </div>
 
     <!-- Урок -->
