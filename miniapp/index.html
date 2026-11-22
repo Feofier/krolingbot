@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>LinguaTap</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Экран загрузки -->
+    <div id="screen-loading" class="screen active">
+      <div class="spinner"></div>
+      <p>Загрузка…</p>
+    </div>
+
+    <!-- Онбординг: выбор языков -->
+    <div id="screen-onboarding" class="screen">
+      <h1>Выбери языки</h1>
+      <p class="muted">Можно несколько. Бесплатно — 2 урока в день.</p>
+      <div id="lang-list" class="card-list"></div>
+      <button id="btn-start" class="btn btn-primary" disabled>Начать</button>
+    </div>
+
+    <!-- Главный экран -->
+    <div id="screen-home" class="screen">
+      <div class="header">
+        <div><span id="streak">🔥 0</span> <span id="xp">✨ 0</span></div>
+        <button id="btn-plans" class="btn btn-small">⭐ Подписка</button>
+      </div>
+      <p id="limit-info" class="muted"></p>
+      <div id="progress-list" class="card-list"></div>
+    </div>
+
+    <!-- Экран урока -->
+    <div id="screen-lesson" class="screen">
+      <div class="progress-bar"><div id="lesson-progress"></div></div>
+      <h2 id="lesson-title"></h2>
+      <div id="exercise-box"></div>
+      <div id="exercise-options" class="card-list"></div>
+      <button id="btn-check" class="btn btn-primary">Проверить</button>
+    </div>
+
+    <!-- Результат урока -->
+    <div id="screen-result" class="screen center">
+      <h1>🎉 Урок пройден!</h1>
+      <p id="result-stats" class="muted"></p>
+      <button class="btn btn-primary" onclick="goHome()">Продолжить</button>
+    </div>
+
+    <!-- Подписка -->
+    <div id="screen-plans" class="screen">
+      <h1>Безлимитный доступ</h1>
+      <p class="muted">С подпиской уроков в день — сколько хочешь.</p>
+      <div id="plans-list" class="card-list"></div>
+      <p class="muted small">Оплата откроется в чате бота.</p>
+      <button class="btn" onclick="goHome()">Назад</button>
+    </div>
+
+    <!-- Лимит исчерпан -->
+    <div id="screen-limit" class="screen center">
+      <h1>😴 Лимит на сегодня</h1>
+      <p class="muted">Бесплатно доступно 2 урока в день.<br>Оформи подписку — и учись без ограничений.</p>
+      <button class="btn btn-primary" onclick="showPlans()">Смотреть тарифы</button>
+      <button class="btn" onclick="goHome()">Завтра продолжу</button>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
