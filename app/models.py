@@ -40,6 +40,7 @@ class UserLanguage(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     language_id: Mapped[int] = mapped_column(ForeignKey("languages.id"))
     current_lesson: Mapped[int] = mapped_column(Integer, default=1)  # следующий урок
+    level: Mapped[str] = mapped_column(String(4), default="A1")  # A1, A2, B1
 
     user: Mapped[User] = relationship(back_populates="languages")
     language: Mapped[Language] = relationship()
@@ -50,6 +51,7 @@ class Lesson(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     language_id: Mapped[int] = mapped_column(ForeignKey("languages.id"), index=True)
+    level: Mapped[str] = mapped_column(String(4), default="A1")
     number: Mapped[int] = mapped_column(Integer)
     title: Mapped[str] = mapped_column(String(128))
 

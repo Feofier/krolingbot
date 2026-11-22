@@ -12,6 +12,17 @@ def msk_today() -> date:
     return (datetime.utcnow() + timedelta(hours=3)).date()
 
 
+LEVELS = ["A1", "A2", "B1"]
+
+
+def next_level(level: str) -> str:
+    return LEVELS[min(LEVELS.index(level) + 1, len(LEVELS) - 1)] if level in LEVELS else "A1"
+
+
+def prev_level(level: str) -> str:
+    return LEVELS[max(LEVELS.index(level) - 1, 0)] if level in LEVELS else "A1"
+
+
 async def get_or_create_user(session: AsyncSession, telegram_id: int,
                              username: str | None = None,
                              first_name: str | None = None) -> User:
@@ -74,17 +85,22 @@ async def complete_lesson(session: AsyncSession, user: User, user_lang: UserLang
     user.xp += 10
     session.add(LessonCompletion(user_id=user.id, lesson_id=lesson.id))
 
-    next_lesson = (await session.execute(
+    next_count = (await session.execute(
         select(func.count(Lesson.id)).where(
             Lesson.language_id == user_lang.language_id,
+            Lesson.level == user_lang.level,
             Lesson.number > lesson.number))).scalar_one()
-    if next_lesson is not None:
-        max_num = (await session.execute(
-            select(func.max(Lesson.number)).where(
-                Lesson.language_id == user_lang.language_id))).scalar_one()
-        if lesson.number < (max_num or 0):
-            user_lang.current_lesson = lesson.number + 1
-        session.add(user_lang)
+    max_num = (await session.execute(
+        select(func.max(Lesson.number)).where(
+            Lesson.language_id == user_lang.language_id,
+            Lesson.level == user_lang.level))).scalar_one()
+    if next_count and lesson.number < (max_num or 0):
+        user_lang.current_lesson = lesson.number + 1
+    else:
+        # уровень пройден — переходим на следующий
+        user_lang.current_lesson = 1
+        user_lang.level = next_level(user_lang.level)
+    session.add(user_lang)
 
     await session.commit()
 

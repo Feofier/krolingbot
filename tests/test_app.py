@@ -113,3 +113,45 @@ async def test_api_requires_auth():
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         r = await client.get("/api/me", headers={"X-Init-Data": "bad=1&hash=x"})
         assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_free_users_limited_to_one_language():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        h = {"X-Init-Data": make_init_data(55)}
+        langs = (await client.get("/api/languages", headers=h)).json()
+        assert len(langs) == 2
+        r = await client.post("/api/languages", headers=h,
+                              json={"language_id": langs[0]["id"]})
+        assert r.status_code == 200
+        # второй язык без подписки — 402
+        r = await client.post("/api/languages", headers=h,
+                              json={"language_id": langs[1]["id"]})
+        assert r.status_code == 402
+        me = (await client.get("/api/me", headers=h)).json()
+        assert me["can_add_language"] is False
+
+
+@pytest.mark.asyncio
+async def test_placement_flow():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        h = {"X-Init-Data": make_init_data(66)}
+        langs = (await client.get("/api/languages", headers=h)).json()
+        await client.post("/api/languages", headers=h,
+                          json={"language_id": langs[0]["id"]})
+        r = await client.post("/api/placement/start", headers=h,
+                              json={"language_id": langs[0]["id"], "self_level": "A2"})
+        assert r.status_code == 200
+        questions = r.json()["questions"]
+        assert 1 <= len(questions) <= 5
+        r = await client.post("/api/placement/finish", headers=h,
+                              json={"language_id": langs[0]["id"], "score": 2})
+        # 2/5 → уровень ниже самооценки: A2 -> A1
+        assert r.json()["level"] == "A1"
+        progress = (await client.get("/api/progress", headers=h)).json()
+        assert progress["items"][0]["level"] == "A1"
+        # урок выдаётся по уровню A1
+        lesson = (await client.get(f"/api/lesson/{langs[0]['id']}", headers=h)).json()
+        assert lesson["level"] == "A1"

@@ -46,27 +46,111 @@ document.querySelectorAll(".tab").forEach(t => {
 });
 
 // ---------- Онбординг ----------
-const chosenLangs = new Set();
+let chosenLang = null;      // один язык (бесплатно)
+let chosenLangName = "";
+let meCache = null;
 
 async function loadOnboarding() {
-  const langs = await api("/languages");
+  const [langs, me] = await Promise.all([api("/languages"), api("/me")]);
+  meCache = me;
   const box = document.getElementById("lang-list");
   box.innerHTML = "";
+  if (me.has_subscription) {
+    document.getElementById("onboarding-hint").textContent =
+      "С подпиской можно учить несколько языков. Выбери один, потом добавишь ещё.";
+  }
   langs.forEach(l => {
     const btn = document.createElement("button");
     btn.className = "card";
     btn.innerHTML = `<b style="font-size:20px">${l.flag}</b> ${l.name}`;
     btn.onclick = () => {
-      if (chosenLangs.has(l.id)) { chosenLangs.delete(l.id); btn.classList.remove("selected"); }
-      else { chosenLangs.add(l.id); btn.classList.add("selected"); }
-      document.getElementById("btn-start").disabled = chosenLangs.size === 0;
+      box.querySelectorAll(".card").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      chosenLang = l.id;
+      chosenLangName = l.name;
+      document.getElementById("btn-start").disabled = false;
     };
     box.appendChild(btn);
   });
   document.getElementById("btn-start").onclick = async () => {
-    for (const id of chosenLangs) await api("/languages", "POST", { language_id: id });
-    goHome();
+    try {
+      await api("/languages", "POST", { language_id: chosenLang });
+    } catch (e) {
+      if (e.message === "limit") return;
+      tg.showAlert("Не удалось сохранить язык");
+      return;
+    }
+    document.getElementById("level-title").textContent =
+      `Как хорошо ты знаешь: ${chosenLangName}?`;
+    showScreen("screen-level");
   };
+}
+
+// Самооценка → плейсмент-тест
+let quizQuestions = [];
+let quizIndex = 0;
+let quizScore = 0;
+
+document.querySelectorAll("#level-options .card").forEach(btn => {
+  btn.onclick = async () => {
+    const selfLevel = btn.dataset.level;
+    showScreen("screen-loading");
+    try {
+      const data = await api("/placement/start", "POST",
+        { language_id: chosenLang, self_level: selfLevel });
+      quizQuestions = data.questions;
+      quizIndex = 0;
+      quizScore = 0;
+      showScreen("screen-quiz");
+      renderQuizQuestion();
+    } catch (e) {
+      if (e.message !== "limit") tg.showAlert("Не удалось загрузить тест");
+    }
+  };
+});
+
+function renderQuizQuestion() {
+  const q = quizQuestions[quizIndex];
+  document.getElementById("quiz-progress").style.width =
+    (quizIndex / quizQuestions.length * 100) + "%";
+  document.getElementById("quiz-step").textContent =
+    `Вопрос ${quizIndex + 1} из ${quizQuestions.length}`;
+  document.getElementById("quiz-prompt").textContent = q.prompt;
+  const box = document.getElementById("quiz-options");
+  box.innerHTML = "";
+  [...q.payload.options].sort(() => Math.random() - 0.5).forEach(opt => {
+    const b = document.createElement("button");
+    b.className = "card option";
+    b.textContent = opt;
+    b.onclick = async () => {
+      box.querySelectorAll(".option").forEach(x => {
+        x.disabled = true;
+        if (x.textContent === q.payload.correct) x.classList.add("correct");
+      });
+      if (opt === q.payload.correct) {
+        quizScore++;
+        setTimeout(nextQuizQuestion, 450);
+      } else {
+        b.classList.add("wrong");
+        setTimeout(nextQuizQuestion, 1100);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+
+async function nextQuizQuestion() {
+  quizIndex++;
+  if (quizIndex >= quizQuestions.length) {
+    document.getElementById("quiz-progress").style.width = "100%";
+    const res = await api("/placement/finish", "POST",
+      { language_id: chosenLang, score: quizScore });
+    document.getElementById("assigned-level").textContent =
+      `${res.level} · ${res.level_name}`;
+    showScreen("screen-level-result");
+  } else {
+    renderQuizQuestion();
+  }
 }
 
 // ---------- Главная ----------
@@ -97,10 +181,17 @@ async function goHome() {
          <div class="lc-sub">Ты молодец! Скоро добавим ещё</div></div>`
       : `<div class="lc-icon"><svg class="ic"><use href="#i-play"/></svg></div>
          <div><div class="lc-title">${item.lesson_title}</div>
-         <div class="lc-sub">Нажми, чтобы начать урок</div></div>`;
+         <div class="lc-sub">${item.language_name} · уровень ${item.level} (${item.level_name})</div></div>`;
     if (!item.completed) btn.onclick = () => startLesson(item.language_id);
     list.appendChild(btn);
   });
+  if (me.has_subscription) {
+    const add = document.createElement("button");
+    add.className = "card";
+    add.innerHTML = `<b>+ Добавить язык</b>`;
+    add.onclick = async () => { await loadOnboarding(); showScreen("screen-onboarding"); };
+    list.appendChild(add);
+  }
   showScreen("screen-home");
 }
 
@@ -274,6 +365,9 @@ async function nextExercise() {
   if (exIndex >= lesson.exercises.length) {
     document.getElementById("lesson-progress").style.width = "100%";
     const result = await api(`/lesson/${lesson.lesson_id}/complete`, "POST");
+    if (result.level && result.level !== lesson.level) {
+      setTimeout(() => tg.showAlert(`Новый уровень: ${result.level}! Поздравляем!`), 600);
+    }
     document.getElementById("res-correct").textContent =
       `${correctCount}/${lesson.exercises.length}`;
     document.getElementById("res-streak").textContent = result.streak;

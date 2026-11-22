@@ -8,16 +8,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..config import FREE_DAILY_LESSONS, PLANS
 from ..db import get_session
 from ..models import (Exercise, Language, Lesson, User, UserLanguage)
-from ..services import (active_subscription, can_start_lesson,
+from ..services import (LEVELS, active_subscription, can_start_lesson,
                         complete_lesson, get_or_create_user,
-                        lessons_done_today)
+                        lessons_done_today, next_level, prev_level)
 from .deps import get_telegram_user
 
 router = APIRouter(prefix="/api")
 
+LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний"}
+
 
 class LanguageIn(BaseModel):
     language_id: int
+
+
+class PlacementStartIn(BaseModel):
+    language_id: int
+    self_level: str  # A1, A2, B1
+
+
+class PlacementFinishIn(BaseModel):
+    language_id: int
+    score: int       # верных ответов 0..5
 
 
 @router.get("/me")
@@ -27,6 +39,9 @@ async def me(user_tg: dict = Depends(get_telegram_user),
                                     user_tg.get("username"),
                                     user_tg.get("first_name"))
     sub = await active_subscription(session, user.id)
+    lang_count = (await session.execute(
+        select(func.count(UserLanguage.id)).where(
+            UserLanguage.user_id == user.id))).scalar_one()
     return {
         "id": user.id,
         "first_name": user.first_name,
@@ -34,6 +49,8 @@ async def me(user_tg: dict = Depends(get_telegram_user),
         "streak": user.streak,
         "subscription_days_left": (sub.expires_at.date() - date_type.today()).days if sub else 0,
         "has_subscription": sub is not None,
+        "can_add_language": sub is not None or lang_count == 0,
+        "languages_count": lang_count,
     }
 
 
@@ -52,12 +69,19 @@ async def choose_language(data: LanguageIn,
         select(UserLanguage).where(
             UserLanguage.user_id == user.id,
             UserLanguage.language_id == data.language_id))).scalar_one_or_none()
-    if not exists:
-        lang = await session.get(Language, data.language_id)
-        if not lang:
-            raise HTTPException(404, "Language not found")
-        session.add(UserLanguage(user_id=user.id, language_id=data.language_id))
-        await session.commit()
+    if exists:
+        return {"ok": True}
+    lang = await session.get(Language, data.language_id)
+    if not lang:
+        raise HTTPException(404, "Language not found")
+    sub = await active_subscription(session, user.id)
+    count = (await session.execute(
+        select(func.count(UserLanguage.id)).where(
+            UserLanguage.user_id == user.id))).scalar_one()
+    if count >= 1 and sub is None:
+        raise HTTPException(402, "Бесплатно доступен 1 язык. Оформи подписку, чтобы добавить ещё.")
+    session.add(UserLanguage(user_id=user.id, language_id=data.language_id))
+    await session.commit()
     return {"ok": True}
 
 
@@ -72,9 +96,14 @@ async def progress(user_tg: dict = Depends(get_telegram_user),
         lesson = (await session.execute(
             select(Lesson).where(
                 Lesson.language_id == ul.language_id,
+                Lesson.level == ul.level,
                 Lesson.number == ul.current_lesson))).scalar_one_or_none()
+        lang = await session.get(Language, ul.language_id)
         result.append({
             "language_id": ul.language_id,
+            "language_name": lang.name if lang else "",
+            "level": ul.level,
+            "level_name": LEVEL_NAMES.get(ul.level, ul.level),
             "current_lesson": ul.current_lesson,
             "lesson_title": lesson.title if lesson else "Всё пройдено!",
             "completed": lesson is None,
@@ -103,6 +132,7 @@ async def get_lesson(language_id: int, user_tg: dict = Depends(get_telegram_user
     lesson = (await session.execute(
         select(Lesson).where(
             Lesson.language_id == language_id,
+            Lesson.level == ul.level,
             Lesson.number == ul.current_lesson))).scalar_one_or_none()
     if not lesson:
         raise HTTPException(404, "All lessons completed")
@@ -111,7 +141,8 @@ async def get_lesson(language_id: int, user_tg: dict = Depends(get_telegram_user
     return {
         "lesson_id": lesson.id,
         "number": lesson.number,
-        "title": lesson.title,
+        "level": lesson.level,
+        "title": f"{lesson.title}",
         "exercises": [
             {"id": e.id, "type": e.type, "prompt": e.prompt, "payload": e.payload}
             for e in exercises
@@ -133,7 +164,71 @@ async def finish_lesson(lesson_id: int, user_tg: dict = Depends(get_telegram_use
     if not ul:
         raise HTTPException(404, "Language not chosen")
     await complete_lesson(session, user, ul, lesson)
-    return {"ok": True, "xp": user.xp, "streak": user.streak}
+    return {"ok": True, "xp": user.xp, "streak": user.streak,
+            "level": ul.level, "current_lesson": ul.current_lesson}
+
+
+@router.post("/placement/start")
+async def placement_start(data: PlacementStartIn,
+                          user_tg: dict = Depends(get_telegram_user),
+                          session: AsyncSession = Depends(get_session)):
+    """Возвращает 5 тестовых заданий по самооценённому уровню."""
+    if data.self_level not in LEVELS:
+        raise HTTPException(400, "Unknown level")
+    user = await get_or_create_user(session, user_tg["id"])
+    ul = (await session.execute(
+        select(UserLanguage).where(
+            UserLanguage.user_id == user.id,
+            UserLanguage.language_id == data.language_id))).scalar_one_or_none()
+    if ul:
+        ul.level = data.self_level  # фиксируем самооценку до теста
+        session.add(ul)
+        await session.commit()
+    lessons = (await session.execute(
+        select(Lesson).where(
+            Lesson.language_id == data.language_id,
+            Lesson.level == data.self_level))).scalars().all()
+    if not lessons:
+        raise HTTPException(404, "No lessons for level")
+    import random
+    rng = random.Random(data.language_id)
+    picked = rng.sample(lessons, min(5, len(lessons)))
+    questions = []
+    for lesson in picked:
+        ex = (await session.execute(
+            select(Exercise).where(
+                Exercise.lesson_id == lesson.id,
+                Exercise.type == "choice"))).scalars().first()
+        if ex:
+            questions.append({"type": ex.type, "prompt": ex.prompt,
+                              "payload": ex.payload})
+    return {"questions": questions[:5]}
+
+
+@router.post("/placement/finish")
+async def placement_finish(data: PlacementFinishIn,
+                           user_tg: dict = Depends(get_telegram_user),
+                           session: AsyncSession = Depends(get_session)):
+    """Сохраняет итоговый уровень: 0-2 → уровень ниже, 3-4 → как есть, 5 → выше."""
+    user = await get_or_create_user(session, user_tg["id"])
+    ul = (await session.execute(
+        select(UserLanguage).where(
+            UserLanguage.user_id == user.id,
+            UserLanguage.language_id == data.language_id))).scalar_one_or_none()
+    if not ul:
+        raise HTTPException(404, "Language not chosen")
+    self_level = ul.level if ul.level else "A1"
+    if data.score <= 2:
+        level = prev_level(self_level)
+    elif data.score >= 5:
+        level = next_level(self_level)
+    else:
+        level = self_level
+    ul.level = level
+    ul.current_lesson = 1
+    session.add(ul)
+    await session.commit()
+    return {"level": level, "level_name": LEVEL_NAMES.get(level, level)}
 
 
 @router.get("/plans")

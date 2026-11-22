@@ -17,13 +17,44 @@
       <p class="muted">Загрузка…</p>
     </div>
 
-    <!-- Онбординг -->
+    <!-- Онбординг: выбор языка -->
     <div id="screen-onboarding" class="screen">
       <img class="mascot" src="assets/logo.png" alt="Krolingo">
-      <h1>Выбери языки</h1>
-      <p class="muted">Можно несколько. Бесплатно — 2 урока в день.</p>
+      <h1>Выбери язык</h1>
+      <p class="muted" id="onboarding-hint">Бесплатно доступен 1 язык. С подпиской — несколько.</p>
       <div id="lang-list" class="card-list"></div>
-      <button id="btn-start" class="btn btn-primary" disabled>Начать</button>
+      <button id="btn-start" class="btn btn-primary" disabled>Дальше</button>
+    </div>
+
+    <!-- Онбординг: самооценка уровня -->
+    <div id="screen-level" class="screen">
+      <img class="mascot" src="assets/logo.png" alt="">
+      <h1 id="level-title">Как хорошо ты знаешь язык?</h1>
+      <p class="muted">Ответь честно — дальше будет короткий тест для точности.</p>
+      <div class="card-list" id="level-options">
+        <button class="card" data-level="A1"><b>С нуля</b><br><span class="muted">Только начинаю учить</span></button>
+        <button class="card" data-level="A2"><b>Немного знаю</b><br><span class="muted">Учил(а) в школе или сам(а)</span></button>
+        <button class="card" data-level="B1"><b>Уверенно</b><br><span class="muted">Могу поддержать разговор</span></button>
+      </div>
+    </div>
+
+    <!-- Плейсмент-тест -->
+    <div id="screen-quiz" class="screen">
+      <div class="lesson-top">
+        <div class="progress-bar"><div id="quiz-progress"></div></div>
+      </div>
+      <p class="muted" id="quiz-step"></p>
+      <h2 id="quiz-prompt"></h2>
+      <div id="quiz-options" class="card-list"></div>
+    </div>
+
+    <!-- Результат теста -->
+    <div id="screen-level-result" class="screen center">
+      <img class="mascot" src="assets/logo.png" alt="">
+      <h1>Твой уровень</h1>
+      <p id="assigned-level" class="level-badge"></p>
+      <p class="muted">Уроки подстроены под твой уровень.<br>Пройдёшь все уроки уровня — откроется следующий.</p>
+      <button class="btn btn-primary" onclick="goHome()">Начать учить</button>
     </div>
 
     <!-- Главная: учить -->
