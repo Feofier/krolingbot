@@ -62,7 +62,7 @@ async function loadOnboarding() {
   langs.forEach(l => {
     const btn = document.createElement("button");
     btn.className = "card";
-    btn.innerHTML = `<b style="font-size:20px">${l.flag}</b> ${l.name}`;
+    btn.innerHTML = `<span class="flag">${l.code.toUpperCase()}</span> ${l.name}`;
     btn.onclick = () => {
       box.querySelectorAll(".card").forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");

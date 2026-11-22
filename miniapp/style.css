@@ -146,6 +146,14 @@ h2 { font-size: 21px; font-weight: 900; }
   box-shadow: 0 4px 0 var(--green-dark);
 }
 
+.flag {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--blue); color: #fff;
+  font-size: 12px; font-weight: 900; letter-spacing: .5px;
+  flex: none;
+}
+
 .result-stats { display: flex; gap: 10px; justify-content: center; margin: 18px 0 8px; }
 
 /* профиль */
