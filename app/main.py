@@ -78,6 +78,14 @@ async def debug_errors(request: Request, exc: Exception):
         content={"error": repr(exc), "trace": traceback.format_exc()[-2000:]})
 
 
+@app.get("/debug/env")
+async def debug_env():
+    import os
+    return {"DB_URL": os.environ.get("DB_URL", "<unset>"),
+            "keys": sorted(k for k in os.environ if k in
+                           ("BOT_TOKEN", "WEBHOOK_URL", "MINIAPP_URL", "DB_URL"))}
+
+
 @app.post("/webhook")
 async def telegram_webhook(request: Request):
     from aiogram.types import Update
