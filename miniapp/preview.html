@@ -12,7 +12,7 @@
       sendData() {}, openTelegramLink(u) { location.href = u; },
     }};
     const mock = (path) => {
-      if (path === "/me") return { id: 1, first_name: "Даня", xp: 120, streak: 4, subscription_days_left: 0, has_subscription: false, can_add_language: true, languages_count: 0 };
+      if (path === "/me") return { id: 1, first_name: "Даня", xp: 120, streak: 4, pet_mood: "happy", lessons_done_today: 1, subscription_days_left: 0, has_subscription: false, can_add_language: true, languages_count: 0 };
       if (path === "/languages") return [{ id: 1, code: "en", name: "Английский", flag: "🇬🇧" }, { id: 2, code: "es", name: "Испанский", flag: "🇪🇸" }];
       if (path === "/progress") return location.search.includes("onboarding")
         ? { items: [], lessons_done_today: 0, free_daily_limit: 2, can_start: true }
@@ -146,6 +146,7 @@
         <div class="avatar-ring"><img class="mascot small" src="assets/logo.png" alt=""></div>
         <h2 id="profile-name"></h2>
         <p class="muted" id="profile-sub"></p>
+        <p id="pet-caption" class="pet-caption"></p>
       </div>
       <div class="stat-grid">
         <div class="stat-box"><svg class="ic"><use href="#i-gem"/></svg><b id="p-xp">0</b><span>XP</span></div>
@@ -166,6 +167,16 @@
       <button class="tab" data-tab="profile"><svg class="ic"><use href="#i-user"/></svg><span>Профиль</span></button>
     </nav>
   </div>
+    <!-- Модалка -->
+    <div id="modal" class="modal-overlay">
+      <div class="modal">
+        <img id="modal-img" class="mascot small" src="assets/logo.png" alt="">
+        <h2 id="modal-title"></h2>
+        <p id="modal-text" class="muted"></p>
+        <button id="modal-btn" class="btn btn-primary">Понятно</button>
+      </div>
+    </div>
+
   <svg width="0" height="0" style="position:absolute">
     <defs>
       <g id="i-flame"><path fill="#ff9600" d="M13.5.7s.8 3.5-1.6 6.6C9.6 10 8 12.2 8 14.5A5.5 5.5 0 0 0 19 14.5c0-1.5-.6-2.9-1.4-4.2-.4 1.3-1.2 2-1.9 2 .5-2.5-.5-6.5-2.2-11.6z"/><path fill="#ffcd37" d="M13.7 9.2c-.7 1.4-2.1 2.6-2.1 4.3a2.4 2.4 0 0 0 4.8 0c0-1.1-.5-2.1-1-3-.4.6-.9 1-1.7 1.3.5-1 .3-2 .3-2.6z"/></g>

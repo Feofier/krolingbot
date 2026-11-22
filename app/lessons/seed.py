@@ -10,7 +10,7 @@ LANGS = [
     {"code": "es", "name": "Испанский", "flag": "🇪🇸"},
 ]
 
-LEVELS = ["A1", "A2", "B1", "B2"]
+LEVELS = ["A1", "A2", "B1", "B2", "C1"]
 LEVEL_TITLES = {
     "A1": ["Первые слова", "Семья и друзья", "Еда и напитки", "Дом", "Природа",
            "Действия", "Описания", "Цвета", "Числа", "Дни и время"],
@@ -20,8 +20,11 @@ LEVEL_TITLES = {
            "Образование", "Культура", "Спорт", "Бизнес", "Общество"],
     "B2": ["Наука", "Экология", "Экономика", "Политика", "Психология",
            "Медиа", "Искусство", "Инновации", "Глобализация", "Философия"],
+    "C1": ["Абстракции", "Лингвистика", "Литература", "История", "Социология",
+           "Этика", "Логика", "Эстетика", "Антропология", "Метафора"],
 }
-LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний", "B2": "Продвинутый"}
+LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний",
+               "B2": "Продвинутый", "C1": "Владение"}
 
 # Слова: (слово, перевод)
 WORDS = {
@@ -71,6 +74,22 @@ WORDS = {
                ("headline", "заголовок"), ("broadcast", "трансляция"),
                ("masterpiece", "шедевр"), ("exhibition", "выставка"), ("genre", "жанр"),
                ("critic", "критик"), ("aesthetic", "эстетический")],
+        "C1": [("ambiguity", "двусмысленность"), ("paradigm", "парадигма"), ("dichotomy", "дихотомия"),
+               ("nuance", "нюанс"), ("rhetoric", "риторика"),
+               ("syntax", "синтаксис"), ("semantics", "семантика"), ("etymology", "этимология"),
+               ("phonetics", "фонетика"), ("dialect", "диалект"),
+               ("narrative", "повествование"), ("allegory", "аллегория"), ("satire", "сатира"),
+               ("tragedy", "трагедия"), ("irony", "ирония"),
+               ("chronicle", "летопись"), ("heritage", "наследие"), ("revolution", "революция"),
+               ("empire", "империя"), ("renaissance", "возрождение"),
+               ("stratification", "стратификация"), ("institution", "институт"), ("marginalization", "маргинализация"),
+               ("mobility", "мобильность"), ("cohesion", "сплочённость"),
+               ("dilemma", "дилемма"), ("integrity", "честность"), ("accountability", "подотчётность"),
+               ("solidarity", "солидарность"), ("tolerance", "терпимость"),
+               ("inference", "вывод"), ("fallacy", "ошибка мышления"), ("axiom", "аксиома"),
+               ("paradox", "парадокс"), ("scrutiny", "внимательное изучение"),
+               ("metaphor", "метафора"), ("allegory_q", "иносказание"), ("juxtaposition", "сопоставление"),
+               ("alienation", "отчуждение"), ("epiphany", "озарение")],
     },
     "es": {
         "A1": [("gato", "кот"), ("perro", "собака"), ("casa", "дом"), ("agua", "вода"),
@@ -118,6 +137,22 @@ WORDS = {
                ("titular", "заголовок"), ("transmisión", "трансляция"),
                ("obra maestra", "шедевр"), ("exposición", "выставка"), ("género", "жанр"),
                ("crítico", "критик"), ("estético", "эстетический")],
+        "C1": [("ambigüedad", "двусмысленность"), ("paradigma", "парадигма"), ("dicotomía", "дихотомия"),
+               ("matiz", "нюанс"), ("retórica", "риторика"),
+               ("sintaxis", "синтаксис"), ("semántica", "семантика"), ("etimología", "этимология"),
+               ("fonética", "фонетика"), ("dialecto", "диалект"),
+               ("narrativa", "повествование"), ("alegoría", "аллегория"), ("sátira", "сатира"),
+               ("tragedia", "трагедия"), ("ironía", "ирония"),
+               ("crónica", "летопись"), ("patrimonio", "наследие"), ("revolución", "революция"),
+               ("imperio", "империя"), ("renacimiento", "возрождение"),
+               ("estratificación", "стратификация"), ("institución", "институт"), ("marginación", "маргинализация"),
+               ("movilidad", "мобильность"), ("cohesión", "сплочённость"),
+               ("dilema", "дилемма"), ("integridad", "честность"), ("responsabilidad", "подотчётность"),
+               ("solidaridad", "солидарность"), ("tolerancia", "терпимость"),
+               ("inferencia", "вывод"), ("falacia", "ошибка мышления"), ("axioma", "аксиома"),
+               ("paradoja", "парадокс"), ("escrutinio", "внимательное изучение"),
+               ("metáfora", "метафора"), ("símbolo", "символ"), ("yuxtaposición", "сопоставление"),
+               ("alienación", "отчуждение"), ("epifanía", "озарение")],
     },
 }
 
@@ -140,6 +175,14 @@ SENTENCES = {
                ("Климат меняется быстро", "The climate is changing rapidly"), ("Переработка сокращает загрязнение", "Recycling reduces pollution"),
                ("Инфляция влияет на бюджет", "Inflation affects the budget"), ("Парламент принимает законы", "Parliament passes laws"),
                ("Терапия помогает при тревоге", "Therapy helps with anxiety"), ("Газета публикует заголовок", "The newspaper publishes a headline")],
+        "C1": [("Смысл этого высказывания двусмысленен", "The meaning of this statement is ambiguous"),
+               ("Ньюанс меняет всё", "The nuance changes everything"),
+               ("Этимология слова восходит к латыни", "The etymology of the word traces back to Latin"),
+               ("Аллегория скрывает глубокий смысл", "The allegory conceals a deep meaning"),
+               ("Ирония осталась незамеченной", "The irony went unnoticed"),
+               ("Наследие империи огромно", "The legacy of the empire is immense"),
+               ("Это классический парадокс", "This is a classic paradox"),
+               ("Метафора оживляет текст", "The metaphor brings the text to life")],
     },
     "es": {
         "A1": [("Я пью воду", "Yo bebo agua"), ("Кот ест хлеб", "El gato come pan"),
@@ -158,6 +201,14 @@ SENTENCES = {
                ("Климат меняется быстро", "El clima cambia rápidamente"), ("Переработка сокращает загрязнение", "El reciclaje reduce la contaminación"),
                ("Инфляция влияет на бюджет", "La inflación afecta el presupuesto"), ("Парламент принимает законы", "El parlamento aprueba leyes"),
                ("Терапия помогает при тревоге", "La terapia ayuda con la ansiedad"), ("Газета публикует заголовок", "El periódico publica un titular")],
+        "C1": [("Смысл этого высказывания двусмысленен", "El sentido de esta afirmación es ambiguo"),
+               ("Ньюанс меняет всё", "El matiz lo cambia todo"),
+               ("Этимология слова восходит к латыни", "La etimología de la palabra se remonta al latín"),
+               ("Аллегория скрывает глубокий смысл", "La alegoría esconde un significado profundo"),
+               ("Ирония осталась незамеченной", "La ironía pasó desapercibida"),
+               ("Наследие империи огромно", "El legado del imperio es inmenso"),
+               ("Это классический парадокс", "Esta es una paradoja clásica"),
+               ("Метафора оживляет текст", "La metáfora da vida al texto")],
     },
 }
 

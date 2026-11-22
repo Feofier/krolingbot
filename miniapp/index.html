@@ -133,6 +133,7 @@
         <div class="avatar-ring"><img class="mascot small" src="assets/logo.png" alt=""></div>
         <h2 id="profile-name"></h2>
         <p class="muted" id="profile-sub"></p>
+        <p id="pet-caption" class="pet-caption"></p>
       </div>
       <div class="stat-grid">
         <div class="stat-box"><svg class="ic"><use href="#i-gem"/></svg><b id="p-xp">0</b><span>XP</span></div>
@@ -154,6 +155,16 @@
       <button class="tab" data-tab="board"><svg class="ic"><use href="#i-crown"/></svg><span>Рейтинг</span></button>
       <button class="tab" data-tab="profile"><svg class="ic"><use href="#i-user"/></svg><span>Профиль</span></button>
     </nav>
+  </div>
+
+  <!-- Модалка -->
+  <div id="modal" class="modal-overlay">
+    <div class="modal">
+      <img id="modal-img" class="mascot small" src="assets/logo.png" alt="">
+      <h2 id="modal-title"></h2>
+      <p id="modal-text" class="muted"></p>
+      <button id="modal-btn" class="btn btn-primary">Понятно</button>
+    </div>
   </div>
 
   <!-- SVG-иконки -->

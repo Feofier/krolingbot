@@ -11,12 +11,13 @@ from ..models import (Exercise, Language, Lesson, LessonCompletion, User,
                      UserLanguage)
 from ..services import (LEVELS, active_subscription, can_start_lesson,
                         complete_lesson, get_or_create_user,
-                        lessons_done_today, next_level, prev_level)
+                        lessons_done_today, msk_today, next_level, prev_level)
 from .deps import get_telegram_user
 
 router = APIRouter(prefix="/api")
 
-LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний", "B2": "Продвинутый"}
+LEVEL_NAMES = {"A1": "Начальный", "A2": "Базовый", "B1": "Средний",
+               "B2": "Продвинутый", "C1": "Владение"}
 
 
 class LanguageIn(BaseModel):
@@ -43,11 +44,14 @@ async def me(user_tg: dict = Depends(get_telegram_user),
     lang_count = (await session.execute(
         select(func.count(UserLanguage.id)).where(
             UserLanguage.user_id == user.id))).scalar_one()
+    pet_mood = "happy" if user.last_activity_date == msk_today() else "sad"
     return {
         "id": user.id,
         "first_name": user.first_name,
         "xp": user.xp,
         "streak": user.streak,
+        "pet_mood": pet_mood,
+        "lessons_done_today": await lessons_done_today(session, user.id),
         "subscription_days_left": (sub.expires_at.date() - date_type.today()).days if sub else 0,
         "has_subscription": sub is not None,
         "can_add_language": sub is not None or lang_count == 0,
@@ -164,9 +168,10 @@ async def finish_lesson(lesson_id: int, user_tg: dict = Depends(get_telegram_use
             UserLanguage.language_id == lesson.language_id))).scalar_one_or_none()
     if not ul:
         raise HTTPException(404, "Language not chosen")
-    await complete_lesson(session, user, ul, lesson)
+    result = await complete_lesson(session, user, ul, lesson)
     return {"ok": True, "xp": user.xp, "streak": user.streak,
-            "level": ul.level, "current_lesson": ul.current_lesson}
+            "level": ul.level, "current_lesson": ul.current_lesson,
+            "gift": result.get("gift", False)}
 
 
 @router.post("/placement/start")

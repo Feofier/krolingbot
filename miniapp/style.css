@@ -185,6 +185,12 @@ h2 { font-size: 21px; font-weight: 900; }
 .stat-box b { font-size: 22px; font-weight: 900; }
 .stat-box span { font-size: 12px; color: var(--muted); font-weight: 700; }
 
+.pet-caption {
+  display: inline-block; background: #fff7d6; border: 2px solid var(--gold);
+  border-radius: 14px; padding: 8px 16px;
+  font-size: 14px; font-weight: 800; color: #8a6d00; margin-top: 4px;
+}
+
 /* рейтинг */
 .board-row { display: flex; align-items: center; gap: 12px; }
 .board-rank { width: 34px; text-align: center; font-weight: 900; font-size: 17px; color: var(--muted); }
@@ -221,3 +227,22 @@ h2 { font-size: 21px; font-weight: 900; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 #screen-loading { text-align: center; color: var(--muted); }
+
+/* модалка */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  align-items: center; justify-content: center;
+  z-index: 100; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 22px;
+  padding: 24px 20px 20px; max-width: 360px; width: 100%;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,.25);
+  animation: pop .18s ease-out;
+}
+@keyframes pop { from { transform: scale(.85); opacity: 0; } }
+.modal .mascot.small { margin-bottom: 10px; }
+.modal h2 { margin-bottom: 6px; }

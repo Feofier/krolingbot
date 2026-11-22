@@ -12,7 +12,7 @@ def msk_today() -> date:
     return (datetime.utcnow() + timedelta(hours=3)).date()
 
 
-LEVELS = ["A1", "A2", "B1", "B2"]
+LEVELS = ["A1", "A2", "B1", "B2", "C1"]
 
 
 def next_level(level: str) -> str:
@@ -58,15 +58,16 @@ async def can_start_lesson(session: AsyncSession, user_id: int) -> bool:
 
 
 async def complete_lesson(session: AsyncSession, user: User, user_lang: UserLanguage,
-                          lesson: Lesson) -> None:
+                          lesson: Lesson) -> dict:
     today = msk_today()
+    gift = False
 
     already = (await session.execute(
         select(LessonCompletion).where(
             LessonCompletion.user_id == user.id,
             LessonCompletion.lesson_id == lesson.id))).scalar_one_or_none()
     if already:
-        return
+        return {"gift": False}
 
     activity = (await session.execute(
         select(DailyActivity).where(
@@ -81,6 +82,13 @@ async def complete_lesson(session: AsyncSession, user: User, user_lang: UserLang
         yesterday = today - timedelta(days=1)
         user.streak = user.streak + 1 if user.last_activity_date == yesterday else 1
         user.last_activity_date = today
+
+    # Подарок бесплатным: каждый 3-й день стрика — +1 урок сегодня
+    if user.streak > 0 and user.streak % 3 == 0:
+        sub = await active_subscription(session, user.id)
+        if sub is None and activity.lessons_done > 0:
+            activity.lessons_done -= 1
+            gift = True
 
     user.xp += 10
     session.add(LessonCompletion(user_id=user.id, lesson_id=lesson.id))
@@ -103,6 +111,7 @@ async def complete_lesson(session: AsyncSession, user: User, user_lang: UserLang
     session.add(user_lang)
 
     await session.commit()
+    return {"gift": gift}
 
 
 async def grant_subscription(session: AsyncSession, user_id: int, plan: str,

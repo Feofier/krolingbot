@@ -11,7 +11,7 @@ async function api(path, method = "GET", body = null) {
     body: body ? JSON.stringify(body) : null,
   });
   if (res.status === 401) {
-    tg.showAlert("Ошибка авторизации. Откройте приложение из Telegram.");
+    showModal("Ошибка авторизации", "Открой приложение через кнопку в чате с ботом @KrolingoBot.");
     throw new Error("auth");
   }
   if (res.status === 402) {
@@ -31,6 +31,17 @@ function showScreen(id) {
   if (id === "screen-board") setTab("board");
   if (id === "screen-profile") setTab("profile");
 }
+
+// Своя модалка в стиле приложения
+function showModal(title, text, img = "assets/logo.png") {
+  document.getElementById("modal-title").textContent = title;
+  document.getElementById("modal-text").innerHTML = text;
+  document.getElementById("modal-img").src = img;
+  document.getElementById("modal").classList.add("open");
+}
+
+document.getElementById("modal-btn").onclick = () =>
+  document.getElementById("modal").classList.remove("open");
 
 function setTab(name) {
   document.querySelectorAll(".tab").forEach(t =>
@@ -77,7 +88,7 @@ async function loadOnboarding() {
       await api("/languages", "POST", { language_id: chosenLang });
     } catch (e) {
       if (e.message === "limit") return;
-      tg.showAlert("Не удалось сохранить язык");
+      showModal("Ошибка", "Не удалось сохранить язык. Попробуй ещё раз.");
       return;
     }
     document.getElementById("level-title").textContent =
@@ -104,7 +115,7 @@ document.querySelectorAll("#level-options .card").forEach(btn => {
       showScreen("screen-quiz");
       renderQuizQuestion();
     } catch (e) {
-      if (e.message !== "limit") tg.showAlert("Не удалось загрузить тест");
+      if (e.message !== "limit") showModal("Ошибка", "Не удалось загрузить тест. Проверь интернет и попробуй снова.");
     }
   };
 });
@@ -206,14 +217,14 @@ let retryRound = false;
 async function startLesson(languageId) {
   try {
     lesson = await api(`/lesson/${languageId}`);
-  } catch (e) { if (e.message !== "limit") tg.showAlert("Не удалось загрузить урок"); return; }
+  } catch (e) { if (e.message !== "limit") showModal("Ошибка", "Не удалось загрузить урок. Попробуй ещё раз."); return; }
   startLessonFlow();
 }
 
 async function startRepeat(lessonId) {
   try {
     lesson = await api(`/repeat/${lessonId}`);
-  } catch (e) { if (e.message !== "limit") tg.showAlert("Не удалось загрузить урок"); return; }
+  } catch (e) { if (e.message !== "limit") showModal("Ошибка", "Не удалось загрузить урок. Попробуй ещё раз."); return; }
   startLessonFlow();
 }
 
@@ -387,7 +398,7 @@ function checkAnswer(ex) {
   const checkBtn = document.getElementById("btn-check");
   if (!ok) {
     if (ex.type === "sentence") {
-      tg.showAlert(`Правильный ответ: ${correct}`);
+      showModal("Правильный ответ", `«${correct}»`);
       nextExercise();
       return;
     }
@@ -411,14 +422,19 @@ async function nextExercise() {
       retryRound = true;
       lesson = { ...lesson, exercises: retryQueue };
       exIndex = 0;
-      tg.showAlert("Повторим задания, которые вызвали сложности");
+      showModal("Время повторить", "Сейчас ещё раз покажем задания, где был выбран «Не знаю».");
       renderExercise();
       return;
     }
     document.getElementById("lesson-progress").style.width = "100%";
     const result = await api(`/lesson/${lesson.lesson_id}/complete`, "POST");
-    if (result.level && !lesson.repeat && result.level !== lesson.level) {
-      setTimeout(() => tg.showAlert(`Новый уровень: ${result.level}! Поздравляем!`), 600);
+    if (result.gift) {
+      setTimeout(() => showModal("Подарок от Krolingo!",
+        "Ты занимаешься уже ${result.streak} дней подряд! Лови <b>+1 бонусный урок</b> на сегодня.",
+        "assets/pet_happy.svg"), 400);
+    } else if (result.level && !lesson.repeat && result.level !== lesson.level) {
+      setTimeout(() => showModal("Новый уровень!",
+        `Ты перешёл на уровень <b>${result.level}</b>! Уроки станут интереснее.`, "assets/pet_happy.svg"), 400);
     }
     document.getElementById("res-correct").textContent =
       `${correctCount}/${lesson.exercises.length}`;
@@ -457,6 +473,12 @@ async function showProfile() {
   showScreen("screen-loading");
   const [me, board, progress, history] = await Promise.all(
     [api("/me"), api("/leaderboard"), api("/progress"), api("/history")]);
+  const happy = me.pet_mood === "happy";
+  document.querySelector(".avatar-ring img").src =
+    happy ? "assets/pet_happy.svg" : "assets/pet_sad.svg";
+  document.getElementById("pet-caption").textContent = happy
+    ? (me.lessons_done_today > 0 ? "Кенгу доволен: ты сегодня занимался!" : "Кенгу рад тебя видеть!")
+    : "Кенгу скучает… пройди урок, чтобы он повеселел!";
   const lessonsDone = progress.items.filter(i => i.completed).length;
   document.getElementById("profile-name").textContent = me.first_name || "Ученик";
   document.getElementById("profile-sub").textContent = me.has_subscription
@@ -505,7 +527,7 @@ async function showPlans() {
       <b style="color:var(--gold)">${p.stars}⭐</b>`;
     btn.onclick = () => {
       tg.sendData(JSON.stringify({ action: "buy_plan", plan: p.key }));
-      tg.showAlert("Отправили запрос боту — заверши покупку в чате с ботом.");
+      showModal("Запрос отправлен", "Заверши покупку в чате с ботом — там появится инвойс Telegram Stars.");
     };
     list.appendChild(btn);
   });
@@ -520,6 +542,6 @@ document.getElementById("btn-plans").onclick = showPlans;
     await loadOnboarding();
     await goHome();
   } catch (e) {
-    if (e.message !== "limit" && e.message !== "auth") tg.showAlert("Ошибка загрузки");
+    if (e.message !== "limit" && e.message !== "auth") showModal("Ошибка", "Что-то пошло не так при загрузке.");
   }
 })();

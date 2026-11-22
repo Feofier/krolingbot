@@ -187,3 +187,26 @@ async def test_history_and_repeat():
             f"/api/repeat/{lesson['lesson_id']}", headers=h)).json()
         assert rep["repeat"] is True
         assert len(rep["exercises"]) == len(lesson["exercises"])
+
+
+@pytest.mark.asyncio
+async def test_gift_every_third_streak_day():
+    from datetime import timedelta
+    from app.services import msk_today
+    async with SessionLocal() as s:
+        user = await get_or_create_user(s, 99)
+        user.streak = 2
+        user.last_activity_date = msk_today() - timedelta(days=1)
+        await s.commit()
+        lang = (await s.execute(select(Language)
+                                .where(Language.code == "en"))).scalar_one()
+        lessons = (await s.execute(select(Lesson)
+                                   .where(Lesson.language_id == lang.id,
+                                          Lesson.level == "A1")
+                                   .order_by(Lesson.number))).scalars().all()
+        ul = UserLanguage(user_id=user.id, language_id=lang.id)
+        s.add(ul)
+        await s.commit()
+        result = await complete_lesson(s, user, ul, lessons[0])
+        assert result["gift"] is True
+        assert user.streak == 3
