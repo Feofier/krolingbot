@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="round"><rect width="512" height="512" rx="110"/></clipPath>
+    <radialGradient id="g" cx="0.35" cy="0.28" r="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <g clip-path="url(#round)">
+    <rect width="512" height="512" fill="#58cc02"/>
+    <rect width="512" height="512" fill="url(#g)"/>
+
+    <!-- тень -->
+    <ellipse cx="256" cy="462" rx="160" ry="20" fill="#3d8c01" opacity="0.55"/>
+
+    <!-- ===== КЕНГУРУ ===== -->
+    <!-- хвост за телом -->
+    <path d="M 150 330 Q 70 340 82 430 Q 120 452 172 420 Z" fill="#8a4c24"/>
+
+    <!-- уши: у кенгуру короткие, округлые, стоячие -->
+    <g transform="rotate(-18 208 128)">
+      <ellipse cx="208" cy="124" rx="30" ry="62" fill="#a05a2c"/>
+      <ellipse cx="208" cy="132" rx="14" ry="40" fill="#e8b58a"/>
+    </g>
+    <g transform="rotate(18 304 128)">
+      <ellipse cx="304" cy="124" rx="30" ry="62" fill="#a05a2c"/>
+      <ellipse cx="304" cy="132" rx="14" ry="40" fill="#e8b58a"/>
+    </g>
+
+    <!-- задние лапы: массивные ступни по бокам -->
+    <ellipse cx="150" cy="428" rx="62" ry="30" fill="#8a4c24"/>
+    <ellipse cx="362" cy="428" rx="62" ry="30" fill="#8a4c24"/>
+
+    <!-- тело -->
+    <ellipse cx="256" cy="330" rx="118" ry="128" fill="#a05a2c"/>
+    <!-- брюшко -->
+    <ellipse cx="256" cy="372" rx="74" ry="82" fill="#e8b58a"/>
+
+    <!-- сумка -->
+    <path d="M 204 416 Q 256 452 308 416 Q 300 440 256 444 Q 212 440 204 416 Z" fill="#8a4c24"/>
+
+    <!-- маленькие передние лапки на груди -->
+    <ellipse cx="214" cy="330" rx="18" ry="32" fill="#8a4c24" transform="rotate(20 214 330)"/>
+    <ellipse cx="298" cy="330" rx="18" ry="32" fill="#8a4c24" transform="rotate(-20 298 330)"/>
+
+    <!-- голова -->
+    <ellipse cx="256" cy="226" rx="98" ry="88" fill="#a05a2c"/>
+    <!-- морда -->
+    <ellipse cx="256" cy="252" rx="72" ry="56" fill="#c9803e"/>
+
+    <!-- ноздри -->
+    <ellipse cx="240" cy="238" rx="8" ry="11" fill="#5f3312"/>
+    <ellipse cx="272" cy="238" rx="8" ry="11" fill="#5f3312"/>
+
+    <!-- глаза -->
+    <ellipse cx="212" cy="200" rx="30" ry="36" fill="#ffffff"/>
+    <ellipse cx="300" cy="200" rx="30" ry="36" fill="#ffffff"/>
+    <circle cx="218" cy="206" r="13" fill="#3b230f"/>
+    <circle cx="294" cy="206" r="13" fill="#3b230f"/>
+    <circle cx="222" cy="201" r="4.5" fill="#ffffff"/>
+    <circle cx="298" cy="201" r="4.5" fill="#ffffff"/>
+
+    <!-- брови -->
+    <path d="M 182 152 Q 210 136 240 150" stroke="#5f3312" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M 272 150 Q 302 136 330 152" stroke="#5f3312" stroke-width="9" fill="none" stroke-linecap="round"/>
+
+    <!-- улыбка -->
+    <path d="M 222 280 Q 256 306 290 280" stroke="#5f3312" stroke-width="10" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

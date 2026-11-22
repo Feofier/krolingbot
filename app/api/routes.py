@@ -2,7 +2,7 @@ from datetime import date as date_type
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import FREE_DAILY_LESSONS, PLANS
@@ -139,3 +139,25 @@ async def finish_lesson(lesson_id: int, user_tg: dict = Depends(get_telegram_use
 @router.get("/plans")
 async def plans():
     return [{"key": k, **v} for k, v in PLANS.items()]
+
+
+@router.get("/leaderboard")
+async def leaderboard(user_tg: dict = Depends(get_telegram_user),
+                      session: AsyncSession = Depends(get_session)):
+    user = await get_or_create_user(session, user_tg["id"])
+    rows = (await session.execute(
+        select(User).order_by(User.xp.desc()).limit(20))).scalars().all()
+    items = []
+    for i, u in enumerate(rows, start=1):
+        items.append({
+            "rank": i,
+            "name": u.first_name or (u.username or f"User {u.telegram_id}"),
+            "xp": u.xp,
+            "is_me": u.id == user.id,
+        })
+    my_rank = next((i["rank"] for i in items if i["is_me"]), None)
+    if my_rank is None:
+        better = (await session.execute(
+            select(func.count(User.id)).where(User.xp > user.xp))).scalar_one()
+        my_rank = better + 1
+    return {"items": items, "my_rank": my_rank, "my_xp": user.xp}

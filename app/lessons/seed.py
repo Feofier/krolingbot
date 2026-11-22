@@ -41,8 +41,38 @@ ES_WORDS = [
 LESSON_TITLES = ["Базовые слова", "Семья", "Еда", "Дом", "Природа", "Глаголы",
                  "Прилагательные", "Цвета", "Числа", "Время"]
 
+# (русский источник, правильный ответ словами целевого языка)
+SENTENCES = {
+    "en": [
+        ("Я пью воду", "I drink water"),
+        ("Кот ест хлеб", "The cat eats bread"),
+        ("Она читает книгу", "She reads a book"),
+        ("Мы бежим домой", "We run home"),
+        ("Солнце большое", "The sun is big"),
+        ("Друг пишет письмо", "A friend writes a letter"),
+        ("Я вижу собаку", "I see a dog"),
+        ("Дети пьют молоко", "Children drink milk"),
+    ],
+    "es": [
+        ("Я пью воду", "Yo bebo agua"),
+        ("Кот ест хлеб", "El gato come pan"),
+        ("Она читает книгу", "Ella lee un libro"),
+        ("Мы бежим домой", "Nosotros corremos a casa"),
+        ("Солнце большое", "El sol es grande"),
+        ("Друг пишет письмо", "Un amigo escribe una carta"),
+        ("Я вижу собаку", "Yo veo un perro"),
+        ("Дети пьют молоко", "Los niños beben leche"),
+    ],
+}
 
-def make_exercises(words, rng):
+# лишние слова для банка (отвлекающие)
+DECOYS = {
+    "en": ["blue", "night", "small", "music", "they", "old", "hand", "two"],
+    "es": ["azul", "noche", "pequeño", "música", "ellos", "viejo", "mano", "dos"],
+}
+
+
+def make_exercises(words, rng, lang_code):
     exercises = []
     n = min(len(words), 10)
     for i in range(n):
@@ -60,6 +90,11 @@ def make_exercises(words, rng):
     pairs = rng.sample(words, min(5, len(words)))
     exercises.append(("pairs", "Соедини пары:",
                       {"pairs": [[w, t] for w, t in pairs]}))
+    sentences = SENTENCES.get(lang_code, SENTENCES["en"])
+    for src, correct in rng.sample(sentences, min(3, len(sentences))):
+        pool = correct.split() + rng.sample(DECOYS[lang_code], 3)
+        exercises.append(("sentence", f"Переведи: «{src}»",
+                          {"bank": pool, "correct": correct}))
     return exercises
 
 
@@ -80,7 +115,7 @@ async def seed_if_empty(session: AsyncSession) -> None:
                             title=f"{num}. {title}")
             session.add(lesson)
             await session.flush()
-            for etype, prompt, payload in make_exercises(chunk, rng):
+            for etype, prompt, payload in make_exercises(chunk, rng, lang["code"]):
                 session.add(Exercise(lesson_id=lesson.id, type=etype,
                                      prompt=prompt, payload=payload))
     await session.commit()
