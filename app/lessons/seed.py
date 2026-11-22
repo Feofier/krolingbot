@@ -4,11 +4,12 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import Exercise, Language, Lesson
+from .extra_langs import EXTRA_LANGS
 
 LANGS = [
     {"code": "en", "name": "Английский", "flag": "🇬🇧"},
     {"code": "es", "name": "Испанский", "flag": "🇪🇸"},
-]
+] + [{"code": l["code"], "name": l["name"], "flag": ""} for l in EXTRA_LANGS]
 
 LEVELS = ["A1", "A2", "B1", "B2", "C1"]
 def _themes(base, extra):
@@ -276,13 +277,22 @@ def make_exercises(words, sentences, rng, lang_code, lesson_num):
     exercises.append(("pairs", "Соедини пары:",
                       {"pairs": [[w, t] for w, t in pairs]}))
     for src, correct in sentences:
-        pool = correct.split() + rng.sample(DECOYS[lang_code], 3)
+        pool = correct.split() + rng.sample(DECOYS.get(lang_code, DECOYS["en"]), 3)
         exercises.append(("sentence", f"Переведи: «{src}»",
                           {"bank": pool, "correct": correct}))
     return exercises
 
 
 EXPECTED_LESSONS = sum(len(t) for t in LEVEL_TITLES.values()) * len(LANGS)
+
+
+def _lang_data(code):
+    """Словарь и предложения языка: полный банк (en/es) или базовый (остальные)."""
+    extra = next((l for l in EXTRA_LANGS if l["code"] == code), None)
+    if extra:
+        return {lvl: extra["words"] for lvl in LEVELS}, {
+            lvl: extra["sentences"] for lvl in LEVELS}
+    return WORDS[code], SENTENCES[code]
 
 
 async def seed_if_empty(session: AsyncSession) -> None:
@@ -305,9 +315,10 @@ async def seed_if_empty(session: AsyncSession) -> None:
             language = Language(code=lang["code"], name=lang["name"], flag=lang["flag"])
             session.add(language)
             await session.flush()
+        words_by_level, sents_by_level = _lang_data(lang["code"])
         for level in LEVELS:
-            words = WORDS[lang["code"]][level]
-            sentences = SENTENCES[lang["code"]][level]
+            words = words_by_level[level]
+            sentences = sents_by_level[level]
             for num, title in enumerate(LEVEL_TITLES[level], start=1):  # 35 уроков
                 start = (num - 1) * 4
                 chunk = [words[(start + i) % len(words)] for i in range(10)]

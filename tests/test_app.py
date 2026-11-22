@@ -7,6 +7,7 @@ import urllib.parse
 os.environ["BOT_TOKEN"] = "test-token-123"
 os.environ["DB_URL"] = "sqlite+aiosqlite:///:memory:"
 
+import asyncio
 import pytest
 from sqlalchemy import select
 from httpx import ASGITransport, AsyncClient
@@ -29,16 +30,16 @@ def make_init_data(tg_id: int = 1) -> str:
     return urllib.parse.urlencode(data)
 
 
-@pytest.fixture(autouse=True)
-async def setup_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    async with SessionLocal() as s:
-        from app.lessons.seed import seed_if_empty
-        await seed_if_empty(s)
+@pytest.fixture(autouse=True, scope="module")
+def setup_db():
+    async def run():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        async with SessionLocal() as s:
+            from app.lessons.seed import seed_if_empty
+            await seed_if_empty(s)
+    asyncio.run(run())
     yield
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
 
 
 def test_validate_init_data_ok():
@@ -96,7 +97,7 @@ async def test_api_flow():
         r = await client.get("/api/me", headers=h)
         assert r.status_code == 200
         langs = (await client.get("/api/languages", headers=h)).json()
-        assert len(langs) == 2
+        assert len(langs) == 10
         await client.post("/api/languages", headers=h,
                           json={"language_id": langs[0]["id"]})
         lesson = (await client.get(f"/api/lesson/{langs[0]['id']}", headers=h)).json()
@@ -122,7 +123,7 @@ async def test_free_users_limited_to_one_language():
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         h = {"X-Init-Data": make_init_data(55)}
         langs = (await client.get("/api/languages", headers=h)).json()
-        assert len(langs) == 2
+        assert len(langs) == 10
         r = await client.post("/api/languages", headers=h,
                               json={"language_id": langs[0]["id"]})
         assert r.status_code == 200

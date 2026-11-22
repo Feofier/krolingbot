@@ -75,16 +75,56 @@
     <!-- Знакомство со словами урока -->
     <div id="screen-intro" class="screen">
       <h2 id="intro-title"></h2>
-      <p class="muted">Сначала познакомься со словами урока</p>
+      <p class="muted" data-i18n="intro_hint">Сначала познакомься со словами урока</p>
       <img class="mascot intro-pet" src="assets/pet_happy.svg" alt="">
       <div id="intro-words" class="word-grid"></div>
-      <button id="btn-intro-start" class="btn btn-primary">Начать урок</button>
+      <button id="btn-intro-start" class="btn btn-primary" data-i18n="start_lesson">Начать урок</button>
+    </div>
+
+    <!-- Игры -->
+    <div id="screen-games" class="screen">
+      <h1 data-i18n="games">Игры</h1>
+      <p class="muted" data-i18n="games_hint">Разминка между уроками — тоже даёт XP</p>
+      <div class="card-list" id="games-list"></div>
+    </div>
+
+    <!-- Спринт: верно/неверно на время -->
+    <div id="screen-sprint" class="screen center">
+      <p class="muted" data-i18n="sprint_hint">Перевод верный? Успей за 45 секунд!</p>
+      <div class="sprint-timer" id="sprint-timer">45</div>
+      <h2 id="sprint-word"></h2>
+      <p class="muted" id="sprint-trans"></p>
+      <div class="sprint-score"><span data-i18n="score">Очки</span>: <b id="sprint-score">0</b></div>
+      <div class="lesson-actions" style="margin-top:16px">
+        <button class="btn btn-wrong" id="btn-sprint-no" data-i18n="no">Неверно</button>
+        <button class="btn btn-primary" id="btn-sprint-yes" data-i18n="yes">Верно</button>
+      </div>
+    </div>
+
+    <!-- Анаграммы -->
+    <div id="screen-anagram" class="screen center">
+      <p class="muted" data-i18n="anagram_hint">Собери слово из букв</p>
+      <p class="anagram-trans" id="anagram-trans"></p>
+      <div class="anagram-slots" id="anagram-slots"></div>
+      <div class="anagram-bank" id="anagram-bank"></div>
+      <div class="lesson-actions" style="margin-top:16px">
+        <button class="btn" id="btn-anagram-reset" data-i18n="reset">Сброс</button>
+        <button class="btn btn-primary" id="btn-anagram-check" data-i18n="check">Проверить</button>
+      </div>
+    </div>
+
+    <!-- Язык интерфейса -->
+    <div id="screen-language" class="screen">
+      <h1 data-i18n="ui_lang">Язык интерфейса</h1>
+      <p class="muted">Уроки пока переведены на русский — интерфейс адаптируется под тебя</p>
+      <div id="ui-lang-list" class="card-list"></div>
+      <button class="btn" onclick="showProfile()" data-i18n="back">Назад</button>
     </div>
 
     <!-- Экзамен -->
     <div id="screen-exam" class="screen">
       <div class="lesson-top">
-        <button class="icon-btn" onclick="goHome()"><svg class="ic"><use href="#i-close"/></svg></button>
+        <button class="icon-btn" onclick="exitLesson()"><svg class="ic"><use href="#i-close"/></svg></button>
         <div class="progress-bar"><div id="exam-progress"></div></div>
       </div>
       <p class="muted" id="exam-step"></p>
@@ -96,7 +136,7 @@
     <!-- Урок -->
     <div id="screen-lesson" class="screen">
       <div class="lesson-top">
-        <button class="icon-btn" onclick="goHome()"><svg class="ic"><use href="#i-close"/></svg></button>
+        <button class="icon-btn" onclick="exitLesson()"><svg class="ic"><use href="#i-close"/></svg></button>
         <div class="progress-bar"><div id="lesson-progress"></div></div>
       </div>
       <h2 id="lesson-title"></h2>
@@ -111,13 +151,18 @@
     <!-- Результат -->
     <div id="screen-result" class="screen center">
       <img class="mascot" src="assets/logo.png" alt="">
-      <h1>Урок пройден!</h1>
+      <h1 data-i18n="lesson_done">Урок пройден!</h1>
       <div class="result-stats">
         <div class="pill big"><svg class="ic"><use href="#i-target"/></svg><b id="res-correct"></b></div>
         <div class="pill big"><svg class="ic"><use href="#i-flame"/></svg><b id="res-streak"></b></div>
         <div class="pill big"><svg class="ic gem"><use href="#i-gem"/></svg><b id="res-xp"></b></div>
       </div>
-      <button class="btn btn-primary" onclick="goHome()">Продолжить</button>
+      <div id="mistakes-box" style="display:none">
+        <h2 style="margin:14px 0 8px" data-i18n="your_mistakes">Твои ошибки</h2>
+        <p class="muted small" data-i18n="mistakes_hint">Без правильных ответов — вспомни сам, потом проверь в уроке</p>
+        <div id="mistakes-list" class="mistakes-list"></div>
+      </div>
+      <button class="btn btn-primary" onclick="goHome()" data-i18n="continue">Продолжить</button>
     </div>
 
     <!-- Подписка -->
@@ -149,10 +194,10 @@
     <div id="screen-profile" class="screen">
       <h1>Профиль</h1>
       <div class="profile-card">
-        <div class="avatar-ring"><img class="mascot small" src="assets/logo.png" alt=""></div>
+        <img id="profile-pet" class="profile-pet" src="assets/pet_happy.svg" alt="Кенгу">
+        <p id="pet-caption" class="pet-caption"></p>
         <h2 id="profile-name"></h2>
         <p class="muted" id="profile-sub"></p>
-        <p id="pet-caption" class="pet-caption"></p>
       </div>
       <div class="stat-grid">
         <div class="stat-box"><svg class="ic"><use href="#i-gem"/></svg><b id="p-xp">0</b><span>XP</span></div>
@@ -161,8 +206,9 @@
         <div class="stat-box"><svg class="ic"><use href="#i-star"/></svg><b id="p-rank">—</b><span>место</span></div>
       </div>
       <div class="card-list">
-        <button class="card row" onclick="showPlans()"><svg class="ic"><use href="#i-star"/></svg> Подписка</button>
-        <button class="card row" id="btn-share"><svg class="ic"><use href="#i-share"/></svg> Поделиться с другом</button>
+        <button class="card row" id="btn-ui-lang"><svg class="ic"><use href="#i-book"/></svg> <span data-i18n="ui_lang">Язык интерфейса</span></button>
+        <button class="card row" onclick="showPlans()"><svg class="ic"><use href="#i-star"/></svg> <span data-i18n="subscription">Подписка</span></button>
+        <button class="card row" id="btn-share"><svg class="ic"><use href="#i-share"/></svg> <span data-i18n="share">Поделиться с другом</span></button>
       </div>
       <h2 style="margin-bottom:10px">История уроков</h2>
       <div id="history-list" class="card-list"></div>
@@ -170,9 +216,10 @@
 
     <!-- Нижняя навигация -->
     <nav id="tabbar">
-      <button class="tab active" data-tab="home"><svg class="ic"><use href="#i-book"/></svg><span>Учить</span></button>
-      <button class="tab" data-tab="board"><svg class="ic"><use href="#i-crown"/></svg><span>Рейтинг</span></button>
-      <button class="tab" data-tab="profile"><svg class="ic"><use href="#i-user"/></svg><span>Профиль</span></button>
+      <button class="tab active" data-tab="home"><svg class="ic"><use href="#i-book"/></svg><span data-i18n="tab_learn">Учить</span></button>
+      <button class="tab" data-tab="games"><svg class="ic"><use href="#i-target"/></svg><span data-i18n="tab_games">Игры</span></button>
+      <button class="tab" data-tab="board"><svg class="ic"><use href="#i-crown"/></svg><span data-i18n="tab_board">Рейтинг</span></button>
+      <button class="tab" data-tab="profile"><svg class="ic"><use href="#i-user"/></svg><span data-i18n="tab_profile">Профиль</span></button>
     </nav>
   </div>
 

@@ -26,8 +26,9 @@ function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   document.getElementById("tabbar").style.display =
-    ["screen-home", "screen-board", "screen-profile"].includes(id) ? "flex" : "none";
+    ["screen-home", "screen-games", "screen-board", "screen-profile"].includes(id) ? "flex" : "none";
   if (id === "screen-home") setTab("home");
+  if (id === "screen-games") setTab("games");
   if (id === "screen-board") setTab("board");
   if (id === "screen-profile") setTab("profile");
 }
@@ -43,6 +44,94 @@ function showModal(title, text, img = "assets/logo.png") {
 document.getElementById("modal-btn").onclick = () =>
   document.getElementById("modal").classList.remove("open");
 
+// Подтверждение (для выхода из урока)
+let confirmCb = null;
+function showConfirm(title, text, okText, cb) {
+  showModal(title, text);
+  const btn = document.getElementById("modal-btn");
+  btn.textContent = okText;
+  confirmCb = cb;
+}
+const origModalClose = () => {
+  document.getElementById("modal").classList.remove("open");
+  document.getElementById("modal-btn").textContent = "Понятно";
+  if (confirmCb) { const cb = confirmCb; confirmCb = null; cb(); }
+};
+document.getElementById("modal-btn").onclick = origModalClose;
+
+// ---------- Локализация интерфейса ----------
+const I18N = {
+  ru: { tab_learn: "Учить", tab_games: "Игры", tab_board: "Рейтинг", tab_profile: "Профиль",
+        start_lesson: "Начать урок", check: "Проверить", dont_know: "Не знаю", back: "Назад",
+        continue: "Продолжить", lesson_done: "Урок пройден!", your_mistakes: "Твои ошибки",
+        mistakes_hint: "Без правильных ответов — вспомни сам, потом проверь в уроке", your_answer: "Твой ответ",
+        games: "Игры", games_hint: "Разминка между уроками — тоже даёт XP",
+        sprint_hint: "Перевод верный? Успей за 45 секунд!", anagram_hint: "Собери слово из букв",
+        score: "Очки", yes: "Верно", no: "Неверно", reset: "Сброс",
+        ui_lang: "Язык интерфейса", subscription: "Подписка", share: "Поделиться с другом",
+        exit_title: "Выйти из урока?", exit_text: "Прогресс этого урока не сохранится.", exit_ok: "Выйти" },
+  en: { tab_learn: "Learn", tab_games: "Games", tab_board: "Leaderboard", tab_profile: "Profile",
+        start_lesson: "Start lesson", check: "Check", dont_know: "Don't know", back: "Back",
+        continue: "Continue", lesson_done: "Lesson complete!", your_mistakes: "Your mistakes",
+        mistakes_hint: "Correct answers hidden — recall them yourself", your_answer: "Your answer",
+        games: "Games", games_hint: "Warm up between lessons — also earns XP",
+        sprint_hint: "Is the translation right? 45 seconds!", anagram_hint: "Build the word from letters",
+        score: "Score", yes: "True", no: "False", reset: "Reset",
+        ui_lang: "Interface language", subscription: "Subscription", share: "Share with a friend",
+        exit_title: "Leave lesson?", exit_text: "This lesson's progress will be lost.", exit_ok: "Leave" },
+  es: { tab_learn: "Aprender", tab_games: "Juegos", tab_board: "Clasificación", tab_profile: "Perfil",
+        start_lesson: "Empezar lección", check: "Comprobar", dont_know: "No sé", back: "Atrás",
+        continue: "Continuar", lesson_done: "¡Lección completada!", your_mistakes: "Tus errores",
+        mistakes_hint: "Sin respuestas correctas — recuérdate, luego comprueba", your_answer: "Tu respuesta",
+        games: "Juegos", games_hint: "Calienta entre lecciones — también da XP",
+        sprint_hint: "¿Traducción correcta? ¡45 segundos!", anagram_hint: "Forma la palabra con letras",
+        score: "Puntos", yes: "Verdadero", no: "Falso", reset: "Reiniciar",
+        ui_lang: "Idioma de la interfaz", subscription: "Suscripción", share: "Compartir",
+        exit_title: "¿Salir de la lección?", exit_text: "El progreso se perderá.", exit_ok: "Salir" },
+  de: { tab_learn: "Lernen", tab_games: "Spiele", tab_board: "Rangliste", tab_profile: "Profil",
+        start_lesson: "Lektion starten", check: "Prüfen", dont_know: "Weiß nicht", back: "Zurück",
+        continue: "Weiter", lesson_done: "Lektion geschafft!", your_mistakes: "Deine Fehler",
+        mistakes_hint: "Ohne richtige Antworten — erst selbst erinnern", your_answer: "Deine Antwort",
+        games: "Spiele", games_hint: "Aufwärmen zwischen Lektionen — gibt auch XP",
+        sprint_hint: "Übersetzung richtig? 45 Sekunden!", anagram_hint: "Wort aus Buchstaben bilden",
+        score: "Punkte", yes: "Richtig", no: "Falsch", reset: "Reset",
+        ui_lang: "Oberflächensprache", subscription: "Abo", share: "Teilen",
+        exit_title: "Lektion verlassen?", exit_text: "Der Fortschritt geht verloren.", exit_ok: "Verlassen" },
+  fr: { tab_learn: "Apprendre", tab_games: "Jeux", tab_board: "Classement", tab_profile: "Profil",
+        start_lesson: "Commencer", check: "Vérifier", dont_know: "Je ne sais pas", back: "Retour",
+        continue: "Continuer", lesson_done: "Leçon terminée !", your_mistakes: "Tes erreurs",
+        mistakes_hint: "Sans bonnes réponses — souviens-toi d'abord", your_answer: "Ta réponse",
+        games: "Jeux", games_hint: "Échauffement entre les leçons — aussi de l'XP",
+        sprint_hint: "Traduction juste ? 45 secondes !", anagram_hint: "Forme le mot avec les lettres",
+        score: "Points", yes: "Vrai", no: "Faux", reset: "Réinitialiser",
+        ui_lang: "Langue de l'interface", subscription: "Abonnement", share: "Partager",
+        exit_title: "Quitter la leçon ?", exit_text: "La progression sera perdue.", exit_ok: "Quitter" },
+  uk: { tab_learn: "Навчання", tab_games: "Ігри", tab_board: "Рейтинг", tab_profile: "Профіль",
+        start_lesson: "Почати урок", check: "Перевірити", dont_know: "Не знаю", back: "Назад",
+        continue: "Далі", lesson_done: "Урок пройдено!", your_mistakes: "Твої помилки",
+        mistakes_hint: "Без правильних відповідей — пригадай сам, потім перевір", your_answer: "Твоя відповідь",
+        games: "Ігри", games_hint: "Розминка між уроками — теж дає XP",
+        sprint_hint: "Переклад правильний? Встигни за 45 секунд!", anagram_hint: "Склади слово з літер",
+        score: "Очки", yes: "Вірно", no: "Невірно", reset: "Скидання",
+        ui_lang: "Мова інтерфейсу", subscription: "Підписка", share: "Поділитися",
+        exit_title: "Вийти з уроку?", exit_text: "Прогрес уроку не збережеться.", exit_ok: "Вийти" },
+};
+
+let uiLang = "ru";
+function t(key) {
+  return (I18N[uiLang] && I18N[uiLang][key]) || I18N.ru[key] || key;
+}
+
+function applyI18n() {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  const dk = document.getElementById("btn-dontknow");
+  if (dk) dk.textContent = t("dont_know");
+  const ck = document.getElementById("btn-check");
+  if (ck && !ck.dataset.active) ck.textContent = t("check");
+}
+
 function setTab(name) {
   document.querySelectorAll(".tab").forEach(t =>
     t.classList.toggle("active", t.dataset.tab === name));
@@ -51,6 +140,7 @@ function setTab(name) {
 document.querySelectorAll(".tab").forEach(t => {
   t.onclick = () => {
     if (t.dataset.tab === "home") goHome();
+    if (t.dataset.tab === "games") showGames();
     if (t.dataset.tab === "board") showBoard();
     if (t.dataset.tab === "profile") showProfile();
   };
@@ -200,6 +290,8 @@ const WORD_EMOJI = {
 async function goHome() {
   showScreen("screen-loading");
   const [me, progress] = await Promise.all([api("/me"), api("/progress")]);
+  uiLang = me.ui_language || "ru";
+  applyI18n();
   document.getElementById("streak").textContent = me.streak;
   document.getElementById("xp").textContent = me.xp;
   document.getElementById("limit-info").textContent = me.has_subscription
@@ -278,6 +370,7 @@ let selectedOption = null;
 let correctCount = 0;
 let retryQueue = [];      // задания, где нажали «Не знаю»
 let retryRound = false;
+let mistakes = [];        // ошибки текущего урока: {prompt, your}
 
 async function startLesson(languageId) {
   try {
@@ -298,6 +391,7 @@ function startLessonFlow() {
   correctCount = 0;
   retryQueue = [];
   retryRound = false;
+  mistakes = [];
   // экран знакомства со словами
   const intro = lesson.intro_words || [];
   if (intro.length && !lesson.repeat) {
@@ -309,8 +403,7 @@ function startLessonFlow() {
       const card = document.createElement("div");
       card.className = "word-card";
       card.style.animationDelay = (i * 0.07) + "s";
-      const emoji = WORD_EMOJI[word.toLowerCase()] || "🔤";
-      card.innerHTML = `<span class="w-emoji">${emoji}</span>
+      card.innerHTML = `<div class="w-num">${i + 1}</div>
         <div><div class="w-word">${word}</div><div class="w-trans">${trans}</div></div>`;
       grid.appendChild(card);
     });
@@ -422,7 +515,7 @@ function renderExercise() {
   const checkBtn = document.getElementById("btn-check");
   checkBtn.style.display = "";
   checkBtn.disabled = false;
-  checkBtn.textContent = "Проверить";
+  checkBtn.textContent = t("check");
   checkBtn.onclick = () => checkAnswer(ex);
 
   const dontKnowBtn = document.getElementById("btn-dontknow");
@@ -456,6 +549,7 @@ function renderExercise() {
 
 // «Не знаю»: показываем ответ, задание уйдёт в повторную очередь
 function dontKnow(ex) {
+  mistakes.push({ prompt: ex.prompt, your: "—" });
   const box = document.getElementById("exercise-options");
   box.querySelectorAll(".option").forEach(b => {
     b.disabled = true;
@@ -564,6 +658,7 @@ function checkAnswer(ex) {
 
   const checkBtn = document.getElementById("btn-check");
   if (!ok) {
+    mistakes.push({ prompt: ex.prompt, your: selectedOption });
     if (ex.type === "sentence") {
       showModal("Правильный ответ", `«${correct}»`);
       nextExercise();
@@ -582,7 +677,7 @@ function checkAnswer(ex) {
 
 async function nextExercise() {
   exIndex++;
-  document.getElementById("btn-check").textContent = "Проверить";
+  document.getElementById("btn-check").textContent = t("check");
   if (exIndex >= lesson.exercises.length) {
     if (!retryRound && retryQueue.length) {
       // второй круг: прогоняем задания, где было «Не знаю»
@@ -607,6 +702,7 @@ async function nextExercise() {
       `${correctCount}/${lesson.exercises.length}`;
     document.getElementById("res-streak").textContent = result.streak;
     document.getElementById("res-xp").textContent = result.xp;
+    renderMistakes();
     showScreen("screen-result");
   } else {
     renderExercise();
@@ -640,12 +736,23 @@ async function showProfile() {
   showScreen("screen-loading");
   const [me, board, progress, history] = await Promise.all(
     [api("/me"), api("/leaderboard"), api("/progress"), api("/history")]);
-  const happy = me.pet_mood === "happy";
-  document.querySelector(".avatar-ring img").src =
-    happy ? "assets/pet_happy.svg" : "assets/pet_sad.svg";
-  document.getElementById("pet-caption").textContent = happy
-    ? (me.lessons_done_today > 0 ? "Кенгу доволен: ты сегодня занимался!" : "Кенгу рад тебя видеть!")
-    : "Кенгу скучает… пройди урок, чтобы он повеселел!";
+  const petImg = document.getElementById("profile-pet");
+  let variant = "sad", caption = "Кенгу скучает… пройди урок, чтобы он повеселел!";
+  if (me.streak >= 7) {
+    variant = "super";
+    caption = `Невероятно! ${me.streak} дней подряд — Кенгу в восторге и гордится тобой!`;
+  } else if (me.pet_mood === "happy") {
+    variant = "happy";
+    caption = me.lessons_done_today > 0
+      ? "Кенгу доволен: ты сегодня занимался!"
+      : "Кенгу рад тебя видеть!";
+  } else if (me.streak >= 3) {
+    variant = "happy";
+    caption = `Кенгу счастлив: стрик уже ${me.streak} дней!`;
+  }
+  petImg.src = `assets/pet_${variant}.svg`;
+  petImg.className = "profile-pet" + (variant === "super" ? " super" : "");
+  document.getElementById("pet-caption").textContent = caption;
   const lessonsDone = progress.items.filter(i => i.completed).length;
   document.getElementById("profile-name").textContent = me.first_name || "Ученик";
   document.getElementById("profile-sub").textContent = me.has_subscription
@@ -711,3 +818,211 @@ document.getElementById("btn-plans").onclick = showPlans;
     if (e.message !== "limit" && e.message !== "auth") showModal("Ошибка", "Что-то пошло не так при загрузке.");
   }
 })();
+
+// ---------- Ошибки урока ----------
+function renderMistakes() {
+  const box = document.getElementById("mistakes-box");
+  const list = document.getElementById("mistakes-list");
+  list.innerHTML = "";
+  if (!mistakes.length) { box.style.display = "none"; return; }
+  box.style.display = "";
+  mistakes.forEach(m => {
+    const card = document.createElement("div");
+    card.className = "mistake-card";
+    card.innerHTML = `<div class="m-q">${m.prompt}</div>
+      <div class="m-a">${t("your_answer") || "Твой ответ"}: ${m.your}</div>`;
+    list.appendChild(card);
+  });
+}
+
+// ---------- Выход из урока ----------
+function exitLesson() {
+  showConfirm(t("exit_title"), t("exit_text"), t("exit_ok"), () => goHome());
+}
+
+// ---------- Язык интерфейса ----------
+async function showUiLanguages() {
+  showScreen("screen-loading");
+  const langs = await api("/ui_languages");
+  const me = await api("/me");
+  const list = document.getElementById("ui-lang-list");
+  list.innerHTML = "";
+  langs.forEach(l => {
+    const btn = document.createElement("button");
+    btn.className = "card" + ((me.ui_language || "ru") === l.code ? " selected" : "");
+    btn.innerHTML = `<b style="flex:1">${l.name}</b>
+      <span style="color:var(--muted)">${l.code}</span>`;
+    btn.onclick = async () => {
+      await api("/me", "PATCH", { ui_language: l.code });
+      uiLang = l.code;
+      applyI18n();
+      showProfile();
+    };
+    list.appendChild(btn);
+  });
+  showScreen("screen-language");
+}
+
+// ---------- Игры ----------
+let gameLangId = null;
+
+async function showGames() {
+  showScreen("screen-loading");
+  const progress = await api("/progress");
+  const list = document.getElementById("games-list");
+  list.innerHTML = "";
+  if (!progress.items.length) {
+    list.innerHTML = `<p class="muted">Сначала выбери язык на вкладке «Учить»</p>`;
+    showScreen("screen-games");
+    return;
+  }
+  gameLangId = progress.items[0].language_id;
+  const games = [
+    { id: "sprint", name: "Спринт", desc: "Верно/неверно на 45 секунд — успей набрать больше!" },
+    { id: "anagram", name: "Анаграммы", desc: "Собери слово из перемешанных букв" },
+  ];
+  games.forEach(g => {
+    const btn = document.createElement("button");
+    btn.className = "game-card";
+    btn.innerHTML = `<svg class="ic" style="width:30px;height:30px"><use href="#i-target"/></svg>
+      <div><b>${g.name}</b><p class="muted">${g.desc}</p></div>`;
+    btn.onclick = () => g.id === "sprint" ? startSprint() : startAnagram();
+    list.appendChild(btn);
+  });
+  showScreen("screen-games");
+}
+
+// Спринт
+let sprintPairs = [], sprintIdx = 0, sprintScore = 0, sprintTimer = null;
+let sprintCurrentTrue = false;
+
+async function startSprint() {
+  const data = await api(`/game/words/${gameLangId}?n=40`);
+  sprintPairs = data.pairs;
+  sprintIdx = 0; sprintScore = 0;
+  document.getElementById("sprint-score").textContent = "0";
+  showScreen("screen-sprint");
+  let time = 45;
+  const timerEl = document.getElementById("sprint-timer");
+  timerEl.textContent = time;
+  timerEl.classList.remove("low");
+  nextSprintRound();
+  clearInterval(sprintTimer);
+  sprintTimer = setInterval(() => {
+    time--;
+    timerEl.textContent = time;
+    if (time <= 10) timerEl.classList.add("low");
+    if (time <= 0) endSprint();
+  }, 1000);
+}
+
+function nextSprintRound() {
+  if (sprintIdx >= sprintPairs.length) {
+    const shuffled = [...sprintPairs].sort(() => Math.random() - 0.5);
+    sprintPairs = shuffled;
+    sprintIdx = 0;
+  }
+  const pair = sprintPairs[sprintIdx++];
+  sprintCurrentTrue = Math.random() < 0.5;
+  let shown = pair.translation;
+  if (!sprintCurrentTrue) {
+    // подмена переводом другого слова
+    const other = sprintPairs[Math.floor(Math.random() * sprintPairs.length)];
+    if (other.word === pair.word || other.translation === pair.translation) {
+      sprintCurrentTrue = true;
+    } else {
+      shown = other.translation;
+    }
+  }
+  document.getElementById("sprint-word").textContent = pair.word;
+  document.getElementById("sprint-trans").textContent = shown;
+}
+
+function sprintAnswer(saidTrue) {
+  if (saidTrue === sprintCurrentTrue) {
+    sprintScore++;
+    document.getElementById("sprint-score").textContent = sprintScore;
+    nextSprintRound();
+  } else {
+    endSprint();
+  }
+}
+
+async function endSprint() {
+  clearInterval(sprintTimer);
+  const gained = Math.min(sprintScore, 30);
+  const res = await api("/game/xp", "POST", { points: gained });
+  showModal("Спринт окончен!",
+    `Результат: <b>${sprintScore}</b> верных ответов.<br>Заработано <b>+${res.granted} XP</b>!`,
+    "assets/pet_happy.svg");
+  showGames();
+}
+
+document.getElementById("btn-sprint-yes").onclick = () => sprintAnswer(true);
+document.getElementById("btn-sprint-no").onclick = () => sprintAnswer(false);
+
+// Анаграммы
+let anagramWord = "", anagramPlaced = [];
+
+async function startAnagram() {
+  const data = await api(`/game/words/${gameLangId}?n=1`);
+  const pair = data.pairs[0];
+  anagramWord = pair.word;
+  anagramPlaced = [];
+  document.getElementById("anagram-trans").textContent = pair.translation;
+  const bank = document.getElementById("anagram-bank");
+  bank.innerHTML = "";
+  const letters = anagramWord.split("").map((ch, i) => ({ ch, id: i }))
+    .sort(() => Math.random() - 0.5);
+  letters.forEach(({ ch, id }) => {
+    const b = document.createElement("button");
+    b.className = "letter-chip";
+    b.textContent = ch;
+    b.dataset.id = id;
+    b.onclick = () => {
+      if (b.disabled) return;
+      b.disabled = true;
+      anagramPlaced.push({ ch, id, src: b });
+      renderAnagram();
+    };
+    bank.appendChild(b);
+  });
+  renderAnagram();
+  showScreen("screen-anagram");
+}
+
+function renderAnagram() {
+  const slots = document.getElementById("anagram-slots");
+  slots.innerHTML = "";
+  anagramPlaced.forEach((p, idx) => {
+    const b = document.createElement("button");
+    b.className = "letter-chip";
+    b.textContent = p.ch;
+    b.onclick = () => {
+      anagramPlaced.splice(idx, 1);
+      p.src.disabled = false;
+      renderAnagram();
+    };
+    slots.appendChild(b);
+  });
+}
+
+document.getElementById("btn-anagram-reset").onclick = () => {
+  anagramPlaced = [];
+  document.querySelectorAll("#anagram-bank .letter-chip").forEach(b => b.disabled = false);
+  renderAnagram();
+};
+
+document.getElementById("btn-anagram-check").onclick = async () => {
+  const attempt = anagramPlaced.map(p => p.ch).join("");
+  if (attempt.length !== anagramWord.length) return;
+  if (attempt.toLowerCase() === anagramWord.toLowerCase()) {
+    const res = await api("/game/xp", "POST", { points: 3 });
+    showModal("Верно!", `«${anagramWord}» — правильно! <b>+3 XP</b>`, "assets/pet_happy.svg");
+  } else {
+    showModal("Почти!", `Получилось «${attempt}». Попробуй иначе!`, "assets/pet_sad.svg");
+  }
+  startAnagram();
+};
+
+document.getElementById("btn-ui-lang").onclick = showUiLanguages;

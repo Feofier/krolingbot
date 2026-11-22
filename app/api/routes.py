@@ -24,6 +24,33 @@ class LanguageIn(BaseModel):
     language_id: int
 
 
+class MePatchIn(BaseModel):
+    ui_language: str | None = None
+
+
+class GameXpIn(BaseModel):
+    points: int
+
+
+UI_LANGUAGES = [
+    {"code": "ru", "name": "Русский"},
+    {"code": "en", "name": "English"},
+    {"code": "es", "name": "Español"},
+    {"code": "de", "name": "Deutsch"},
+    {"code": "fr", "name": "Français"},
+    {"code": "it", "name": "Italiano"},
+    {"code": "pt", "name": "Português"},
+    {"code": "tr", "name": "Türkçe"},
+    {"code": "pl", "name": "Polski"},
+    {"code": "uk", "name": "Українська"},
+    {"code": "ja", "name": "日本語"},
+    {"code": "zh", "name": "中文"},
+    {"code": "ar", "name": "العربية"},
+    {"code": "kk", "name": "Қазақша"},
+    {"code": "uz", "name": "O'zbek"},
+]
+
+
 class PlacementStartIn(BaseModel):
     language_id: int
     self_level: str  # A1, A2, B1
@@ -51,12 +78,68 @@ async def me(user_tg: dict = Depends(get_telegram_user),
         "xp": user.xp,
         "streak": user.streak,
         "pet_mood": pet_mood,
+        "ui_language": user.ui_language or "ru",
         "lessons_done_today": await lessons_done_today(session, user.id),
         "subscription_days_left": (sub.expires_at.date() - date_type.today()).days if sub else 0,
         "has_subscription": sub is not None,
         "can_add_language": sub is not None or lang_count == 0,
         "languages_count": lang_count,
     }
+
+
+@router.patch("/me")
+async def patch_me(data: MePatchIn,
+                   user_tg: dict = Depends(get_telegram_user),
+                   session: AsyncSession = Depends(get_session)):
+    user = await get_or_create_user(session, user_tg["id"])
+    if data.ui_language is not None:
+        user.ui_language = data.ui_language
+        session.add(user)
+        await session.commit()
+    return {"ok": True, "ui_language": user.ui_language or "ru"}
+
+
+@router.get("/ui_languages")
+async def ui_languages():
+    return UI_LANGUAGES
+
+
+@router.get("/game/words/{language_id}")
+async def game_words(language_id: int, n: int = 12,
+                     user_tg: dict = Depends(get_telegram_user),
+                     session: AsyncSession = Depends(get_session)):
+    """Слова для мини-игр: выборка из словарей уроков языка."""
+    user = await get_or_create_user(session, user_tg["id"])
+    lessons = (await session.execute(
+        select(Lesson).where(Lesson.language_id == language_id))).scalars().all()
+    pool = []
+    for lesson in lessons:
+        if lesson.intro and lesson.intro.get("words"):
+            pool.extend(lesson.intro["words"])
+    # уникальные пары
+    seen = set()
+    pairs = []
+    for w, t in pool:
+        if w not in seen:
+            seen.add(w)
+            pairs.append({"word": w, "translation": t})
+    import random
+    rng = random.Random(user.id + language_id)
+    rng.shuffle(pairs)
+    return {"pairs": pairs[:n]}
+
+
+@router.post("/game/xp")
+async def game_xp(data: GameXpIn,
+                  user_tg: dict = Depends(get_telegram_user),
+                  session: AsyncSession = Depends(get_session)):
+    """Начисление XP за мини-игры (не более 30 XP за один запрос)."""
+    user = await get_or_create_user(session, user_tg["id"])
+    points = max(0, min(data.points, 30))
+    user.xp += points
+    session.add(user)
+    await session.commit()
+    return {"ok": True, "xp": user.xp, "granted": points}
 
 
 @router.get("/languages")
@@ -170,6 +253,10 @@ async def get_lesson(language_id: int, user_tg: dict = Depends(get_telegram_user
 class ExamFinishIn(BaseModel):
     score: int
     total: int
+
+
+class MePatchIn(BaseModel):
+    ui_language: str | None = None
 
 
 @router.get("/exam/{language_id}")

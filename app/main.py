@@ -27,6 +27,8 @@ async def init_db() -> None:
         try:
             await conn.execute(text(
                 "ALTER TABLE lessons ADD COLUMN IF NOT EXISTS intro JSON"))
+            await conn.execute(text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_language VARCHAR(8) DEFAULT 'ru'"))
         except Exception:
             pass
     async with SessionLocal() as session:

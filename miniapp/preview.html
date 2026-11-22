@@ -26,6 +26,9 @@
         { id: 2, type: "gap", prompt: "Вставь пропущенное слово:", payload: { sentence: "The cat ___ bread", options: ["reads", "eats", "sleeps", "runs"], correct: "eats" } },
         { id: 3, type: "sentence", prompt: "Переведи: «Я пью воду»", payload: { bank: ["I", "drink", "water", "blue", "they"], correct: "I drink water" } },
       ] };
+      if (path === "/ui_languages") return [{code:"ru",name:"Русский"},{code:"en",name:"English"}];
+      if (path.startsWith("/game/words")) return { pairs: [{word:"cat",translation:"кот"},{word:"dog",translation:"собака"},{word:"sun",translation:"солнце"}] };
+      if (path.startsWith("/game/xp")) return { ok:true, xp:130, granted:3 };
       if (path === "/history") return { items: [
         { lesson_id: 11, title: "Еда и напитки", level: "A1", language_name: "Английский", completed_at: "22.11.2026" },
         { lesson_id: 7, title: "Первые слова", level: "A1", language_name: "Английский", completed_at: "21.11.2026" },
@@ -159,6 +162,7 @@
         <div class="stat-box"><svg class="ic"><use href="#i-star"/></svg><b id="p-rank">—</b><span>место</span></div>
       </div>
       <div class="card-list">
+        <button class="card row" id="btn-ui-lang"><svg class="ic"><use href="#i-book"/></svg> Язык интерфейса</button>
         <button class="card row" onclick="showPlans()"><svg class="ic"><use href="#i-star"/></svg> Подписка</button>
         <button class="card row" id="btn-share"><svg class="ic"><use href="#i-share"/></svg> Поделиться с другом</button>
       </div>
@@ -180,6 +184,11 @@
         <button id="modal-btn" class="btn btn-primary">Понятно</button>
       </div>
     </div>
+    <div id="screen-games" class="screen"><h1>Игры</h1><div class="card-list" id="games-list"></div></div>
+    <div id="screen-sprint" class="screen center"><div class="sprint-timer" id="sprint-timer">45</div><h2 id="sprint-word"></h2><p class="muted" id="sprint-trans"></p><div class="sprint-score">Очки: <b id="sprint-score">0</b></div><div class="lesson-actions"><button class="btn btn-wrong" id="btn-sprint-no">Неверно</button><button class="btn btn-primary" id="btn-sprint-yes">Верно</button></div></div>
+    <div id="screen-anagram" class="screen center"><p class="anagram-trans" id="anagram-trans"></p><div class="anagram-slots" id="anagram-slots"></div><div class="anagram-bank" id="anagram-bank"></div><div class="lesson-actions"><button class="btn" id="btn-anagram-reset">Сброс</button><button class="btn btn-primary" id="btn-anagram-check">Проверить</button></div></div>
+    <div id="screen-language" class="screen"><h1>Язык интерфейса</h1><div id="ui-lang-list" class="card-list"></div></div>
+    <div id="mistakes-box" style="display:none"><div id="mistakes-list"></div></div>
 
   <svg width="0" height="0" style="position:absolute">
     <defs>
