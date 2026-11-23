@@ -113,6 +113,14 @@
       </div>
     </div>
 
+    <!-- Смена языка обучения -->
+    <div id="screen-change-lang" class="screen">
+      <h1 data-i18n="change_lang">Сменить язык обучения</h1>
+      <p class="muted" id="change-lang-hint">Бесплатно — раз в 7 дней. С подпиской — без ожидания.</p>
+      <div id="change-lang-list" class="card-list"></div>
+      <button class="btn" onclick="showProfile()" data-i18n="back">Назад</button>
+    </div>
+
     <!-- Язык интерфейса -->
     <div id="screen-language" class="screen">
       <h1 data-i18n="ui_lang">Язык интерфейса</h1>
@@ -162,15 +170,16 @@
         <p class="muted small" data-i18n="mistakes_hint">Без правильных ответов — вспомни сам, потом проверь в уроке</p>
         <div id="mistakes-list" class="mistakes-list"></div>
       </div>
-      <button class="btn btn-primary" onclick="goHome()" data-i18n="continue">Продолжить</button>
+      <button id="btn-bonus-game" class="btn btn-blue">Бонус-игра · +XP</button>
+      <button class="btn" onclick="goHome()" data-i18n="continue" style="margin-top:10px">Продолжить</button>
     </div>
 
     <!-- Подписка -->
     <div id="screen-plans" class="screen">
       <h1>Безлимитный доступ</h1>
-      <p class="muted">С подпиской уроков в день — сколько хочешь.</p>
+      <div id="plans-perks" class="perks"></div>
       <div id="plans-list" class="card-list"></div>
-      <p class="muted small">Оплата откроется в чате бота.</p>
+      <p class="muted small">Оплата откроется в чате бота — Telegram Stars.</p>
       <button class="btn" onclick="goHome()">Назад</button>
     </div>
 
@@ -206,6 +215,7 @@
         <div class="stat-box"><svg class="ic"><use href="#i-star"/></svg><b id="p-rank">—</b><span>место</span></div>
       </div>
       <div class="card-list">
+        <button class="card row" id="btn-change-lang"><svg class="ic"><use href="#i-book"/></svg> <span data-i18n="change_lang">Сменить язык обучения</span></button>
         <button class="card row" id="btn-ui-lang"><svg class="ic"><use href="#i-book"/></svg> <span data-i18n="ui_lang">Язык интерфейса</span></button>
         <button class="card row" onclick="showPlans()"><svg class="ic"><use href="#i-star"/></svg> <span data-i18n="subscription">Подписка</span></button>
         <button class="card row" id="btn-share"><svg class="ic"><use href="#i-share"/></svg> <span data-i18n="share">Поделиться с другом</span></button>
@@ -217,7 +227,6 @@
     <!-- Нижняя навигация -->
     <nav id="tabbar">
       <button class="tab active" data-tab="home"><svg class="ic"><use href="#i-book"/></svg><span data-i18n="tab_learn">Учить</span></button>
-      <button class="tab" data-tab="games"><svg class="ic"><use href="#i-target"/></svg><span data-i18n="tab_games">Игры</span></button>
       <button class="tab" data-tab="board"><svg class="ic"><use href="#i-crown"/></svg><span data-i18n="tab_board">Рейтинг</span></button>
       <button class="tab" data-tab="profile"><svg class="ic"><use href="#i-user"/></svg><span data-i18n="tab_profile">Профиль</span></button>
     </nav>
@@ -245,6 +254,7 @@
       <g id="i-close"><path stroke="#afafaf" stroke-width="2.6" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></g>
       <g id="i-target"><circle cx="12" cy="12" r="9" fill="none" stroke="#ff4b4b" stroke-width="2.6"/><circle cx="12" cy="12" r="4.5" fill="#ff4b4b"/></g>
       <g id="i-share"><path fill="#1cb0f6" d="M14 4l6 5.5L14 15v-3.4C8 11.6 5.5 14 4.5 17.5 4 13.5 6 8.6 14 8z"/></g>
+      <g id="i-check"><path fill="#58cc02" d="M9 12l6 6 12-13" stroke="#58cc02" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
       <g id="i-play"><path fill="#fff" d="M8 5.5v13l11-6.5z"/></g>
     </defs>
   </svg>

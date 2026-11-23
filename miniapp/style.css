@@ -201,6 +201,7 @@ h2 { font-size: 21px; font-weight: 900; }
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50% { transform: translateY(-7px) rotate(2deg); }
 }
+.home-pet.super { animation: petParty 1.3s ease-in-out infinite; }
 .thought-bubble {
   position: relative; background: #fff; border: 2px solid var(--line);
   border-radius: 18px; padding: 12px 14px;
@@ -306,6 +307,14 @@ h2 { font-size: 21px; font-weight: 900; }
 }
 .anagram-slots .letter-chip { background: var(--card); color: var(--ink); box-shadow: 0 3px 0 var(--line); }
 .letter-chip:disabled { opacity: .35; cursor: default; }
+
+/* подписка: перечень возможностей */
+.perks { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.perk-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: var(--card); border: 2px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; font-size: 13.5px; font-weight: 700; line-height: 1.4;
+}
 
 /* игры */
 .game-card {

@@ -18,7 +18,13 @@ async function api(path, method = "GET", body = null) {
     showScreen("screen-limit");
     throw new Error("limit");
   }
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) {
+    let msg = "Ошибка";
+    try { msg = (await res.clone().json()).detail || msg; } catch (_) {
+      try { msg = await res.text(); } catch (_) {}
+    }
+    throw new Error(msg);
+  }
   return res.json();
 }
 
@@ -26,9 +32,8 @@ function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   document.getElementById("tabbar").style.display =
-    ["screen-home", "screen-games", "screen-board", "screen-profile"].includes(id) ? "flex" : "none";
+    ["screen-home", "screen-board", "screen-profile"].includes(id) ? "flex" : "none";
   if (id === "screen-home") setTab("home");
-  if (id === "screen-games") setTab("games");
   if (id === "screen-board") setTab("board");
   if (id === "screen-profile") setTab("profile");
 }
@@ -140,7 +145,6 @@ function setTab(name) {
 document.querySelectorAll(".tab").forEach(t => {
   t.onclick = () => {
     if (t.dataset.tab === "home") goHome();
-    if (t.dataset.tab === "games") showGames();
     if (t.dataset.tab === "board") showBoard();
     if (t.dataset.tab === "profile") showProfile();
   };
@@ -254,6 +258,13 @@ async function nextQuizQuestion() {
   }
 }
 
+// Позы питомца: случайная из списка
+const PET_POSES_ACTIVE = ["sit", "wave", "lie", "think"];
+function petPose(active) {
+  if (!active) return Math.random() < 0.5 ? "sleep" : "lie";
+  return PET_POSES_ACTIVE[Math.floor(Math.random() * PET_POSES_ACTIVE.length)];
+}
+
 // Мысли питомца: факты об английском языке
 const PET_FACTS = [
   "Знаешь? В английском больше слов, чем в любом другом языке — оценки доходят до миллиона!",
@@ -299,7 +310,8 @@ async function goHome() {
     : `Сегодня: ${progress.lessons_done_today} из ${progress.free_daily_limit} бесплатных уроков`;
 
   const pet = document.getElementById("home-pet");
-  pet.src = me.pet_mood === "happy" ? "assets/pet_happy.svg" : "assets/pet_sad.svg";
+  pet.src = `assets/pet_${petPose(me.pet_mood === "happy")}.svg`;
+  pet.classList.toggle("super", me.streak >= 7);
   const fact = PET_FACTS[Math.floor(Math.random() * PET_FACTS.length)];
   document.getElementById("pet-thought").textContent =
     (me.pet_mood === "happy" ? "" : "Скучаю… давай урок! А пока — факт: ") + fact;
@@ -365,6 +377,7 @@ function renderPath(item, canStart) {
 
 // ---------- Урок ----------
 let lesson = null;
+let lessonLangId = null;
 let exIndex = 0;
 let selectedOption = null;
 let correctCount = 0;
@@ -373,6 +386,7 @@ let retryRound = false;
 let mistakes = [];        // ошибки текущего урока: {prompt, your}
 
 async function startLesson(languageId) {
+  lessonLangId = languageId;
   try {
     lesson = await api(`/lesson/${languageId}`);
   } catch (e) { if (e.message !== "limit") showModal("Ошибка", "Не удалось загрузить урок. Попробуй ещё раз."); return; }
@@ -703,6 +717,12 @@ async function nextExercise() {
     document.getElementById("res-streak").textContent = result.streak;
     document.getElementById("res-xp").textContent = result.xp;
     renderMistakes();
+    gameLangId = lessonLangId;
+    const bonusBtn = document.getElementById("btn-bonus-game");
+    const bonusGame = Math.random() < 0.5 ? "sprint" : "anagram";
+    bonusBtn.textContent = bonusGame === "sprint"
+      ? "Бонус-игра: Спринт · +XP" : "Бонус-игра: Анаграммы · +XP";
+    bonusBtn.onclick = () => bonusGame === "sprint" ? startSprint() : startAnagram();
     showScreen("screen-result");
   } else {
     renderExercise();
@@ -737,21 +757,24 @@ async function showProfile() {
   const [me, board, progress, history] = await Promise.all(
     [api("/me"), api("/leaderboard"), api("/progress"), api("/history")]);
   const petImg = document.getElementById("profile-pet");
-  let variant = "sad", caption = "Кенгу скучает… пройди урок, чтобы он повеселел!";
+  let variant, caption;
   if (me.streak >= 7) {
-    variant = "super";
+    variant = "wave";
     caption = `Невероятно! ${me.streak} дней подряд — Кенгу в восторге и гордится тобой!`;
   } else if (me.pet_mood === "happy") {
-    variant = "happy";
+    variant = me.lessons_done_today > 0 ? "sit" : "think";
     caption = me.lessons_done_today > 0
       ? "Кенгу доволен: ты сегодня занимался!"
       : "Кенгу рад тебя видеть!";
   } else if (me.streak >= 3) {
-    variant = "happy";
+    variant = "sit";
     caption = `Кенгу счастлив: стрик уже ${me.streak} дней!`;
+  } else {
+    variant = "sleep";
+    caption = "Кенгу дремлет… пройди урок, чтобы он повеселел!";
   }
   petImg.src = `assets/pet_${variant}.svg`;
-  petImg.className = "profile-pet" + (variant === "super" ? " super" : "");
+  petImg.className = "profile-pet";
   document.getElementById("pet-caption").textContent = caption;
   const lessonsDone = progress.items.filter(i => i.completed).length;
   document.getElementById("profile-name").textContent = me.first_name || "Ученик";
@@ -786,9 +809,25 @@ async function showProfile() {
 }
 
 // ---------- Подписка ----------
+const STAR_SVG = '<svg style="width:18px;height:18px;vertical-align:-3px"><use href="#i-star"/></svg>';
+
+function perksHtml() {
+  const perks = [
+    "Безлимитные уроки каждый день — лимит 2 урока снимается",
+    "Несколько языков сразу — учи английский и японский параллельно",
+    "Смена языка обучения в любой момент — без ожидания 7 дней",
+    "Экзамены без лимита — сдавай хоть каждый день",
+    "Поддержка развития Krolingo — новые уроки и игры выходят быстрее",
+  ];
+  return perks.map(p =>
+    `<div class="perk-row"><svg class="ic" style="width:20px;height:20px;color:var(--green)"><use href="#i-check"/></svg> ${p}</div>`
+  ).join("");
+}
+
 async function showPlans() {
   showScreen("screen-loading");
   const plans = await api("/plans");
+  document.getElementById("plans-perks").innerHTML = perksHtml();
   const list = document.getElementById("plans-list");
   list.innerHTML = "";
   plans.forEach(p => {
@@ -797,7 +836,7 @@ async function showPlans() {
     btn.innerHTML = `<svg class="ic"><use href="#i-star"/></svg>
       <div style="flex:1"><b>${p.title}</b><br>
       <span class="muted" style="margin:0">Безлимитные уроки на ${p.days} дней</span></div>
-      <b style="color:var(--gold)">${p.stars}⭐</b>`;
+      <b style="color:var(--gold);display:flex;align-items:center;gap:3px">${STAR_SVG} ${p.stars}</b>`;
     btn.onclick = () => {
       tg.sendData(JSON.stringify({ action: "buy_plan", plan: p.key }));
       showModal("Запрос отправлен", "Заверши покупку в чате с ботом — там появится инвойс Telegram Stars.");
@@ -1026,3 +1065,38 @@ document.getElementById("btn-anagram-check").onclick = async () => {
 };
 
 document.getElementById("btn-ui-lang").onclick = showUiLanguages;
+
+// ---------- Смена языка обучения ----------
+async function showChangeLanguage() {
+  showScreen("screen-loading");
+  const [langs, me, progress] = await Promise.all(
+    [api("/languages"), api("/me"), api("/progress")]);
+  const current = progress.items.length ? progress.items[0].language_id : null;
+  document.getElementById("change-lang-hint").textContent = me.has_subscription
+    ? "С подпиской меняй язык когда угодно."
+    : "Бесплатно — раз в 7 дней. С подпиской — без ожидания.";
+  const list = document.getElementById("change-lang-list");
+  list.innerHTML = "";
+  langs.forEach(l => {
+    const btn = document.createElement("button");
+    btn.className = "card" + (l.id === current ? " selected" : "");
+    btn.innerHTML = `<span class="flag">${l.code.toUpperCase()}</span>
+      <b style="flex:1">${l.name}</b>
+      ${l.id === current ? '<span style="color:var(--green)">текущий</span>' : ""}`;
+    if (l.id !== current) {
+      btn.onclick = async () => {
+        try {
+          await api("/language/change", "POST", { language_id: l.id });
+          showModal("Готово!", `Теперь ты учишь: <b>${l.name}</b>. Прогресс начнётся с уровня A1.`, "assets/pet_wave.svg");
+          goHome();
+        } catch (e) {
+          if (e.message !== "limit") showModal("Пока нельзя", e.message || "Смена недоступна", "assets/pet_sleep.svg");
+        }
+      };
+    }
+    list.appendChild(btn);
+  });
+  showScreen("screen-change-lang");
+}
+
+document.getElementById("btn-change-lang").onclick = showChangeLanguage;

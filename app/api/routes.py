@@ -1,4 +1,4 @@
-from datetime import date as date_type
+from datetime import date as date_type, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -146,6 +146,41 @@ async def game_xp(data: GameXpIn,
 async def languages(session: AsyncSession = Depends(get_session)):
     rows = (await session.execute(select(Language))).scalars().all()
     return [{"id": l.id, "code": l.code, "name": l.name, "flag": l.flag} for l in rows]
+
+
+@router.post("/language/change")
+async def change_language(data: LanguageIn,
+                          user_tg: dict = Depends(get_telegram_user),
+                          session: AsyncSession = Depends(get_session)):
+    """Смена изучаемого языка: бесплатно — раз в 7 дней, с подпиской — без ограничений."""
+    user = await get_or_create_user(session, user_tg["id"])
+    sub = await active_subscription(session, user.id)
+    if sub is None and user.last_lang_change is not None:
+        elapsed = datetime.utcnow() - user.last_lang_change
+        if elapsed < timedelta(days=7):
+            left = 7 - elapsed.days
+            raise HTTPException(
+                403, f"Смена языка будет доступна через {left} дн. "
+                     f"С подпиской — без ожидания.")
+    lang = await session.get(Language, data.language_id)
+    if not lang:
+        raise HTTPException(404, "Language not found")
+    ul = (await session.execute(
+        select(UserLanguage).where(UserLanguage.user_id == user.id))).scalar_one_or_none()
+    if ul and ul.language_id == data.language_id:
+        return {"ok": True, "changed": False}
+    if ul is None:
+        ul = UserLanguage(user_id=user.id, language_id=data.language_id)
+        session.add(ul)
+    else:
+        ul.language_id = data.language_id
+        ul.level = "A1"
+        ul.current_lesson = 1
+        session.add(ul)
+    user.last_lang_change = datetime.utcnow()
+    session.add(user)
+    await session.commit()
+    return {"ok": True, "changed": True}
 
 
 @router.post("/languages")
