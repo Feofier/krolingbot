@@ -215,6 +215,14 @@ h2 { font-size: 21px; font-weight: 900; }
   font-size: 14px; font-weight: 800; color: #8a6d00; margin-top: 4px;
 }
 
+.pet-wrap { position: relative; width: 100%; height: 100%; }
+.pet-img { width: 100%; height: 100%; object-fit: contain; }
+.pet-zzz { display: none; position: absolute; top: -6px; right: 0;
+  font-weight: 900; color: #9bb7ff; font-size: 15px; letter-spacing: 1px; }
+.mood-sleep .pet-zzz { display: block; animation: zzzFloat 2.4s ease-in-out infinite; }
+@keyframes zzzFloat { 0%,100%{transform:translateY(0);opacity:.7} 50%{transform:translateY(-8px);opacity:1} }
+.mood-sleep .pet-img { filter: saturate(.55) brightness(.97); transform: rotate(-7deg); }
+
 /* питомец на главной с облачком мысли */
 .pet-box { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
 .home-pet {
@@ -311,8 +319,116 @@ h2 { font-size: 21px; font-weight: 900; }
 .word-card .w-trans { color: var(--muted); font-size: 13px; font-weight: 700; }
 @keyframes wordIn { from { transform: scale(.7); opacity: 0; } }
 
-/* ===== артикулированный питомец ===== */
-.pet-svg { width: 100%; height: 100%; overflow: visible; }
+/* ===== питомец: внешнее изображение ===== */
+
+.pet-svg g { transform-box: fill-box; }
+
+.pet-wrap { position: relative; width: 100%; height: 100%; }
+.pet-img { width: 100%; height: 100%; object-fit: contain; }
+.pet-zzz { display: none; position: absolute; top: -6px; right: 0;
+  font-weight: 900; color: #9bb7ff; font-size: 15px; letter-spacing: 1px; }
+.mood-sleep .pet-zzz { display: block; animation: zzzFloat 2.4s ease-in-out infinite; }
+@keyframes zzzFloat { 0%,100%{transform:translateY(0);opacity:.7} 50%{transform:translateY(-8px);opacity:1} }
+.mood-sleep .pet-img { filter: saturate(.55) brightness(.97); transform: rotate(-7deg); }
+
+/* питомец на главной с облачком мысли */
+.pet-box { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+.home-pet {
+  width: 110px; height: 128px; flex: none; position: relative;
+  animation: petBounce 2.6s ease-in-out infinite;
+}
+@keyframes petBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.home-pet.super { animation: petHop 1.15s ease-in-out infinite; }
+@keyframes petHop {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-14px) scale(.98, 1.02); }
+  45% { transform: translateY(-14px) scale(.98, 1.02); }
+  60% { transform: translateY(0) scale(1.04, .94); }
+  75% { transform: translateY(-5px) scale(.99, 1.01); }
+}
+/* позы */
+.home-pet.pose-hop { animation: petHop 1.5s ease-in-out infinite; }
+.home-pet.pose-sway { animation: petSway 3.4s ease-in-out infinite; }
+@keyframes petSway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+.home-pet.pose-calm { animation: none; }
+
+.thought-bubble {
+  position: relative; flex: 1; margin-top: 2px;
+  background: #fff; border: 2.5px solid var(--line);
+  border-radius: 20px; padding: 10px 14px;
+  font-size: 13.5px; font-weight: 700; color: var(--ink);
+  line-height: 1.45;
+}
+.thought-bubble::before, .thought-bubble::after {
+  content: ""; position: absolute;
+  background: #fff; border: 2.5px solid var(--line); border-radius: 50%;
+}
+.thought-bubble::before { width: 12px; height: 12px; left: -15px; bottom: 14px; }
+.thought-bubble::after { width: 7px; height: 7px; left: -24px; bottom: 4px; border-width: 2px; }
+.thought-bubble {
+  position: relative; background: #fff; border: 2px solid var(--line);
+  border-radius: 18px; padding: 12px 14px;
+  font-size: 13.5px; font-weight: 700; color: var(--ink);
+  flex: 1; line-height: 1.45;
+}
+.thought-bubble::before {
+  content: ""; position: absolute; left: -10px; top: 22px;
+  border: 6px solid transparent; border-right-color: var(--line);
+}
+
+/* путь уроков */
+.path { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 0 20px; }
+.path-node {
+  width: 64px; height: 64px; border-radius: 50%;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit; font-weight: 900; font-size: 18px;
+  position: relative;
+}
+.path-connector { width: 4px; height: 22px; background: var(--line); }
+.path-node.done { background: var(--green); color: #fff; box-shadow: 0 4px 0 var(--green-dark); }
+.path-node.current {
+  background: var(--gold); color: #fff; box-shadow: 0 4px 0 #e0a500;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.09); } }
+.path-node.locked { background: var(--card); color: #c0c0c0; border: 2px solid var(--line); cursor: default; }
+.path-exam {
+  width: auto; padding: 0 22px; border-radius: 20px;
+  background: var(--blue); color: #fff; box-shadow: 0 4px 0 var(--blue-dark);
+}
+.path-wrap { background: var(--card); border: 2px solid var(--line); border-radius: 20px; margin-bottom: 14px; padding: 6px 0; }
+.path-header { text-align: center; padding: 10px 14px 4px; }
+.path-header b { font-size: 16px; }
+.path-progress-line { font-size: 13px; color: var(--muted); font-weight: 700; }
+
+/* экран знакомства со словами */
+.intro-pet { width: 96px; height: 96px; animation: petBounce 2.2s ease-in-out infinite; }
+.word-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 18px; }
+.word-card {
+  flex: 1 1 calc(50% - 10px); min-width: 140px;
+  background: var(--card); border: 2px solid var(--line); border-radius: 16px;
+  padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+  animation: wordIn .35s ease-out backwards;
+}
+.word-card .w-num {
+  width: 30px; height: 30px; border-radius: 50%; flex: none;
+  background: var(--green); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900;
+}
+.word-card .w-word { font-weight: 900; font-size: 16px; }
+.word-card .w-trans { color: var(--muted); font-size: 13px; font-weight: 700; }
+@keyframes wordIn { from { transform: scale(.7); opacity: 0; } }
+
+/* ===== питомец: внешнее изображение ===== */
+
 .pet-svg g { transform-box: fill-box; }
 
 #pet-body { transform-origin: center bottom; animation: petBreathe 3.2s ease-in-out infinite; }
@@ -400,6 +516,12 @@ h2 { font-size: 21px; font-weight: 900; }
 }
 .sub-banner b { font-size: 16px; }
 .sub-banner span { font-size: 12.5px; font-weight: 700; opacity: .92; }
+
+.section-title {
+  font-size: 14px; font-weight: 900; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin: 18px 0 10px;
+}
 
 /* верхняя строка с кнопкой назад */
 .screen-top { display: flex; justify-content: flex-start; margin-bottom: 6px; min-height: 30px; }
@@ -563,3 +685,17 @@ h2 { font-size: 21px; font-weight: 900; }
 @keyframes pop { from { transform: scale(.85); opacity: 0; } }
 .modal .mascot.small { margin-bottom: 10px; }
 .modal h2 { margin-bottom: 6px; }
+
+/* ===== плавные анимации нажатия ===== */
+.btn, .card, .option, .game-chip, .tab, .pill-btn, .lesson-card,
+.path-node, .pair-card, .letter-chip, .sub-banner, .game-card, .flag, .icon-btn {
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+.btn:not(:disabled):active, .card:not(:disabled):active, .option:not(:disabled):active,
+.game-chip:not(:disabled):active, .tab:not(:disabled):active, .pill-btn:not(:disabled):active,
+.path-node:not(:disabled):active, .pair-card:not(:disabled):active,
+.letter-chip:not(:disabled):active, .sub-banner:not(:disabled):active, .game-card:not(:disabled):active {
+  transform: scale(.95);
+}
+.btn:active:not(:disabled) { box-shadow: none; transform: scale(.96) translateY(2px); }
+.icon-btn:active { transform: scale(.85); }

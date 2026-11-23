@@ -197,79 +197,12 @@ async function nextQuizQuestion() {
 }
 
 
-// ---------- Артикулированный питомец ----------
+// ---------- Питомец (внешнее изображение, без фона) ----------
 function renderPet(mood) {
-  return `<svg class="pet-svg mood-${mood}" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
-  <g stroke-linejoin="round" stroke-linecap="round">
-  <g id="pet-tail">
-    <path d="M 84 236 Q 30 244 20 206 Q 14 182 40 178 Q 62 176 78 196 Z"
-          fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
-  </g>
-  <ellipse cx="88" cy="262" rx="42" ry="16" fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
-  <ellipse cx="176" cy="262" rx="42" ry="16" fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
-  <g id="pet-body">
-    <path d="M 70 250 Q 58 160 96 128 Q 118 112 140 124 Q 186 150 184 222 Q 184 252 158 258 Q 118 266 88 258 Q 74 256 70 250 Z"
-          fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
-    <path d="M 92 236 Q 86 172 112 152 Q 130 142 146 154 Q 168 172 164 226 Q 150 244 128 244 Q 106 244 92 236 Z"
-          fill="#f7ead2" stroke="#5b3a1e" stroke-width="4"/>
-    <path d="M 102 210 Q 130 226 158 210 Q 152 228 130 230 Q 108 228 102 210 Z"
-          fill="#e9d6b4" stroke="#5b3a1e" stroke-width="3.5"/>
-    <g id="joey">
-      <ellipse cx="130" cy="196" rx="19" ry="17" fill="#cf9059" stroke="#5b3a1e" stroke-width="3.5"/>
-      <ellipse cx="130" cy="202" rx="11" ry="8" fill="#f7ead2" stroke="#5b3a1e" stroke-width="2.5"/>
-      <ellipse cx="118" cy="178" rx="6" ry="12" fill="#cf9059" stroke="#5b3a1e" stroke-width="2.5" transform="rotate(-14 118 178)"/>
-      <ellipse cx="142" cy="178" rx="6" ry="12" fill="#cf9059" stroke="#5b3a1e" stroke-width="2.5" transform="rotate(14 142 178)"/>
-      <circle cx="123" cy="192" r="3.4" fill="#2b1a10"/><circle cx="137" cy="192" r="3.4" fill="#2b1a10"/>
-      <circle cx="124" cy="191" r="1.1" fill="#fff"/><circle cx="138" cy="191" r="1.1" fill="#fff"/>
-      <ellipse cx="130" cy="199" rx="4" ry="3" fill="#5b3a1e"/>
-    </g>
-  </g>
-  <g id="pet-arm-l">
-    <path d="M 92 150 Q 76 176 84 200 Q 90 208 98 202 Q 96 178 106 158 Z"
-          fill="#cf9059" stroke="#5b3a1e" stroke-width="4.5"/>
-  </g>
-  <g id="pet-head">
-    <g id="ear-l">
-      <path d="M 90 62 Q 66 2 92 4 Q 114 8 112 62 Z" fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
-      <path d="M 95 54 Q 80 14 93 16 Q 105 20 105 56 Z" fill="#efd9b8" stroke="#5b3a1e" stroke-width="3"/>
-    </g>
-    <g id="ear-r">
-      <path d="M 170 62 Q 194 2 168 4 Q 146 8 148 62 Z" fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
-      <path d="M 165 54 Q 180 14 167 16 Q 155 20 155 56 Z" fill="#efd9b8" stroke="#5b3a1e" stroke-width="3"/>
-    </g>
-    <path d="M 80 92 Q 76 44 130 42 Q 184 44 180 92 Q 178 122 150 132 Q 130 138 110 132 Q 82 122 80 92 Z"
-          fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
-    <path d="M 96 112 Q 100 132 130 134 Q 160 132 164 112 Q 152 124 130 124 Q 108 124 96 112 Z"
-          fill="#f7ead2" stroke="#5b3a1e" stroke-width="4"/>
-    <ellipse cx="130" cy="106" rx="13" ry="9" fill="#7a4a26" stroke="#5b3a1e" stroke-width="3.5"/>
-    <ellipse cx="102" cy="104" rx="8" ry="5" fill="#f2a0a0" opacity="0.65"/>
-    <ellipse cx="158" cy="104" rx="8" ry="5" fill="#f2a0a0" opacity="0.65"/>
-    <g id="eyes-open">
-      <ellipse cx="106" cy="82" rx="14" ry="16" fill="#fff" stroke="#5b3a1e" stroke-width="3.5"/>
-      <ellipse cx="154" cy="82" rx="14" ry="16" fill="#fff" stroke="#5b3a1e" stroke-width="3.5"/>
-      <g id="pupils">
-        <circle cx="108" cy="84" r="8" fill="#2b1a10"/><circle cx="152" cy="84" r="8" fill="#2b1a10"/>
-        <circle cx="105" cy="80" r="3" fill="#fff"/><circle cx="149" cy="80" r="3" fill="#fff"/>
-        <circle cx="111" cy="87" r="1.5" fill="#fff" opacity=".8"/><circle cx="155" cy="87" r="1.5" fill="#fff" opacity=".8"/>
-      </g>
-    </g>
-    <g id="eyes-closed">
-      <path d="M 94 84 Q 106 76 118 84" stroke="#5b3a1e" stroke-width="5" fill="none"/>
-      <path d="M 142 84 Q 154 76 166 84" stroke="#5b3a1e" stroke-width="5" fill="none"/>
-    </g>
-    <path d="M 118 122 Q 130 130 142 122" stroke="#5b3a1e" stroke-width="5" fill="none"/>
-  </g>
-  <g id="pet-arm-r">
-    <path d="M 168 150 Q 186 174 178 198 Q 172 206 164 200 Q 166 176 156 158 Z"
-          fill="#cf9059" stroke="#5b3a1e" stroke-width="4.5"/>
-  </g>
-  <g id="zzz">
-    <text x="196" y="58" font-size="26" font-weight="bold" fill="#9bb7ff">Z</text>
-    <text x="214" y="36" font-size="19" font-weight="bold" fill="#b6c8ff">z</text>
-    <text x="228" y="20" font-size="14" font-weight="bold" fill="#ccd8ff">z</text>
-  </g>
-  </g>
-</svg>`;
+  return `<div class="pet-wrap mood-${mood}">
+    <img class="pet-img" src="assets/kangaroo_fluent.svg" alt="Kengo">
+    <span class="pet-zzz">Z z z</span>
+  </div>`;
 }
 
 
@@ -935,18 +868,22 @@ async function showProfile() {
     tg.openTelegramLink(
       `https://t.me/share/url?url=${encodeURIComponent("https://t.me/KrolingoBot")}&text=${encodeURIComponent(text)}`);
   };
+  const subSection = document.getElementById("sub-section");
+  subSection.innerHTML = "";
   if (!me.has_subscription) {
-    let banner = document.getElementById("sub-banner");
-    if (!banner) {
-      banner = document.createElement("button");
-      banner.id = "sub-banner";
-      banner.className = "sub-banner";
-      banner.innerHTML = `<svg class="ic" style="width:30px;height:30px"><use href="#i-star"/></svg>
-        <div style="flex:1"><b>${t("sub_banner_t")}</b><br>
-        <span>${t("sub_banner_s")}</span></div>`;
-      document.querySelector("#screen-profile .profile-card").after(banner);
-    }
+    const banner = document.createElement("button");
+    banner.className = "sub-banner";
+    banner.innerHTML = `<svg class="ic" style="width:30px;height:30px"><use href="#i-star"/></svg>
+      <div style="flex:1"><b>${t("sub_banner_t")}</b><br>
+      <span>${t("sub_banner_s")}</span></div>`;
     banner.onclick = showPlans;
+    subSection.appendChild(banner);
+  } else {
+    const active = document.createElement("div");
+    active.className = "card";
+    active.innerHTML = `<svg class="ic"><use href="#i-check"/></svg>
+      <b style="flex:1">${t("sub_left", {n: me.subscription_days_left})}</b>`;
+    subSection.appendChild(active);
   }
 
   const hlist = document.getElementById("history-list");
