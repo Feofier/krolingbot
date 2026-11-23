@@ -958,9 +958,24 @@ async function showPlans() {
       <div style="flex:1"><b>${p.title}</b><br>
       <span class="muted" style="margin:0">Безлимитные уроки на ${p.days} дней</span></div>
       <b style="color:var(--gold);display:flex;align-items:center;gap:3px">${STAR_SVG} ${p.stars}</b>`;
-    btn.onclick = () => {
-      tg.sendData(JSON.stringify({ action: "buy_plan", plan: p.key }));
-      showModal("Запрос отправлен", "Заверши покупку в чате с ботом — там появится инвойс Telegram Stars.");
+    btn.onclick = async () => {
+      try {
+        const res = await api("/buy", "POST", { plan: p.key });
+        if (tg.openInvoice) {
+          tg.openInvoice(res.url, status => {
+            if (status === "paid") {
+              showModal("Подписка активна!", "Добро пожаловать в Krolingo Premium!", "assets/logo.png");
+              goHome();
+            } else if (status === "failed") {
+              showModal("Оплата не прошла", "Попробуй ещё раз чуть позже.");
+            }
+          });
+        } else {
+          tg.openLink(res.url);
+        }
+      } catch (e) {
+        if (e.message !== "limit") showModal("Ошибка", e.message || "Не удалось создать инвойс");
+      }
     };
     list.appendChild(btn);
   });
