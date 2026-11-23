@@ -66,7 +66,7 @@ document.getElementById("modal-btn").onclick = origModalClose;
 
 // ---------- Локализация интерфейса ----------
 const I18N = {
-  ru: { tab_learn: "Учить", tab_games: "Игры", tab_board: "Рейтинг", tab_profile: "Профиль",
+  ru: { change_lang: "Сменить язык обучения", tab_learn: "Учить", tab_games: "Игры", tab_board: "Рейтинг", tab_profile: "Профиль",
         start_lesson: "Начать урок", check: "Проверить", dont_know: "Не знаю", back: "Назад",
         continue: "Продолжить", lesson_done: "Урок пройден!", your_mistakes: "Твои ошибки",
         mistakes_hint: "Без правильных ответов — вспомни сам, потом проверь в уроке", your_answer: "Твой ответ",
@@ -75,7 +75,7 @@ const I18N = {
         score: "Очки", yes: "Верно", no: "Неверно", reset: "Сброс",
         ui_lang: "Язык интерфейса", subscription: "Подписка", share: "Поделиться с другом",
         exit_title: "Выйти из урока?", exit_text: "Прогресс этого урока не сохранится.", exit_ok: "Выйти" },
-  en: { tab_learn: "Learn", tab_games: "Games", tab_board: "Leaderboard", tab_profile: "Profile",
+  en: { change_lang: "Change learning language", tab_learn: "Learn", tab_games: "Games", tab_board: "Leaderboard", tab_profile: "Profile",
         start_lesson: "Start lesson", check: "Check", dont_know: "Don't know", back: "Back",
         continue: "Continue", lesson_done: "Lesson complete!", your_mistakes: "Your mistakes",
         mistakes_hint: "Correct answers hidden — recall them yourself", your_answer: "Your answer",
@@ -84,7 +84,7 @@ const I18N = {
         score: "Score", yes: "True", no: "False", reset: "Reset",
         ui_lang: "Interface language", subscription: "Subscription", share: "Share with a friend",
         exit_title: "Leave lesson?", exit_text: "This lesson's progress will be lost.", exit_ok: "Leave" },
-  es: { tab_learn: "Aprender", tab_games: "Juegos", tab_board: "Clasificación", tab_profile: "Perfil",
+  es: { change_lang: "Cambiar idioma", tab_learn: "Aprender", tab_games: "Juegos", tab_board: "Clasificación", tab_profile: "Perfil",
         start_lesson: "Empezar lección", check: "Comprobar", dont_know: "No sé", back: "Atrás",
         continue: "Continuar", lesson_done: "¡Lección completada!", your_mistakes: "Tus errores",
         mistakes_hint: "Sin respuestas correctas — recuérdate, luego comprueba", your_answer: "Tu respuesta",
@@ -93,7 +93,7 @@ const I18N = {
         score: "Puntos", yes: "Verdadero", no: "Falso", reset: "Reiniciar",
         ui_lang: "Idioma de la interfaz", subscription: "Suscripción", share: "Compartir",
         exit_title: "¿Salir de la lección?", exit_text: "El progreso se perderá.", exit_ok: "Salir" },
-  de: { tab_learn: "Lernen", tab_games: "Spiele", tab_board: "Rangliste", tab_profile: "Profil",
+  de: { change_lang: "Lernsprache ändern", tab_learn: "Lernen", tab_games: "Spiele", tab_board: "Rangliste", tab_profile: "Profil",
         start_lesson: "Lektion starten", check: "Prüfen", dont_know: "Weiß nicht", back: "Zurück",
         continue: "Weiter", lesson_done: "Lektion geschafft!", your_mistakes: "Deine Fehler",
         mistakes_hint: "Ohne richtige Antworten — erst selbst erinnern", your_answer: "Deine Antwort",
@@ -102,7 +102,7 @@ const I18N = {
         score: "Punkte", yes: "Richtig", no: "Falsch", reset: "Reset",
         ui_lang: "Oberflächensprache", subscription: "Abo", share: "Teilen",
         exit_title: "Lektion verlassen?", exit_text: "Der Fortschritt geht verloren.", exit_ok: "Verlassen" },
-  fr: { tab_learn: "Apprendre", tab_games: "Jeux", tab_board: "Classement", tab_profile: "Profil",
+  fr: { change_lang: "Changer de langue", tab_learn: "Apprendre", tab_games: "Jeux", tab_board: "Classement", tab_profile: "Profil",
         start_lesson: "Commencer", check: "Vérifier", dont_know: "Je ne sais pas", back: "Retour",
         continue: "Continuer", lesson_done: "Leçon terminée !", your_mistakes: "Tes erreurs",
         mistakes_hint: "Sans bonnes réponses — souviens-toi d'abord", your_answer: "Ta réponse",
@@ -111,7 +111,7 @@ const I18N = {
         score: "Points", yes: "Vrai", no: "Faux", reset: "Réinitialiser",
         ui_lang: "Langue de l'interface", subscription: "Abonnement", share: "Partager",
         exit_title: "Quitter la leçon ?", exit_text: "La progression sera perdue.", exit_ok: "Quitter" },
-  uk: { tab_learn: "Навчання", tab_games: "Ігри", tab_board: "Рейтинг", tab_profile: "Профіль",
+  uk: { change_lang: "Змінити мову навчання", tab_learn: "Навчання", tab_games: "Ігри", tab_board: "Рейтинг", tab_profile: "Профіль",
         start_lesson: "Почати урок", check: "Перевірити", dont_know: "Не знаю", back: "Назад",
         continue: "Далі", lesson_done: "Урок пройдено!", your_mistakes: "Твої помилки",
         mistakes_hint: "Без правильних відповідей — пригадай сам, потім перевір", your_answer: "Твоя відповідь",
@@ -258,6 +258,64 @@ async function nextQuizQuestion() {
   }
 }
 
+
+// ---------- Артикулированный питомец ----------
+function renderPet(mood) {
+  return `<svg class="pet-svg mood-${mood}" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <g id="pet-tail">
+    <path d="M 62 188 Q 18 190 24 152 Q 44 138 74 152 Z" fill="#8a4c24"/>
+  </g>
+  <g id="pet-body">
+    <ellipse cx="118" cy="164" rx="62" ry="66" fill="#a05a2c"/>
+    <ellipse cx="118" cy="182" rx="40" ry="44" fill="#e8b58a"/>
+    <path d="M 86 206 Q 118 224 150 206 Q 143 220 118 222 Q 93 220 86 206 Z" fill="#8a4c24"/>
+  </g>
+  <ellipse cx="70" cy="216" rx="30" ry="13" fill="#8a4c24"/>
+  <ellipse cx="166" cy="216" rx="30" ry="13" fill="#8a4c24"/>
+  <g id="pet-arm-l">
+    <ellipse cx="92" cy="166" rx="11" ry="21" fill="#8a4c24" transform="rotate(20 92 166)"/>
+  </g>
+  <g id="pet-head">
+    <g id="ear-l"><ellipse cx="94" cy="62" rx="15" ry="35" fill="#a05a2c" transform="rotate(-14 94 62)"/><ellipse cx="95" cy="68" rx="7" ry="24" fill="#e8b58a" transform="rotate(-14 95 68)"/></g>
+    <g id="ear-r"><ellipse cx="142" cy="62" rx="15" ry="35" fill="#a05a2c" transform="rotate(14 142 62)"/><ellipse cx="141" cy="68" rx="7" ry="24" fill="#e8b58a" transform="rotate(14 141 68)"/></g>
+    <ellipse cx="118" cy="106" rx="52" ry="47" fill="#a05a2c"/>
+    <ellipse cx="118" cy="122" rx="37" ry="29" fill="#c9803e"/>
+    <ellipse cx="108" cy="113" rx="5.5" ry="7.5" fill="#5f3312"/>
+    <ellipse cx="128" cy="113" rx="5.5" ry="7.5" fill="#5f3312"/>
+    <g id="eyes-open">
+      <ellipse cx="96" cy="98" rx="15" ry="18" fill="#fff"/>
+      <ellipse cx="140" cy="98" rx="15" ry="18" fill="#fff"/>
+      <g id="pupils">
+        <circle cx="99" cy="101" r="6.5" fill="#3b230f"/><circle cx="137" cy="101" r="6.5" fill="#3b230f"/>
+        <circle cx="101" cy="98" r="2.2" fill="#fff"/><circle cx="139" cy="98" r="2.2" fill="#fff"/>
+      </g>
+    </g>
+    <g id="eyes-closed">
+      <path d="M 84 100 Q 96 92 108 100" stroke="#3b230f" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <path d="M 128 100 Q 140 92 152 100" stroke="#3b230f" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+    </g>
+    <path d="M 84 74 Q 100 64 116 72" stroke="#5f3312" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M 122 72 Q 138 64 154 74" stroke="#5f3312" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <g id="mouth">
+      <path d="M 104 134 Q 118 146 132 134" stroke="#5f3312" stroke-width="6" fill="none" stroke-linecap="round"/>
+    </g>
+  </g>
+  <g id="pet-arm-r">
+    <ellipse cx="146" cy="160" rx="11" ry="21" fill="#8a4c24"/>
+  </g>
+  <g id="zzz">
+    <text x="180" y="66" font-size="26" font-weight="bold" fill="#9bb7ff">Z</text>
+    <text x="198" y="44" font-size="19" font-weight="bold" fill="#b6c8ff">z</text>
+    <text x="212" y="28" font-size="14" font-weight="bold" fill="#ccd8ff">z</text>
+  </g>
+</svg>`;
+}
+
+function setPet(containerId, mood) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = renderPet(mood);
+}
+
 // Позы питомца: случайная из списка
 const PET_POSES_ACTIVE = ["sit", "wave", "lie", "think"];
 function petPose(active) {
@@ -309,9 +367,8 @@ async function goHome() {
     ? `Подписка активна · осталось ${me.subscription_days_left} дн.`
     : `Сегодня: ${progress.lessons_done_today} из ${progress.free_daily_limit} бесплатных уроков`;
 
-  const pet = document.getElementById("home-pet");
-  pet.src = `assets/pet_${petPose(me.pet_mood === "happy")}.svg`;
-  pet.classList.toggle("super", me.streak >= 7);
+  setPet("home-pet", me.pet_mood === "happy" ? "happy" : "sleep");
+  document.getElementById("home-pet").classList.toggle("super", me.streak >= 7);
   const fact = PET_FACTS[Math.floor(Math.random() * PET_FACTS.length)];
   document.getElementById("pet-thought").textContent =
     (me.pet_mood === "happy" ? "" : "Скучаю… давай урок! А пока — факт: ") + fact;
@@ -323,6 +380,8 @@ async function goHome() {
     showScreen("screen-onboarding");
     return;
   }
+  gameLangId = progress.items[0].language_id;
+  renderGameStrip();
   progress.items.forEach(item => {
     list.appendChild(renderPath(item, progress.can_start));
   });
@@ -409,6 +468,7 @@ function startLessonFlow() {
   // экран знакомства со словами
   const intro = lesson.intro_words || [];
   if (intro.length && !lesson.repeat) {
+    setPet("intro-pet", "happy");
     document.getElementById("intro-title").textContent =
       `${lesson.title} · ${lesson.level}`;
     const grid = document.getElementById("intro-words");
@@ -717,12 +777,6 @@ async function nextExercise() {
     document.getElementById("res-streak").textContent = result.streak;
     document.getElementById("res-xp").textContent = result.xp;
     renderMistakes();
-    gameLangId = lessonLangId;
-    const bonusBtn = document.getElementById("btn-bonus-game");
-    const bonusGame = Math.random() < 0.5 ? "sprint" : "anagram";
-    bonusBtn.textContent = bonusGame === "sprint"
-      ? "Бонус-игра: Спринт · +XP" : "Бонус-игра: Анаграммы · +XP";
-    bonusBtn.onclick = () => bonusGame === "sprint" ? startSprint() : startAnagram();
     showScreen("screen-result");
   } else {
     renderExercise();
@@ -756,25 +810,21 @@ async function showProfile() {
   showScreen("screen-loading");
   const [me, board, progress, history] = await Promise.all(
     [api("/me"), api("/leaderboard"), api("/progress"), api("/history")]);
-  const petImg = document.getElementById("profile-pet");
-  let variant, caption;
-  if (me.streak >= 7) {
-    variant = "wave";
-    caption = `Невероятно! ${me.streak} дней подряд — Кенгу в восторге и гордится тобой!`;
-  } else if (me.pet_mood === "happy") {
-    variant = me.lessons_done_today > 0 ? "sit" : "think";
+  let mood, caption;
+  if (me.pet_mood === "happy") {
+    mood = "happy";
     caption = me.lessons_done_today > 0
       ? "Кенгу доволен: ты сегодня занимался!"
-      : "Кенгу рад тебя видеть!";
-  } else if (me.streak >= 3) {
-    variant = "sit";
-    caption = `Кенгу счастлив: стрик уже ${me.streak} дней!`;
+      : (me.streak >= 3 ? `Кенгу счастлив: стрик уже ${me.streak} дней!` : "Кенгу рад тебя видеть!");
   } else {
-    variant = "sleep";
-    caption = "Кенгу дремлет… пройди урок, чтобы он повеселел!";
+    mood = "sleep";
+    caption = me.streak >= 7
+      ? `Стрик ${me.streak} дней! Но сегодня Кенгу ждёт тебя на уроке…`
+      : "Кенгу дремлет… пройди урок, чтобы он повеселел!";
   }
-  petImg.src = `assets/pet_${variant}.svg`;
-  petImg.className = "profile-pet";
+  setPet("profile-pet", mood);
+  const petEl = document.getElementById("profile-pet");
+  petEl.classList.toggle("super", me.streak >= 7);
   document.getElementById("pet-caption").textContent = caption;
   const lessonsDone = progress.items.filter(i => i.completed).length;
   document.getElementById("profile-name").textContent = me.first_name || "Ученик";
@@ -1087,8 +1137,12 @@ async function showChangeLanguage() {
       btn.onclick = async () => {
         try {
           await api("/language/change", "POST", { language_id: l.id });
-          showModal("Готово!", `Теперь ты учишь: <b>${l.name}</b>. Прогресс начнётся с уровня A1.`, "assets/pet_wave.svg");
-          goHome();
+          // заново определяем уровень: самооценка -> мини-тест
+          chosenLang = l.id;
+          chosenLangName = l.name;
+          document.getElementById("level-title").textContent =
+            `Как хорошо ты знаешь: ${l.name}?`;
+          showScreen("screen-level");
         } catch (e) {
           if (e.message !== "limit") showModal("Пока нельзя", e.message || "Смена недоступна", "assets/pet_sleep.svg");
         }
@@ -1100,3 +1154,149 @@ async function showChangeLanguage() {
 }
 
 document.getElementById("btn-change-lang").onclick = showChangeLanguage;
+
+// ---------- Игровая полоса на главной ----------
+function renderGameStrip() {
+  const strip = document.getElementById("game-strip");
+  if (!strip) return;
+  strip.innerHTML = "";
+  const games = [
+    { id: "sprint", name: "Спринт", icon: "i-flame" },
+    { id: "anagram", name: "Буквы", icon: "i-book" },
+    { id: "pairs", name: "Пары", icon: "i-target" },
+    { id: "quizgame", name: "Викторина", icon: "i-crown" },
+  ];
+  games.forEach(g => {
+    const b = document.createElement("button");
+    b.className = "game-chip";
+    b.innerHTML = `<svg class="ic"><use href="#${g.icon}"/></svg>${g.name}`;
+    b.onclick = () => {
+      if (g.id === "sprint") startSprint();
+      else if (g.id === "anagram") startAnagram();
+      else if (g.id === "pairs") startPairs();
+      else startQuizGame();
+    };
+    strip.appendChild(b);
+  });
+}
+
+// Пары на время: найди пары «слово — перевод»
+let pairsCards = [], pairsOpen = [], pairsMatched = 0, pairsMoves = 0, pairsLock = false;
+
+async function startPairs() {
+  const data = await api(`/game/words/${gameLangId}?n=8`);
+  const words = data.pairs;
+  pairsCards = [];
+  words.forEach((p, i) => {
+    pairsCards.push({ key: i, text: p.word, kind: "word" });
+    pairsCards.push({ key: i, text: p.translation, kind: "trans" });
+  });
+  pairsCards.sort(() => Math.random() - 0.5);
+  pairsOpen = []; pairsMatched = 0; pairsMoves = 0; pairsLock = false;
+  document.getElementById("pairs-moves").textContent = "0";
+  const grid = document.getElementById("pairs-grid");
+  grid.innerHTML = "";
+  pairsCards.forEach((card, idx) => {
+    const b = document.createElement("button");
+    b.className = "pair-card";
+    b.textContent = "?";
+    b.onclick = () => flipPairCard(b, card, idx);
+    grid.appendChild(b);
+  });
+  showScreen("screen-pairs");
+}
+
+function flipPairCard(btn, card, idx) {
+  if (pairsLock || btn.classList.contains("open") || btn.classList.contains("matched")) return;
+  btn.classList.add("open");
+  btn.textContent = card.text;
+  pairsOpen.push({ btn, card });
+  if (pairsOpen.length === 2) {
+    pairsMoves++;
+    document.getElementById("pairs-moves").textContent = pairsMoves;
+    pairsLock = true;
+    const [a, b] = pairsOpen;
+    const isMatch = a.card.key === b.card.key && a.card.kind !== b.card.kind;
+    setTimeout(() => {
+      if (isMatch) {
+        a.btn.classList.replace("open", "matched");
+        b.btn.classList.replace("open", "matched");
+        pairsMatched += 2;
+        if (pairsMatched === pairsCards.length) {
+          const gained = Math.max(20 - pairsMoves, 5);
+          api("/game/xp", "POST", { points: gained }).then(res => {
+            showModal("Все пары найдены!",
+              `Ходов: <b>${pairsMoves}</b>. Заработано <b>+${res.granted} XP</b>!`,
+              "assets/pet_happy.svg");
+            goHome();
+          });
+        }
+      } else {
+        a.btn.classList.remove("open"); a.btn.textContent = "?";
+        b.btn.classList.remove("open"); b.btn.textContent = "?";
+      }
+      pairsOpen = [];
+      pairsLock = false;
+    }, isMatch ? 350 : 750);
+  }
+}
+
+// Викторина: 10 вопросов, выбор перевода из 4
+let qgWords = [], qgIdx = 0, qgScore = 0;
+
+async function startQuizGame() {
+  const data = await api(`/game/words/${gameLangId}?n=30`);
+  qgWords = data.pairs.sort(() => Math.random() - 0.5).slice(0, 10);
+  qgIdx = 0; qgScore = 0;
+  showScreen("screen-quizgame");
+  renderQgQuestion();
+}
+
+function renderQgQuestion() {
+  const q = qgWords[qgIdx];
+  document.getElementById("qg-progress").style.width = (qgIdx / qgWords.length * 100) + "%";
+  document.getElementById("qg-step").textContent = `Вопрос ${qgIdx + 1} из ${qgWords.length} · верных: ${qgScore}`;
+  document.getElementById("qg-word").textContent = q.word;
+  const opts = [q.translation];
+  const others = qgWords.filter(w => w.translation !== q.translation);
+  while (opts.length < 4 && others.length) {
+    const c = others.splice(Math.floor(Math.random() * others.length), 1)[0].translation;
+    if (!opts.includes(c)) opts.push(c);
+  }
+  const box = document.getElementById("qg-options");
+  box.innerHTML = "";
+  opts.sort(() => Math.random() - 0.5).forEach(opt => {
+    const b = document.createElement("button");
+    b.className = "card option";
+    b.textContent = opt;
+    b.onclick = () => {
+      box.querySelectorAll(".option").forEach(x => {
+        x.disabled = true;
+        if (x.textContent === q.translation) x.classList.add("correct");
+      });
+      if (opt === q.translation) {
+        qgScore++;
+        setTimeout(nextQg, 400);
+      } else {
+        b.classList.add("wrong");
+        setTimeout(nextQg, 1000);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+
+function nextQg() {
+  qgIdx++;
+  if (qgIdx >= qgWords.length) {
+    const gained = qgScore * 2;
+    api("/game/xp", "POST", { points: gained }).then(res => {
+      showModal("Викторина окончена!",
+        `Верных ответов: <b>${qgScore}/${qgWords.length}</b>. Заработано <b>+${res.granted} XP</b>!`,
+        qgScore >= 7 ? "assets/pet_happy.svg" : "assets/logo.png");
+      goHome();
+    });
+  } else {
+    renderQgQuestion();
+  }
+}

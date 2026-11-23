@@ -50,6 +50,7 @@
 
     <!-- Результат теста -->
     <div id="screen-level-result" class="screen center">
+      <div class="screen-top" style="text-align:left"><button class="icon-btn" onclick="goHome()"><svg class="ic"><use href="#i-back"/></svg></button></div>
       <img class="mascot" src="assets/logo.png" alt="">
       <h1>Твой уровень</h1>
       <p id="assigned-level" class="level-badge"></p>
@@ -65,18 +66,20 @@
         <button id="btn-plans" class="pill pill-btn"><svg class="ic"><use href="#i-star"/></svg></button>
       </div>
       <div class="pet-box">
-        <img id="home-pet" class="home-pet" src="assets/pet_happy.svg" alt="Кенгу">
+        <div id="home-pet" class="home-pet"></div>
         <div class="thought-bubble" id="pet-thought"></div>
       </div>
       <p id="limit-info" class="muted"></p>
+      <div id="game-strip" class="game-strip"></div>
       <div id="progress-list"></div>
     </div>
 
     <!-- Знакомство со словами урока -->
     <div id="screen-intro" class="screen">
+      <div class="screen-top"><button class="icon-btn" onclick="exitLesson()"><svg class="ic"><use href="#i-back"/></svg></button></div>
       <h2 id="intro-title"></h2>
       <p class="muted" data-i18n="intro_hint">Сначала познакомься со словами урока</p>
-      <img class="mascot intro-pet" src="assets/pet_happy.svg" alt="">
+      <div id="intro-pet" class="mascot intro-pet"></div>
       <div id="intro-words" class="word-grid"></div>
       <button id="btn-intro-start" class="btn btn-primary" data-i18n="start_lesson">Начать урок</button>
     </div>
@@ -90,6 +93,7 @@
 
     <!-- Спринт: верно/неверно на время -->
     <div id="screen-sprint" class="screen center">
+      <div class="screen-top" style="text-align:left"><button class="icon-btn" onclick="exitLesson()"><svg class="ic"><use href="#i-back"/></svg></button></div>
       <p class="muted" data-i18n="sprint_hint">Перевод верный? Успей за 45 секунд!</p>
       <div class="sprint-timer" id="sprint-timer">45</div>
       <h2 id="sprint-word"></h2>
@@ -103,6 +107,7 @@
 
     <!-- Анаграммы -->
     <div id="screen-anagram" class="screen center">
+      <div class="screen-top" style="text-align:left"><button class="icon-btn" onclick="exitLesson()"><svg class="ic"><use href="#i-back"/></svg></button></div>
       <p class="muted" data-i18n="anagram_hint">Собери слово из букв</p>
       <p class="anagram-trans" id="anagram-trans"></p>
       <div class="anagram-slots" id="anagram-slots"></div>
@@ -111,6 +116,23 @@
         <button class="btn" id="btn-anagram-reset" data-i18n="reset">Сброс</button>
         <button class="btn btn-primary" id="btn-anagram-check" data-i18n="check">Проверить</button>
       </div>
+    </div>
+
+    <!-- Пары на время -->
+    <div id="screen-pairs" class="screen">
+      <div class="screen-top"><button class="icon-btn" onclick="exitLesson()"><svg class="ic"><use href="#i-back"/></svg></button></div>
+      <h1>Пары</h1>
+      <p class="muted">Найди все пары «слово — перевод». Ходы: <b id="pairs-moves">0</b></p>
+      <div id="pairs-grid" class="pairs-grid"></div>
+    </div>
+
+    <!-- Викторина -->
+    <div id="screen-quizgame" class="screen">
+      <div class="screen-top"><button class="icon-btn" onclick="exitLesson()"><svg class="ic"><use href="#i-back"/></svg></button></div>
+      <div class="progress-bar"><div id="qg-progress"></div></div>
+      <p class="muted" id="qg-step"></p>
+      <h2 id="qg-word"></h2>
+      <div id="qg-options" class="card-list"></div>
     </div>
 
     <!-- Смена языка обучения -->
@@ -158,6 +180,7 @@
 
     <!-- Результат -->
     <div id="screen-result" class="screen center">
+      <div class="screen-top" style="text-align:left"><button class="icon-btn" onclick="goHome()"><svg class="ic"><use href="#i-back"/></svg></button></div>
       <img class="mascot" src="assets/logo.png" alt="">
       <h1 data-i18n="lesson_done">Урок пройден!</h1>
       <div class="result-stats">
@@ -170,8 +193,7 @@
         <p class="muted small" data-i18n="mistakes_hint">Без правильных ответов — вспомни сам, потом проверь в уроке</p>
         <div id="mistakes-list" class="mistakes-list"></div>
       </div>
-      <button id="btn-bonus-game" class="btn btn-blue">Бонус-игра · +XP</button>
-      <button class="btn" onclick="goHome()" data-i18n="continue" style="margin-top:10px">Продолжить</button>
+      <button class="btn btn-primary" onclick="goHome()" data-i18n="continue">Продолжить</button>
     </div>
 
     <!-- Подписка -->
@@ -185,6 +207,7 @@
 
     <!-- Лимит -->
     <div id="screen-limit" class="screen center">
+      <div class="screen-top" style="text-align:left"><button class="icon-btn" onclick="goHome()"><svg class="ic"><use href="#i-back"/></svg></button></div>
       <img class="mascot" src="assets/logo.png" alt="">
       <h1>Лимит на сегодня</h1>
       <p class="muted">Бесплатно доступно 2 урока в день.<br>Оформи подписку — и учись без ограничений.</p>
@@ -203,7 +226,7 @@
     <div id="screen-profile" class="screen">
       <h1>Профиль</h1>
       <div class="profile-card">
-        <img id="profile-pet" class="profile-pet" src="assets/pet_happy.svg" alt="Кенгу">
+        <div id="profile-pet" class="profile-pet"></div>
         <p id="pet-caption" class="pet-caption"></p>
         <h2 id="profile-name"></h2>
         <p class="muted" id="profile-sub"></p>
@@ -254,6 +277,7 @@
       <g id="i-close"><path stroke="#afafaf" stroke-width="2.6" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></g>
       <g id="i-target"><circle cx="12" cy="12" r="9" fill="none" stroke="#ff4b4b" stroke-width="2.6"/><circle cx="12" cy="12" r="4.5" fill="#ff4b4b"/></g>
       <g id="i-share"><path fill="#1cb0f6" d="M14 4l6 5.5L14 15v-3.4C8 11.6 5.5 14 4.5 17.5 4 13.5 6 8.6 14 8z"/></g>
+      <g id="i-back"><path fill="none" stroke="#afafaf" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M14 5l-8 7 8 7"/></g>
       <g id="i-check"><path fill="#58cc02" d="M9 12l6 6 12-13" stroke="#58cc02" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
       <g id="i-play"><path fill="#fff" d="M8 5.5v13l11-6.5z"/></g>
     </defs>

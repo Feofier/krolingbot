@@ -258,6 +258,76 @@ h2 { font-size: 21px; font-weight: 900; }
 .word-card .w-trans { color: var(--muted); font-size: 13px; font-weight: 700; }
 @keyframes wordIn { from { transform: scale(.7); opacity: 0; } }
 
+/* ===== артикулированный питомец ===== */
+.pet-svg { width: 100%; height: 100%; overflow: visible; }
+.pet-svg g { transform-box: fill-box; }
+
+#pet-body { transform-origin: center bottom; animation: petBreathe 3.2s ease-in-out infinite; }
+@keyframes petBreathe { 0%,100% { transform: scale(1,1); } 50% { transform: scale(1.015,1.02); } }
+
+#pet-head { transform-origin: 50% 92%; animation: headSway 4.2s ease-in-out infinite; }
+@keyframes headSway {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50% { transform: rotate(4deg); }
+}
+
+#pet-arm-r { transform-origin: 50% 8%; animation: armWave 3.6s ease-in-out infinite; }
+@keyframes armWave {
+  0%, 55%, 100% { transform: rotate(0deg); }
+  65% { transform: rotate(-38deg); }
+  75% { transform: rotate(-20deg); }
+  85% { transform: rotate(-38deg); }
+}
+
+#pet-arm-l { transform-origin: 50% 8%; animation: armShift 5.4s ease-in-out infinite; }
+@keyframes armShift { 0%,100% { transform: rotate(0); } 50% { transform: rotate(9deg); } }
+
+#pet-tail { transform-origin: 90% 20%; animation: tailWag 5s ease-in-out infinite; }
+@keyframes tailWag { 0%,100% { transform: rotate(0); } 50% { transform: rotate(7deg); } }
+
+#eyes-open { transform-origin: center; animation: petBlink 4.8s infinite; }
+@keyframes petBlink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
+
+#ear-l { transform-origin: 50% 95%; animation: earTwitch 6.5s ease-in-out infinite; }
+@keyframes earTwitch { 0%, 88%, 100% { transform: rotate(0); } 93% { transform: rotate(-10deg); } }
+
+.mood-sleep #eyes-open { display: none; }
+.mood-happy #eyes-closed { display: none; }
+#zzz { display: none; }
+.mood-sleep #zzz { display: block; }
+.mood-sleep #pet-head { animation: headSway 7s ease-in-out infinite; }
+.mood-sleep #pet-arm-r { animation: none; }
+
+/* верхняя строка с кнопкой назад */
+.screen-top { display: flex; justify-content: flex-start; margin-bottom: 6px; min-height: 30px; }
+.screen-top:empty { display: none; }
+
+/* полоса игр на главной */
+.game-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;
+}
+.game-chip {
+  background: linear-gradient(135deg, #e9ffd3, #d3f7ff);
+  border: 2px solid var(--line); border-radius: 14px;
+  padding: 10px 4px; cursor: pointer; font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-size: 11.5px; font-weight: 800; color: var(--ink);
+}
+.game-chip .ic { width: 24px; height: 24px; }
+
+/* пары на время */
+.pairs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.pair-card {
+  aspect-ratio: 1.4; border-radius: 12px; border: 2px solid var(--line);
+  background: var(--blue); color: #fff; cursor: pointer;
+  font-family: inherit; font-weight: 800; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; padding: 4px;
+  transition: transform .15s;
+}
+.pair-card.open { background: #fff; color: var(--ink); }
+.pair-card.matched { background: var(--green); color: #fff; border-color: var(--green); }
+.pair-card:active { transform: scale(.94); }
+
 /* питомец в профиле — полноценная картинка без рамок */
 .profile-pet {
   width: 190px; height: 190px; border-radius: 36px;
