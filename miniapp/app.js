@@ -392,7 +392,11 @@ async function goHome() {
     : `Сегодня: ${progress.lessons_done_today} из ${progress.free_daily_limit} бесплатных уроков`;
 
   setPet("home-pet", me.pet_mood === "happy" ? "happy" : "sleep");
-  document.getElementById("home-pet").classList.toggle("super", me.streak >= 7);
+  const homePet = document.getElementById("home-pet");
+  homePet.classList.toggle("super", me.streak >= 7);
+  const poses = ["pose-hop", "pose-sway", "pose-calm", ""];
+  homePet.className = "home-pet " + (me.streak >= 7 ? "super"
+    : poses[Math.floor(Math.random() * poses.length)]);
   const fact = PET_FACTS[Math.floor(Math.random() * PET_FACTS.length)];
   document.getElementById("pet-thought").textContent =
     (me.pet_mood === "happy" ? "" : "Скучаю… давай урок! А пока — факт: ") + fact;

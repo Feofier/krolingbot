@@ -191,17 +191,46 @@ h2 { font-size: 21px; font-weight: 900; }
   font-size: 14px; font-weight: 800; color: #8a6d00; margin-top: 4px;
 }
 
-/* питомец на главной с мыслями */
-.pet-box { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+/* питомец на главной с облачком мысли */
+.pet-box { position: relative; margin-bottom: 14px; padding-top: 64px; }
 .home-pet {
-  width: 84px; height: 84px; border-radius: 22px; flex: none;
+  width: 110px; height: 128px; flex: none;
   animation: petBounce 2.6s ease-in-out infinite;
 }
 @keyframes petBounce {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-7px) rotate(2deg); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
-.home-pet.super { animation: petParty 1.3s ease-in-out infinite; }
+.home-pet.super { animation: petHop 1.15s ease-in-out infinite; }
+@keyframes petHop {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-14px) scale(.98, 1.02); }
+  45% { transform: translateY(-14px) scale(.98, 1.02); }
+  60% { transform: translateY(0) scale(1.04, .94); }
+  75% { transform: translateY(-5px) scale(.99, 1.01); }
+}
+/* позы */
+.home-pet.pose-hop { animation: petHop 1.5s ease-in-out infinite; }
+.home-pet.pose-sway { animation: petSway 3.4s ease-in-out infinite; }
+@keyframes petSway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+.home-pet.pose-calm { animation: none; }
+
+.thought-bubble {
+  position: absolute; top: 0; left: 96px; right: 0;
+  background: #fff; border: 2.5px solid var(--line);
+  border-radius: 20px; padding: 10px 14px;
+  font-size: 13.5px; font-weight: 700; color: var(--ink);
+  line-height: 1.45;
+}
+.thought-bubble::before, .thought-bubble::after {
+  content: ""; position: absolute; left: -14px; bottom: 18px;
+  background: #fff; border: 2.5px solid var(--line); border-radius: 50%;
+}
+.thought-bubble::before { width: 12px; height: 12px; left: -16px; bottom: 12px; }
+.thought-bubble::after { width: 7px; height: 7px; left: -24px; bottom: 4px; border-width: 2px; }
 .thought-bubble {
   position: relative; background: #fff; border: 2px solid var(--line);
   border-radius: 18px; padding: 12px 14px;

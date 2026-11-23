@@ -1,21 +1,20 @@
+import asyncio
+import json
+from datetime import date, datetime, timedelta
+
 from aiogram import Bot, Dispatcher, F, Router
-from aiogram.filters import CommandStart
-from aiogram.types import (KeyboardButton, LabeledPrice, Message,
-                           PreCheckoutQuery, ReplyKeyboardMarkup,
-                           SuccessfulPayment)
+from aiogram.filters import Command, CommandStart
+from aiogram.types import (CallbackQuery, InlineKeyboardButton,
+                           InlineKeyboardMarkup, LabeledPrice, Message,
+                           PreCheckoutQuery, SuccessfulPayment)
 
 from ..config import MINIAPP_URL, PLANS
 from ..db import SessionLocal
-from ..services import get_or_create_user, grant_subscription
+from ..models import User
+from ..services import get_or_create_user, grant_subscription, msk_today
 from ..models import Payment
 
 router = Router()
-
-
-def miniapp_keyboard() -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="Открыть приложение", web_app={"url": MINIAPP_URL})]],
-        resize_keyboard=True)
 
 
 @router.message(CommandStart())
@@ -25,25 +24,82 @@ async def cmd_start(message: Message) -> None:
                                  message.from_user.username,
                                  message.from_user.first_name)
     await message.answer(
-        "Привет! Это Krolingo — учи языки по 5 минут в день.\n"
-        "Открой Mini App: @KrolingoBot → кнопка «Menu» справа от поля ввода.\n"
-        "Если кнопки нет — @BotFather → /setmenubutton → "
-        "https://krolingbot.onrender.com/miniapp/\n\n"
-        "Бесплатно доступно 2 урока в день.")
+        "Привет! Я Krolingo — твой кенгуру-наставник в мире языков. "
+        "Учимся понемногу каждый день, играем и собираем стрики. "
+        "Начнём заниматься? Жми кнопку «Учить язык» в меню слева от ввода сообщения!")
 
 
-@router.message(F.text.in_({p["title"] for p in PLANS.values()}))
-async def buy_plan(message: Message, bot: Bot) -> None:
-    plan = next(k for k, v in PLANS.items() if v["title"] == message.text)
-    info = PLANS[plan]
+@router.message(Command("about"))
+async def cmd_about(message: Message) -> None:
+    await message.answer(
+        "Krolingo — мини-приложение для изучения языков.\n\n"
+        "Что умею:\n"
+        "— Уроки по уровням A1–C1 с тестом уровня в начале\n"
+        "— Грамматика и теория простым языком\n"
+        "— Игры: Спринт, Анаграммы, Пары, Викторина\n"
+        "— Питомец-кенгуру, который радуется твоим занятиям\n"
+        "— Рейтинг учеников и стрики\n\n"
+        "Команды:\n"
+        "/subscribe — оформить подписку\n"
+        "/about — обо мне")
+
+
+def plans_keyboard() -> InlineKeyboardMarkup:
+    rows = [[InlineKeyboardButton(
+        text=f"{info['title']} — {info['stars']}⭐",
+        callback_data=f"plan:{key}")]
+        for key, info in PLANS.items()]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+@router.message(Command("subscribe"))
+async def cmd_subscribe(message: Message) -> None:
+    await message.answer(
+        "Подписка Krolingo открывает:\n"
+        "— безлимитные уроки каждый день\n"
+        "— несколько языков сразу\n"
+        "— смену языка без ожидания\n"
+        "— двойной XP в играх и сундуки на пути\n\n"
+        "Выбери тариф:",
+        reply_markup=plans_keyboard())
+
+
+@router.callback_query(F.data.startswith("plan:"))
+async def plan_callback(query: CallbackQuery, bot: Bot) -> None:
+    plan = query.data.split(":", 1)[1]
+    info = PLANS.get(plan)
+    if not info:
+        await query.answer("Тариф не найден")
+        return
+    await query.answer()
     await bot.send_invoice(
-        chat_id=message.from_user.id,
+        chat_id=query.from_user.id,
         title=info["title"],
         description=f"Безлимитные уроки на {info['days']} дней",
         payload=plan,
         currency="XTR",
-        prices=[LabeledPrice(label=info["title"], amount=info["stars"])],
-    )
+        prices=[LabeledPrice(label=info["title"], amount=info["stars"])])
+
+
+@router.message(F.web_app_data)
+async def web_app_data(message: Message, bot: Bot) -> None:
+    """Покупки из Mini App (tg.sendData)."""
+    try:
+        data = json.loads(message.web_app_data.data)
+    except (TypeError, json.JSONDecodeError):
+        return
+    if data.get("action") == "buy_plan":
+        plan = data.get("plan")
+        info = PLANS.get(plan)
+        if not info:
+            return
+        await bot.send_invoice(
+            chat_id=message.from_user.id,
+            title=info["title"],
+            description=f"Безлимитные уроки на {info['days']} дней",
+            payload=plan,
+            currency="XTR",
+            prices=[LabeledPrice(label=info["title"], amount=info["stars"])])
 
 
 @router.pre_checkout_query()
@@ -68,11 +124,45 @@ async def successful_payment(message: Message) -> None:
         await session.commit()
         await grant_subscription(session, user.id, plan, info["days"])
     await message.answer(
-        f"Подписка «{info['title']}» активна. Приятного обучения!",
-        reply_markup=miniapp_keyboard())
+        f"Подписка «{info['title']}» активна. Приятного обучения!")
+
+
+BOT_COMMANDS = [
+    {"command": "start", "description": "Начать / открыть мини-приложение"},
+    {"command": "subscribe", "description": "Оформить подписку"},
+    {"command": "about", "description": "Что умеет Krolingo"},
+]
 
 
 def setup_dp() -> Dispatcher:
     dp = Dispatcher()
     dp.include_router(router)
     return dp
+
+
+async def reminder_loop(bot: Bot) -> None:
+    """Напоминание пользователям, которые давно не занимались."""
+    from sqlalchemy import select
+    while True:
+        try:
+            today = msk_today()
+            async with SessionLocal() as session:
+                users = (await session.execute(select(User))).scalars().all()
+                for user in users:
+                    last = user.last_activity_date
+                    stale = last is None or last < today - timedelta(days=1)
+                    reminded = user.last_remind == today
+                    if stale and not reminded and user.streak >= 0:
+                        try:
+                            await bot.send_message(
+                                user.telegram_id,
+                                "Кенгу скучает! Ты уже больше дня не занимался. "
+                                "Загляни на урок — стрик ждёт тебя!")
+                            user.last_remind = today
+                            session.add(user)
+                        except Exception:
+                            pass
+                await session.commit()
+        except Exception:
+            pass
+        await asyncio.sleep(6 * 3600)

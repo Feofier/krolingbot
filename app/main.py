@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
-from .bot.handlers import setup_dp
+from .bot.handlers import BOT_COMMANDS, setup_dp
 from .config import BOT_TOKEN, MINIAPP_URL, WEBHOOK_URL
 from .db import Base, SessionLocal, engine
 from .api.routes import router as api_router
@@ -33,6 +33,8 @@ async def init_db() -> None:
                 "ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_language VARCHAR(8) DEFAULT 'ru'"))
             await conn.execute(text(
                 "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_lang_change TIMESTAMP"))
+            await conn.execute(text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_remind DATE"))
         except Exception:
             pass
     async with SessionLocal() as session:
@@ -56,9 +58,13 @@ async def lifespan(app: FastAPI):
     dp = setup_dp()
     if WEBHOOK_URL:
         await bot.set_webhook(WEBHOOK_URL.rstrip("/") + "/webhook")
+        await bot.set_my_commands(BOT_COMMANDS)
+        from .bot.handlers import reminder_loop
+        reminder_task = asyncio.create_task(reminder_loop(bot))
         app.state.bot = bot
         app.state.dp = dp
         yield
+        reminder_task.cancel()
         await bot.session.close()
         return
 
