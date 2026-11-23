@@ -58,6 +58,8 @@ class Lesson(Base):
     title: Mapped[str] = mapped_column(String(128))
     intro: Mapped[dict] = mapped_column(JSON, default=dict)
     # intro: {"words": [["cat","кот"], ...]} — слова для экрана знакомства
+    theory: Mapped[dict] = mapped_column(JSON, nullable=True)
+    # theory: {"title": str, "blocks": [{"h": str, "p": str}]} — теория перед уроком
 
     language: Mapped[Language] = relationship()
 

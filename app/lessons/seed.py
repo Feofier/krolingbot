@@ -295,13 +295,83 @@ def _lang_data(code):
     return WORDS[code], SENTENCES[code]
 
 
+GRAMMAR_LESSONS = {5, 12, 19, 26}  # номера уроков-грамматики в каждом уровне
+
+# Местоимения и связки по языкам: (I, you, he, she, we, they, and, but)
+PRONOUNS = {
+    "en": ("I", "you", "he", "she", "we", "they", "and", "but"),
+    "es": ("yo", "tú", "él", "ella", "nosotros", "ellos", "y", "pero"),
+    "de": ("ich", "du", "er", "sie", "wir", "sie", "und", "aber"),
+    "fr": ("je", "tu", "il", "elle", "nous", "ils", "et", "mais"),
+    "it": ("io", "tu", "lui", "lei", "noi", "loro", "e", "ma"),
+    "pt": ("eu", "você", "ele", "ela", "nós", "eles", "e", "mas"),
+    "tr": ("ben", "sen", "o", "o", "biz", "onlar", "ve", "ama"),
+    "pl": ("ja", "ty", "on", "ona", "my", "oni", "i", "ale"),
+    "uk": ("я", "ти", "він", "вона", "ми", "вони", "і", "але"),
+    "ja": ("わたし", "あなた", "かれ", "かのじょ", "わたしたち", "かれら", "と", "でも"),
+}
+
+GRAMMAR_TOPICS = {
+    "A1": ("Порядок слов и вопросы",
+           "В английском порядок слов почти всегда: подлежащее — сказуемое — дополнение. "
+           "Вопрос строится с помощью вспомогательного глагола в начале.",
+           "She reads a book. → Does she read a book?"),
+    "A2": ("Прошедшее время",
+           "Прошедшее время (Past Simple) образуется второй формой глагола. "
+           "Вопросы и отрицания — с помощью did / didn't.",
+           "I bought a ticket. → I didn't buy a ticket."),
+    "B1": ("Будущее время и планы",
+           "Будущее выражается конструкцией will + глагол для решений и предсказаний "
+           "и to be going to — для планов.",
+           "They plan a trip. → They are going to plan a trip."),
+    "B2": ("Пассивный залог",
+           "Пассивный залог: подлежащее испытывает действие. Образуется через to be + V3.",
+           "The law protects rights. → Rights are protected by the law."),
+    "C1": ("Нюансы и стиль",
+           "На продвинутом уровне важны оттенки: инверсия после отрицаний, "
+           "условные предложения II и III типа, устойчивые обороты.",
+           "I think that it is right. → Seldom do I think so."),
+}
+
+
+def base_theory(lang_code):
+    p = PRONOUNS.get(lang_code, PRONOUNS["en"])
+    return {
+        "title": "База языка",
+        "blocks": [
+            {"h": "Личные местоимения",
+             "p": f"Я — {p[0]}, ты — {p[1]}, он — {p[2]}, она — {p[3]}, мы — {p[4]}, они — {p[5]}. "
+                  "Местоимения заменяют имена и стоят на первом месте в предложении."},
+            {"h": "Глагол «быть»",
+             "p": "Самый частый глагол связывает подлежащее и признак: «Я студент», «Она дома». "
+                  "В английском он меняется по лицам: am / is / are. Запомни эти формы — они нужны в каждом уроке."},
+            {"h": "Связки and / but",
+             "p": f"{p[6].capitalize()} соединяет похожее («кот и собака»), "
+                  f"{p[7]} — противопоставляет («маленький, но сильный»). "
+                  "Это два самых частых союза в языке."},
+            {"h": "Порядок слов",
+             "p": "Классическая схема: КТО — ЧТО ДЕЛАЕТ — С КЕМ/ЧЕМ. "
+                  "«Она читает книгу» → слово за словом, без перестановок."},
+        ],
+    }
+
+
+def grammar_theory(lang_code, level):
+    title, rule, example = GRAMMAR_TOPICS[level]
+    return {"title": f"Грамматика: {title}",
+            "blocks": [{"h": title, "p": rule}, {"h": "Пример", "p": example}]}
+
+
 async def seed_if_empty(session: AsyncSession) -> None:
     count = (await session.execute(select(func.count(Lesson.id)))).scalar_one()
-    if count >= EXPECTED_LESSONS:
+    need_reseed = count != EXPECTED_LESSONS
+    if not need_reseed:
+        # контент обновлён (теория/грамматика), а уроки старого образца — пересоздаём
+        first = (await session.execute(select(Lesson).order_by(Lesson.id).limit(1))).scalar_one_or_none()
+        need_reseed = first is not None and first.theory is None
+    if not need_reseed:
         return
     if count:
-        # контент устарел (добавились уровни/уроки) — пересоздаём уроки и задания,
-        # пользователей и их прогресс по языкам сохраняем
         await session.execute(delete(Exercise))
         await session.execute(delete(LessonCompletion))
         await session.execute(delete(Lesson))
@@ -324,13 +394,24 @@ async def seed_if_empty(session: AsyncSession) -> None:
                 chunk = [words[(start + i) % len(words)] for i in range(10)]
                 sents = [sentences[(num - 1) * 2 % len(sentences)],
                          sentences[((num - 1) * 2 + 1) % len(sentences)]]
+                is_grammar = num in GRAMMAR_LESSONS
+                theory = None
+                if level == "A1" and num == 1:
+                    theory = base_theory(lang["code"])
+                elif is_grammar:
+                    theory = grammar_theory(lang["code"], level)
+                if is_grammar:
+                    title = f"Грамматика · {title}"
                 lesson = Lesson(language_id=language.id, level=level, number=num,
                                 title=f"{title}",
-                                intro={"words": [[w, t] for w, t in chunk]})
+                                intro={"words": [[w, t] for w, t in chunk]},
+                                theory=theory)
                 session.add(lesson)
                 await session.flush()
-                for etype, prompt, payload in make_exercises(
-                        chunk, sents, rng, lang["code"], num):
+                exercises = make_exercises(chunk, sents, rng, lang["code"], num)
+                if is_grammar:
+                    exercises = [e for e in exercises if e[0] in ("sentence", "gap")][:10]
+                for etype, prompt, payload in exercises:
                     session.add(Exercise(lesson_id=lesson.id, type=etype,
                                          prompt=prompt, payload=payload))
     await session.commit()

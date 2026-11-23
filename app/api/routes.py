@@ -133,13 +133,15 @@ async def game_words(language_id: int, n: int = 12,
 async def game_xp(data: GameXpIn,
                   user_tg: dict = Depends(get_telegram_user),
                   session: AsyncSession = Depends(get_session)):
-    """Начисление XP за мини-игры (не более 30 XP за один запрос)."""
+    """Начисление XP за мини-игры. С подпиской XP удваивается."""
     user = await get_or_create_user(session, user_tg["id"])
-    points = max(0, min(data.points, 30))
+    sub = await active_subscription(session, user.id)
+    multiplier = 2 if sub else 1
+    points = max(0, min(data.points, 30)) * multiplier
     user.xp += points
     session.add(user)
     await session.commit()
-    return {"ok": True, "xp": user.xp, "granted": points}
+    return {"ok": True, "xp": user.xp, "granted": points, "multiplier": multiplier}
 
 
 @router.get("/languages")
@@ -278,6 +280,7 @@ async def get_lesson(language_id: int, user_tg: dict = Depends(get_telegram_user
         "level": lesson.level,
         "title": f"{lesson.title}",
         "intro_words": lesson.intro.get("words", []) if lesson.intro else [],
+        "theory": lesson.theory,
         "exercises": [
             {"id": e.id, "type": e.type, "prompt": e.prompt, "payload": e.payload}
             for e in exercises
@@ -438,6 +441,20 @@ async def placement_finish(data: PlacementFinishIn,
     session.add(ul)
     await session.commit()
     return {"level": level, "level_name": LEVEL_NAMES.get(level, level)}
+
+
+@router.post("/chest")
+async def open_chest(user_tg: dict = Depends(get_telegram_user),
+                     session: AsyncSession = Depends(get_session)):
+    """Сундук на пути: подписчики получают +25 XP, бесплатным — оффер."""
+    user = await get_or_create_user(session, user_tg["id"])
+    sub = await active_subscription(session, user.id)
+    if sub is None:
+        raise HTTPException(402, "Сундуки открываются с подпиской Krolingo!")
+    user.xp += 25
+    session.add(user)
+    await session.commit()
+    return {"ok": True, "xp": user.xp, "granted": 25}
 
 
 @router.get("/plans")

@@ -261,55 +261,79 @@ async function nextQuizQuestion() {
 
 // ---------- Артикулированный питомец ----------
 function renderPet(mood) {
-  return `<svg class="pet-svg mood-${mood}" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  return `<svg class="pet-svg mood-${mood}" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
+  <g stroke-linejoin="round" stroke-linecap="round">
   <g id="pet-tail">
-    <path d="M 62 188 Q 18 190 24 152 Q 44 138 74 152 Z" fill="#8a4c24"/>
+    <path d="M 84 236 Q 30 244 20 206 Q 14 182 40 178 Q 62 176 78 196 Z"
+          fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
   </g>
+  <ellipse cx="88" cy="262" rx="42" ry="16" fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
+  <ellipse cx="176" cy="262" rx="42" ry="16" fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
   <g id="pet-body">
-    <ellipse cx="118" cy="164" rx="62" ry="66" fill="#a05a2c"/>
-    <ellipse cx="118" cy="182" rx="40" ry="44" fill="#e8b58a"/>
-    <path d="M 86 206 Q 118 224 150 206 Q 143 220 118 222 Q 93 220 86 206 Z" fill="#8a4c24"/>
+    <path d="M 70 250 Q 58 160 96 128 Q 118 112 140 124 Q 186 150 184 222 Q 184 252 158 258 Q 118 266 88 258 Q 74 256 70 250 Z"
+          fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
+    <path d="M 92 236 Q 86 172 112 152 Q 130 142 146 154 Q 168 172 164 226 Q 150 244 128 244 Q 106 244 92 236 Z"
+          fill="#f7ead2" stroke="#5b3a1e" stroke-width="4"/>
+    <path d="M 102 210 Q 130 226 158 210 Q 152 228 130 230 Q 108 228 102 210 Z"
+          fill="#e9d6b4" stroke="#5b3a1e" stroke-width="3.5"/>
+    <g id="joey">
+      <ellipse cx="130" cy="196" rx="19" ry="17" fill="#cf9059" stroke="#5b3a1e" stroke-width="3.5"/>
+      <ellipse cx="130" cy="202" rx="11" ry="8" fill="#f7ead2" stroke="#5b3a1e" stroke-width="2.5"/>
+      <ellipse cx="118" cy="178" rx="6" ry="12" fill="#cf9059" stroke="#5b3a1e" stroke-width="2.5" transform="rotate(-14 118 178)"/>
+      <ellipse cx="142" cy="178" rx="6" ry="12" fill="#cf9059" stroke="#5b3a1e" stroke-width="2.5" transform="rotate(14 142 178)"/>
+      <circle cx="123" cy="192" r="3.4" fill="#2b1a10"/><circle cx="137" cy="192" r="3.4" fill="#2b1a10"/>
+      <circle cx="124" cy="191" r="1.1" fill="#fff"/><circle cx="138" cy="191" r="1.1" fill="#fff"/>
+      <ellipse cx="130" cy="199" rx="4" ry="3" fill="#5b3a1e"/>
+    </g>
   </g>
-  <ellipse cx="70" cy="216" rx="30" ry="13" fill="#8a4c24"/>
-  <ellipse cx="166" cy="216" rx="30" ry="13" fill="#8a4c24"/>
   <g id="pet-arm-l">
-    <ellipse cx="92" cy="166" rx="11" ry="21" fill="#8a4c24" transform="rotate(20 92 166)"/>
+    <path d="M 92 150 Q 76 176 84 200 Q 90 208 98 202 Q 96 178 106 158 Z"
+          fill="#cf9059" stroke="#5b3a1e" stroke-width="4.5"/>
   </g>
   <g id="pet-head">
-    <g id="ear-l"><ellipse cx="94" cy="62" rx="15" ry="35" fill="#a05a2c" transform="rotate(-14 94 62)"/><ellipse cx="95" cy="68" rx="7" ry="24" fill="#e8b58a" transform="rotate(-14 95 68)"/></g>
-    <g id="ear-r"><ellipse cx="142" cy="62" rx="15" ry="35" fill="#a05a2c" transform="rotate(14 142 62)"/><ellipse cx="141" cy="68" rx="7" ry="24" fill="#e8b58a" transform="rotate(14 141 68)"/></g>
-    <ellipse cx="118" cy="106" rx="52" ry="47" fill="#a05a2c"/>
-    <ellipse cx="118" cy="122" rx="37" ry="29" fill="#c9803e"/>
-    <ellipse cx="108" cy="113" rx="5.5" ry="7.5" fill="#5f3312"/>
-    <ellipse cx="128" cy="113" rx="5.5" ry="7.5" fill="#5f3312"/>
+    <g id="ear-l">
+      <path d="M 90 62 Q 66 2 92 4 Q 114 8 112 62 Z" fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
+      <path d="M 95 54 Q 80 14 93 16 Q 105 20 105 56 Z" fill="#efd9b8" stroke="#5b3a1e" stroke-width="3"/>
+    </g>
+    <g id="ear-r">
+      <path d="M 170 62 Q 194 2 168 4 Q 146 8 148 62 Z" fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
+      <path d="M 165 54 Q 180 14 167 16 Q 155 20 155 56 Z" fill="#efd9b8" stroke="#5b3a1e" stroke-width="3"/>
+    </g>
+    <path d="M 80 92 Q 76 44 130 42 Q 184 44 180 92 Q 178 122 150 132 Q 130 138 110 132 Q 82 122 80 92 Z"
+          fill="#cf9059" stroke="#5b3a1e" stroke-width="5"/>
+    <path d="M 96 112 Q 100 132 130 134 Q 160 132 164 112 Q 152 124 130 124 Q 108 124 96 112 Z"
+          fill="#f7ead2" stroke="#5b3a1e" stroke-width="4"/>
+    <ellipse cx="130" cy="106" rx="13" ry="9" fill="#7a4a26" stroke="#5b3a1e" stroke-width="3.5"/>
+    <ellipse cx="102" cy="104" rx="8" ry="5" fill="#f2a0a0" opacity="0.65"/>
+    <ellipse cx="158" cy="104" rx="8" ry="5" fill="#f2a0a0" opacity="0.65"/>
     <g id="eyes-open">
-      <ellipse cx="96" cy="98" rx="15" ry="18" fill="#fff"/>
-      <ellipse cx="140" cy="98" rx="15" ry="18" fill="#fff"/>
+      <ellipse cx="106" cy="82" rx="14" ry="16" fill="#fff" stroke="#5b3a1e" stroke-width="3.5"/>
+      <ellipse cx="154" cy="82" rx="14" ry="16" fill="#fff" stroke="#5b3a1e" stroke-width="3.5"/>
       <g id="pupils">
-        <circle cx="99" cy="101" r="6.5" fill="#3b230f"/><circle cx="137" cy="101" r="6.5" fill="#3b230f"/>
-        <circle cx="101" cy="98" r="2.2" fill="#fff"/><circle cx="139" cy="98" r="2.2" fill="#fff"/>
+        <circle cx="108" cy="84" r="8" fill="#2b1a10"/><circle cx="152" cy="84" r="8" fill="#2b1a10"/>
+        <circle cx="105" cy="80" r="3" fill="#fff"/><circle cx="149" cy="80" r="3" fill="#fff"/>
+        <circle cx="111" cy="87" r="1.5" fill="#fff" opacity=".8"/><circle cx="155" cy="87" r="1.5" fill="#fff" opacity=".8"/>
       </g>
     </g>
     <g id="eyes-closed">
-      <path d="M 84 100 Q 96 92 108 100" stroke="#3b230f" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-      <path d="M 128 100 Q 140 92 152 100" stroke="#3b230f" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <path d="M 94 84 Q 106 76 118 84" stroke="#5b3a1e" stroke-width="5" fill="none"/>
+      <path d="M 142 84 Q 154 76 166 84" stroke="#5b3a1e" stroke-width="5" fill="none"/>
     </g>
-    <path d="M 84 74 Q 100 64 116 72" stroke="#5f3312" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <path d="M 122 72 Q 138 64 154 74" stroke="#5f3312" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <g id="mouth">
-      <path d="M 104 134 Q 118 146 132 134" stroke="#5f3312" stroke-width="6" fill="none" stroke-linecap="round"/>
-    </g>
+    <path d="M 118 122 Q 130 130 142 122" stroke="#5b3a1e" stroke-width="5" fill="none"/>
   </g>
   <g id="pet-arm-r">
-    <ellipse cx="146" cy="160" rx="11" ry="21" fill="#8a4c24"/>
+    <path d="M 168 150 Q 186 174 178 198 Q 172 206 164 200 Q 166 176 156 158 Z"
+          fill="#cf9059" stroke="#5b3a1e" stroke-width="4.5"/>
   </g>
   <g id="zzz">
-    <text x="180" y="66" font-size="26" font-weight="bold" fill="#9bb7ff">Z</text>
-    <text x="198" y="44" font-size="19" font-weight="bold" fill="#b6c8ff">z</text>
-    <text x="212" y="28" font-size="14" font-weight="bold" fill="#ccd8ff">z</text>
+    <text x="196" y="58" font-size="26" font-weight="bold" fill="#9bb7ff">Z</text>
+    <text x="214" y="36" font-size="19" font-weight="bold" fill="#b6c8ff">z</text>
+    <text x="228" y="20" font-size="14" font-weight="bold" fill="#ccd8ff">z</text>
+  </g>
   </g>
 </svg>`;
 }
+
 
 function setPet(containerId, mood) {
   const el = document.getElementById(containerId);
@@ -411,6 +435,16 @@ function renderPath(item, canStart) {
       conn.className = "path-connector";
       path.appendChild(conn);
     }
+    if (i > 0 && i % 10 === 0) {
+      const chest = document.createElement("button");
+      chest.className = "path-node path-chest";
+      chest.innerHTML = '<svg class="ic" style="width:28px;height:28px"><use href="#i-star"/></svg>';
+      chest.onclick = openChest;
+      path.appendChild(chest);
+      const conn2 = document.createElement("div");
+      conn2.className = "path-connector";
+      path.appendChild(conn2);
+    }
     const btn = document.createElement("button");
     const isCurrent = !node.done && (i === 0 || item.path[i - 1].done);
     btn.className = "path-node " + (node.done ? "done" : (isCurrent && canStart ? "current" : "locked"));
@@ -465,6 +499,25 @@ function startLessonFlow() {
   retryQueue = [];
   retryRound = false;
   mistakes = [];
+  // экран теории (если есть)
+  if (lesson.theory && !lesson.repeat) {
+    document.getElementById("theory-title").textContent = lesson.theory.title;
+    const body = document.getElementById("theory-body");
+    body.innerHTML = "";
+    (lesson.theory.blocks || []).forEach(b => {
+      const div = document.createElement("div");
+      div.className = "theory-block";
+      div.innerHTML = `<h3>${b.h}</h3><p>${b.p}</p>`;
+      body.appendChild(div);
+    });
+    document.getElementById("btn-theory-next").onclick = showIntroOrLesson;
+    showScreen("screen-theory");
+    return;
+  }
+  showIntroOrLesson();
+}
+
+function showIntroOrLesson() {
   // экран знакомства со словами
   const intro = lesson.intro_words || [];
   if (intro.length && !lesson.repeat) {
@@ -839,6 +892,20 @@ async function showProfile() {
     tg.openTelegramLink(
       `https://t.me/share/url?url=${encodeURIComponent("https://t.me/KrolingoBot")}&text=${encodeURIComponent(text)}`);
   };
+  if (!me.has_subscription) {
+    let banner = document.getElementById("sub-banner");
+    if (!banner) {
+      banner = document.createElement("button");
+      banner.id = "sub-banner";
+      banner.className = "sub-banner";
+      banner.innerHTML = `<svg class="ic" style="width:30px;height:30px"><use href="#i-star"/></svg>
+        <div style="flex:1"><b>Krolingo Premium</b><br>
+        <span>Безлимит уроков · много языков · ×2 XP в играх</span></div>`;
+      document.querySelector("#screen-profile .profile-card").after(banner);
+    }
+    banner.onclick = showPlans;
+  }
+
   const hlist = document.getElementById("history-list");
   hlist.innerHTML = "";
   if (!history.items.length) {
@@ -907,6 +974,19 @@ document.getElementById("btn-plans").onclick = showPlans;
     if (e.message !== "limit" && e.message !== "auth") showModal("Ошибка", "Что-то пошло не так при загрузке.");
   }
 })();
+
+// ---------- Сундук ----------
+async function openChest() {
+  try {
+    const res = await api("/chest", "POST");
+    showModal("Сундук открыт!", `Внутри <b>+${res.granted} XP</b>! Всего: ${res.xp}.`, "assets/logo.png");
+    goHome();
+  } catch (e) {
+    if (e.message !== "limit") {
+      showConfirm("Сундук закрыт", e.message + " Хочешь открывать сундуки и получать больше XP?", "Смотреть тарифы", showPlans);
+    }
+  }
+}
 
 // ---------- Ошибки урока ----------
 function renderMistakes() {

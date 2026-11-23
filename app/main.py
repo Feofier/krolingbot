@@ -28,6 +28,8 @@ async def init_db() -> None:
             await conn.execute(text(
                 "ALTER TABLE lessons ADD COLUMN IF NOT EXISTS intro JSON"))
             await conn.execute(text(
+                "ALTER TABLE lessons ADD COLUMN IF NOT EXISTS theory JSON"))
+            await conn.execute(text(
                 "ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_language VARCHAR(8) DEFAULT 'ru'"))
             await conn.execute(text(
                 "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_lang_change TIMESTAMP"))
