@@ -257,10 +257,14 @@ def make_exercises(words, sentences, rng, lang_code, lesson_num):
         distractors = rng.sample([w for w, _ in words if w != word], 3)
         exercises.append(("choice", f"Как переводится «{word}»?",
                           {"options": [translation] + [translations[d] for d in distractors],
-                           "correct": translation}))
+                           "correct": translation, "say": word}))
+    # диктант: слушаешь слово и вписываешь его
+    for word, translation in rng.sample(words, min(2, len(words))):
+        exercises.append(("dictation", f"Послушай и напиши слово ({translation})",
+                          {"word": word, "correct": word, "src": translation}))
     # gap: пропущенное слово в настоящем предложении — правильный ответ ровно один
     for gi in range(3):
-        _src, correct_sentence = sentences[(lesson_num - 1 + gi) % len(sentences)]
+        _src, correct_sentence = sentences[(lesson_num - 1 + gi) % len(sentences)]  # noqa
         ws = correct_sentence.split()
         candidates = [i for i in range(1, len(ws) - 1) if len(ws[i]) > 2]
         if not candidates:
@@ -272,14 +276,14 @@ def make_exercises(words, sentences, rng, lang_code, lesson_num):
         exercises.append(("gap", "Вставь пропущенное слово:",
                           {"sentence": blank_sentence,
                            "options": distractors + [correct_word],
-                           "correct": correct_word}))
+                           "correct": correct_word, "src": _src}))
     pairs = rng.sample(words, min(5, len(words)))
     exercises.append(("pairs", "Соедини пары:",
                       {"pairs": [[w, t] for w, t in pairs]}))
     for src, correct in sentences:
         pool = correct.split() + rng.sample(DECOYS.get(lang_code, DECOYS["en"]), 3)
         exercises.append(("sentence", f"Переведи: «{src}»",
-                          {"bank": pool, "correct": correct}))
+                          {"bank": pool, "correct": correct, "src": src}))
     return exercises
 
 
@@ -366,9 +370,10 @@ async def seed_if_empty(session: AsyncSession) -> None:
     count = (await session.execute(select(func.count(Lesson.id)))).scalar_one()
     need_reseed = count != EXPECTED_LESSONS
     if not need_reseed:
-        # контент обновлён (теория/грамматика), а уроки старого образца — пересоздаём
-        first = (await session.execute(select(Lesson).order_by(Lesson.id).limit(1))).scalar_one_or_none()
-        need_reseed = first is not None and first.theory is None
+        # контент обновлён, а уроки старого образца (без диктанта) — пересоздаём
+        dicts = (await session.execute(
+            select(func.count(Exercise.id)).where(Exercise.type == "dictation"))).scalar_one()
+        need_reseed = dicts == 0
     if not need_reseed:
         return
     if count:
@@ -390,7 +395,7 @@ async def seed_if_empty(session: AsyncSession) -> None:
             words = words_by_level[level]
             sentences = sents_by_level[level]
             for num, title in enumerate(LEVEL_TITLES[level], start=1):  # 35 уроков
-                start = (num - 1) * 4
+                start = (num - 1) * 8
                 chunk = [words[(start + i) % len(words)] for i in range(10)]
                 sents = [sentences[(num - 1) * 2 % len(sentences)],
                          sentences[((num - 1) * 2 + 1) % len(sentences)]]

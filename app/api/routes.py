@@ -26,6 +26,7 @@ class LanguageIn(BaseModel):
 
 class MePatchIn(BaseModel):
     ui_language: str | None = None
+    nickname: str | None = None
 
 
 class GameXpIn(BaseModel):
@@ -78,7 +79,7 @@ async def me(user_tg: dict = Depends(get_telegram_user),
     pet_mood = "happy" if user.last_activity_date == msk_today() else "sad"
     return {
         "id": user.id,
-        "first_name": user.first_name,
+        "first_name": user.nickname or user.first_name,
         "xp": user.xp,
         "streak": user.streak,
         "pet_mood": pet_mood,
@@ -96,11 +97,18 @@ async def patch_me(data: MePatchIn,
                    user_tg: dict = Depends(get_telegram_user),
                    session: AsyncSession = Depends(get_session)):
     user = await get_or_create_user(session, user_tg["id"])
+    from ..profanity import is_clean
     if data.ui_language is not None:
         user.ui_language = data.ui_language
-        session.add(user)
-        await session.commit()
-    return {"ok": True, "ui_language": user.ui_language or "ru"}
+    if data.nickname is not None:
+        nick = data.nickname.strip()[:64]
+        if not is_clean(nick):
+            raise HTTPException(400, "Ник содержит недопустимые слова")
+        user.nickname = nick or None
+    session.add(user)
+    await session.commit()
+    return {"ok": True, "ui_language": user.ui_language or "ru",
+            "nickname": user.nickname}
 
 
 @router.get("/ui_languages")
@@ -278,10 +286,12 @@ async def get_lesson(language_id: int, user_tg: dict = Depends(get_telegram_user
         raise HTTPException(404, "All lessons completed")
     exercises = (await session.execute(
         select(Exercise).where(Exercise.lesson_id == lesson.id))).scalars().all()
+    lang_row = await session.get(Language, lesson.language_id)
     return {
         "lesson_id": lesson.id,
         "number": lesson.number,
         "level": lesson.level,
+        "lang": lang_row.code if lang_row else "en",
         "title": f"{lesson.title}",
         "intro_words": lesson.intro.get("words", []) if lesson.intro else [],
         "theory": lesson.theory,
@@ -299,6 +309,7 @@ class ExamFinishIn(BaseModel):
 
 class MePatchIn(BaseModel):
     ui_language: str | None = None
+    nickname: str | None = None
 
 
 @router.get("/exam/{language_id}")

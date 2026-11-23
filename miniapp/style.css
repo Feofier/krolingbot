@@ -327,6 +327,27 @@ h2 { font-size: 21px; font-weight: 900; }
 .mood-sleep #pet-head { animation: headSway 7s ease-in-out infinite; }
 .mood-sleep #pet-arm-r { animation: none; }
 
+/* баннер верно/неверно */
+.feedback-bar {
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
+  font-size: 15px; font-weight: 800; text-align: left;
+  animation: wordIn .25s ease-out;
+}
+.feedback-bar.ok { background: #efffe3; border: 2px solid var(--green); color: var(--green-dark); }
+.feedback-bar.bad { background: #ffe8e8; border: 2px solid var(--red); color: var(--red); }
+.feedback-src { font-weight: 700; font-size: 13px; opacity: .8; margin-top: 4px; }
+
+/* диктант */
+.dictation-row { display: flex; gap: 10px; margin-bottom: 12px; }
+.dictation-play { width: auto; display: flex; align-items: center; gap: 6px; }
+.dictation-input {
+  flex: 1; border: 2px solid var(--line); border-radius: 14px;
+  padding: 12px 14px; font-family: inherit; font-size: 16px; font-weight: 800;
+  outline: none; color: var(--ink); background: #fff;
+}
+.dictation-input:focus { border-color: var(--blue); }
+.speak-btn { padding: 2px; }
+
 /* теория */
 .theory-body { text-align: left; margin-bottom: 16px; }
 .theory-block {

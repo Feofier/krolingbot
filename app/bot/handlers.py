@@ -13,6 +13,7 @@ from ..db import SessionLocal
 from ..models import User
 from ..services import get_or_create_user, grant_subscription, msk_today
 from ..models import Payment
+from .i18n import LANG_NAMES, T, reminder
 
 router = Router()
 
@@ -23,10 +24,13 @@ async def cmd_start(message: Message) -> None:
         await get_or_create_user(session, message.from_user.id,
                                  message.from_user.username,
                                  message.from_user.first_name)
-    await message.answer(
-        "Привет! Я Krolingo — твой кенгуру-наставник в мире языков. "
-        "Учимся понемногу каждый день, играем и собираем стрики. "
-        "Начнём заниматься? Жми кнопку «Учить язык» в меню слева от ввода сообщения!")
+    async with SessionLocal() as s2:
+        u = await get_or_create_user(s2, message.from_user.id)
+        lang = u.ui_language or "ru"
+    kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
+        text="Открыть" if lang == "ru" else "Open",
+        web_app={"url": MINIAPP_URL + "/"})]])
+    await message.answer(T(lang, "start"), reply_markup=kb)
 
 
 @router.message(Command("about"))
@@ -123,13 +127,44 @@ async def successful_payment(message: Message) -> None:
             stars=info["stars"]))
         await session.commit()
         await grant_subscription(session, user.id, plan, info["days"])
-    await message.answer(
-        f"Подписка «{info['title']}» активна. Приятного обучения!")
+    async with SessionLocal() as s2:
+        u = await get_or_create_user(s2, message.from_user.id)
+        lang = u.ui_language or "ru"
+    await message.answer(T(lang, "sub_active").format(title=info["title"]))
+
+
+@router.message(Command("language"))
+async def cmd_language(message: Message) -> None:
+    async with SessionLocal() as s2:
+        u = await get_or_create_user(s2, message.from_user.id)
+        cur = u.ui_language or "ru"
+    rows = []
+    codes = list(LANG_NAMES)
+    for i in range(0, len(codes), 3):
+        rows.append([InlineKeyboardButton(
+            text=LANG_NAMES[c] + (" ✓" if c == cur else ""),
+            callback_data=f"uilang:{c}") for c in codes[i:i + 3]])
+    await message.answer("Язык интерфейса / Interface language:",
+                         reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
+
+
+@router.callback_query(F.data.startswith("uilang:"))
+async def ui_lang_callback(query: CallbackQuery) -> None:
+    code = query.data.split(":", 1)[1]
+    async with SessionLocal() as session:
+        u = await get_or_create_user(session, query.from_user.id)
+        u.ui_language = code
+        session.add(u)
+        await session.commit()
+        lang = u.ui_language or "ru"
+    await query.answer()
+    await query.message.answer(T(lang, "lang_set").format(name=LANG_NAMES.get(code, code)))
 
 
 BOT_COMMANDS = [
     {"command": "start", "description": "Начать / открыть мини-приложение"},
     {"command": "subscribe", "description": "Оформить подписку"},
+    {"command": "language", "description": "Язык интерфейса"},
     {"command": "about", "description": "Что умеет Krolingo"},
 ]
 
@@ -171,7 +206,7 @@ async def reminder_loop(bot: Bot) -> None:
                     if stale and not reminded:
                         try:
                             await bot.send_message(
-                                user.telegram_id, _rng.choice(REMINDERS))
+                                user.telegram_id, reminder(user.ui_language or "ru"))
                             user.last_remind = today
                             session.add(user)
                         except Exception:

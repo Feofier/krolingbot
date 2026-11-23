@@ -66,7 +66,7 @@ document.getElementById("modal-btn").onclick = origModalClose;
 
 // ---------- Локализация интерфейса ----------
 const I18N = {
-  ru: { change_lang: "Сменить язык обучения", tab_learn: "Учить", tab_games: "Игры", tab_board: "Рейтинг", tab_profile: "Профиль",
+  ru: { game_sprint: "Спринт", game_anagram: "Буквы", game_pairs: "Пары", game_quiz: "Викторина", change_lang: "Сменить язык обучения", tab_learn: "Учить", tab_games: "Игры", tab_board: "Рейтинг", tab_profile: "Профиль",
         start_lesson: "Начать урок", check: "Проверить", dont_know: "Не знаю", back: "Назад",
         continue: "Продолжить", lesson_done: "Урок пройден!", your_mistakes: "Твои ошибки",
         mistakes_hint: "Без правильных ответов — вспомни сам, потом проверь в уроке", your_answer: "Твой ответ",
@@ -75,7 +75,7 @@ const I18N = {
         score: "Очки", yes: "Верно", no: "Неверно", reset: "Сброс",
         ui_lang: "Язык интерфейса", subscription: "Подписка", share: "Поделиться с другом",
         exit_title: "Выйти из урока?", exit_text: "Прогресс этого урока не сохранится.", exit_ok: "Выйти" },
-  en: { change_lang: "Change learning language", tab_learn: "Learn", tab_games: "Games", tab_board: "Leaderboard", tab_profile: "Profile",
+  en: { game_sprint: "Sprint", game_anagram: "Letters", game_pairs: "Pairs", game_quiz: "Quiz", change_lang: "Change learning language", tab_learn: "Learn", tab_games: "Games", tab_board: "Leaderboard", tab_profile: "Profile",
         start_lesson: "Start lesson", check: "Check", dont_know: "Don't know", back: "Back",
         continue: "Continue", lesson_done: "Lesson complete!", your_mistakes: "Your mistakes",
         mistakes_hint: "Correct answers hidden — recall them yourself", your_answer: "Your answer",
@@ -84,7 +84,7 @@ const I18N = {
         score: "Score", yes: "True", no: "False", reset: "Reset",
         ui_lang: "Interface language", subscription: "Subscription", share: "Share with a friend",
         exit_title: "Leave lesson?", exit_text: "This lesson's progress will be lost.", exit_ok: "Leave" },
-  es: { change_lang: "Cambiar idioma", tab_learn: "Aprender", tab_games: "Juegos", tab_board: "Clasificación", tab_profile: "Perfil",
+  es: { game_sprint: "Sprint", game_anagram: "Letras", game_pairs: "Pares", game_quiz: "Quiz", change_lang: "Cambiar idioma", tab_learn: "Aprender", tab_games: "Juegos", tab_board: "Clasificación", tab_profile: "Perfil",
         start_lesson: "Empezar lección", check: "Comprobar", dont_know: "No sé", back: "Atrás",
         continue: "Continuar", lesson_done: "¡Lección completada!", your_mistakes: "Tus errores",
         mistakes_hint: "Sin respuestas correctas — recuérdate, luego comprueba", your_answer: "Tu respuesta",
@@ -93,7 +93,7 @@ const I18N = {
         score: "Puntos", yes: "Verdadero", no: "Falso", reset: "Reiniciar",
         ui_lang: "Idioma de la interfaz", subscription: "Suscripción", share: "Compartir",
         exit_title: "¿Salir de la lección?", exit_text: "El progreso se perderá.", exit_ok: "Salir" },
-  de: { change_lang: "Lernsprache ändern", tab_learn: "Lernen", tab_games: "Spiele", tab_board: "Rangliste", tab_profile: "Profil",
+  de: { game_sprint: "Sprint", game_anagram: "Buchstaben", game_pairs: "Paare", game_quiz: "Quiz", change_lang: "Lernsprache ändern", tab_learn: "Lernen", tab_games: "Spiele", tab_board: "Rangliste", tab_profile: "Profil",
         start_lesson: "Lektion starten", check: "Prüfen", dont_know: "Weiß nicht", back: "Zurück",
         continue: "Weiter", lesson_done: "Lektion geschafft!", your_mistakes: "Deine Fehler",
         mistakes_hint: "Ohne richtige Antworten — erst selbst erinnern", your_answer: "Deine Antwort",
@@ -102,7 +102,7 @@ const I18N = {
         score: "Punkte", yes: "Richtig", no: "Falsch", reset: "Reset",
         ui_lang: "Oberflächensprache", subscription: "Abo", share: "Teilen",
         exit_title: "Lektion verlassen?", exit_text: "Der Fortschritt geht verloren.", exit_ok: "Verlassen" },
-  fr: { change_lang: "Changer de langue", tab_learn: "Apprendre", tab_games: "Jeux", tab_board: "Classement", tab_profile: "Profil",
+  fr: { game_sprint: "Sprint", game_anagram: "Lettres", game_pairs: "Paires", game_quiz: "Quiz", change_lang: "Changer de langue", tab_learn: "Apprendre", tab_games: "Jeux", tab_board: "Classement", tab_profile: "Profil",
         start_lesson: "Commencer", check: "Vérifier", dont_know: "Je ne sais pas", back: "Retour",
         continue: "Continuer", lesson_done: "Leçon terminée !", your_mistakes: "Tes erreurs",
         mistakes_hint: "Sans bonnes réponses — souviens-toi d'abord", your_answer: "Ta réponse",
@@ -111,7 +111,7 @@ const I18N = {
         score: "Points", yes: "Vrai", no: "Faux", reset: "Réinitialiser",
         ui_lang: "Langue de l'interface", subscription: "Abonnement", share: "Partager",
         exit_title: "Quitter la leçon ?", exit_text: "La progression sera perdue.", exit_ok: "Quitter" },
-  uk: { change_lang: "Змінити мову навчання", tab_learn: "Навчання", tab_games: "Ігри", tab_board: "Рейтинг", tab_profile: "Профіль",
+  uk: { game_sprint: "Спринт", game_anagram: "Літери", game_pairs: "Пари", game_quiz: "Вікторина", change_lang: "Змінити мову навчання", tab_learn: "Навчання", tab_games: "Ігри", tab_board: "Рейтинг", tab_profile: "Профіль",
         start_lesson: "Почати урок", check: "Перевірити", dont_know: "Не знаю", back: "Назад",
         continue: "Далі", lesson_done: "Урок пройдено!", your_mistakes: "Твої помилки",
         mistakes_hint: "Без правильних відповідей — пригадай сам, потім перевір", your_answer: "Твоя відповідь",
@@ -340,6 +340,28 @@ function setPet(containerId, mood) {
   if (el) el.innerHTML = renderPet(mood);
 }
 
+// ---------- Озвучка ----------
+let lessonLangCode = "en";
+function speak(text, rate = 0.85) {
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = ({en:"en-US", es:"es-ES", de:"de-DE", fr:"fr-FR", it:"it-IT",
+               pt:"pt-BR", tr:"tr-TR", pl:"pl-PL", uk:"uk-UA", ja:"ja-JP"})[lessonLangCode]
+             || lessonLangCode;
+    u.rate = rate;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  } catch (_) {}
+}
+
+function speakerBtn(text, size = 20) {
+  const b = document.createElement("button");
+  b.className = "icon-btn speak-btn";
+  b.innerHTML = `<svg class="ic" style="width:${size}px;height:${size}px"><use href="#i-sound"/></svg>`;
+  b.onclick = ev => { ev.stopPropagation(); speak(text); };
+  return b;
+}
+
 // Позы питомца: случайная из списка
 const PET_POSES_ACTIVE = ["sit", "wave", "lie", "think"];
 function petPose(active) {
@@ -366,6 +388,18 @@ const PET_FACTS = [
   "«Butterfly» — «масляная муха»: возможно, от «butter-colored fly» — «жёлтая, как масло».",
 ];
 
+const PET_FACTS_EN = [
+  "The word 'queue' has five letters but only the first is pronounced!",
+  "'Goodbye' is short for 'God be with you'.",
+  "The letter E makes up about 11% of any English text.",
+  "'Salary' comes from Latin salarium — 'salt money'. Romans paid in salt!",
+  "English is the official language of the sky: all pilots speak it.",
+  "The word 'robot' was coined by Czech writer Karel Capek in 1920.",
+  "'Typewriter' can be typed using only the top keyboard row.",
+  "In the Oxford dictionary, 'set' has over 400 meanings.",
+  "No word rhymes with 'orange' — poets avoid it.",
+  "'Butterfly' may come from 'butter-colored fly' — yellow like butter.",
+];
 const WORD_EMOJI = {
   "cat": "🐱", "dog": "🐶", "sun": "☀️", "water": "💧", "apple": "🍎",
   "book": "📖", "house": "🏠", "milk": "🥛", "bread": "🍞", "tree": "🌳",
@@ -397,7 +431,8 @@ async function goHome() {
   const poses = ["pose-hop", "pose-sway", "pose-calm", ""];
   homePet.className = "home-pet " + (me.streak >= 7 ? "super"
     : poses[Math.floor(Math.random() * poses.length)]);
-  const fact = PET_FACTS[Math.floor(Math.random() * PET_FACTS.length)];
+  const facts = (uiLang === "ru") ? PET_FACTS : PET_FACTS_EN;
+  const fact = facts[Math.floor(Math.random() * facts.length)];
   document.getElementById("pet-thought").textContent =
     (me.pet_mood === "happy" ? "" : "Скучаю… давай урок! А пока — факт: ") + fact;
 
@@ -503,6 +538,7 @@ function startLessonFlow() {
   retryQueue = [];
   retryRound = false;
   mistakes = [];
+  if (lesson.lang) lessonLangCode = lesson.lang;
   // экран теории (если есть)
   if (lesson.theory && !lesson.repeat) {
     document.getElementById("theory-title").textContent = lesson.theory.title;
@@ -535,7 +571,8 @@ function showIntroOrLesson() {
       card.className = "word-card";
       card.style.animationDelay = (i * 0.07) + "s";
       card.innerHTML = `<div class="w-num">${i + 1}</div>
-        <div><div class="w-word">${word}</div><div class="w-trans">${trans}</div></div>`;
+        <div style="flex:1"><div class="w-word">${word}</div><div class="w-trans">${trans}</div></div>`;
+      card.appendChild(speakerBtn(word, 18));
       grid.appendChild(card);
     });
     document.getElementById("btn-intro-start").onclick = () => {
@@ -631,6 +668,8 @@ async function nextExamQuestion() {
 
 function renderExercise() {
   selectedOption = null;
+  const fb = document.getElementById("feedback-bar");
+  if (fb) fb.remove();
   const ex = lesson.exercises[exIndex];
   const total = lesson.exercises.length;
   document.getElementById("lesson-progress").style.width =
@@ -770,15 +809,30 @@ function getSentenceAnswer() {
   return line ? [...line.querySelectorAll(".placed")].map(c => c.textContent).join(" ") : "";
 }
 
+function showFeedback(ok, ex) {
+  const old = document.getElementById("feedback-bar");
+  if (old) old.remove();
+  const bar = document.createElement("div");
+  bar.id = "feedback-bar";
+  bar.className = "feedback-bar " + (ok ? "ok" : "bad");
+  let html = ok ? "<b>Верно!</b>" : `<b>Неверно.</b> Правильный ответ: «${ex.payload.correct}»`;
+  if (ex.payload.src) html += `<div class="feedback-src">${ex.payload.src}</div>`;
+  bar.innerHTML = html;
+  const actions = document.querySelector(".lesson-actions");
+  actions.parentNode.insertBefore(bar, actions);
+}
+
 function checkAnswer(ex) {
   if (ex.type === "sentence") {
     selectedOption = getSentenceAnswer();
     if (!selectedOption) return;
   }
-  if (selectedOption === null || selectedOption === undefined) return;
+  if (ex.type === "dictation") {
+    // selectedOption уже установлен в renderDictation
+  } else if (selectedOption === null || selectedOption === undefined) return;
 
   const correct = ex.payload.correct;
-  const ok = ex.type === "sentence"
+  const ok = ex.type === "sentence" || ex.type === "dictation"
     ? selectedOption.trim().toLowerCase() === correct.trim().toLowerCase()
     : selectedOption === correct;
 
@@ -787,12 +841,17 @@ function checkAnswer(ex) {
     if (b.textContent === correct) b.classList.add("correct");
   });
 
+  showFeedback(ok, ex);
+  if (ex.payload.correct && (ex.type === "sentence" || ex.type === "gap")) {
+    speak(ex.payload.correct, 0.9);
+  }
+
   const checkBtn = document.getElementById("btn-check");
   if (!ok) {
     mistakes.push({ prompt: ex.prompt, your: selectedOption });
-    if (ex.type === "sentence") {
-      showModal("Правильный ответ", `«${correct}»`);
-      nextExercise();
+    if (ex.type === "sentence" || ex.type === "dictation") {
+      checkBtn.textContent = "Дальше";
+      checkBtn.onclick = nextExercise;
       return;
     }
     box.querySelectorAll(".option").forEach(b => {
@@ -883,6 +942,14 @@ async function showProfile() {
   const petEl = document.getElementById("profile-pet");
   petEl.classList.toggle("super", me.streak >= 7);
   document.getElementById("pet-caption").textContent = caption;
+  const nameEl = document.getElementById("profile-name");
+  nameEl.innerHTML = "";
+  nameEl.textContent = me.first_name || "Ученик";
+  const editBtn = document.createElement("button");
+  editBtn.className = "icon-btn";
+  editBtn.innerHTML = '<svg class="ic" style="width:16px;height:16px"><use href="#i-edit"/></svg>';
+  editBtn.onclick = editNickname;
+  nameEl.appendChild(editBtn);
   const lessonsDone = progress.items.filter(i => i.completed).length;
   document.getElementById("profile-name").textContent = me.first_name || "Ученик";
   document.getElementById("profile-sub").textContent = me.has_subscription
@@ -1065,10 +1132,7 @@ async function showGames() {
     return;
   }
   gameLangId = progress.items[0].language_id;
-  const games = [
-    { id: "sprint", name: "Спринт", desc: "Верно/неверно на 45 секунд — успей набрать больше!" },
-    { id: "anagram", name: "Анаграммы", desc: "Собери слово из перемешанных букв" },
-  ];
+
   games.forEach(g => {
     const btn = document.createElement("button");
     btn.className = "game-card";
@@ -1259,11 +1323,11 @@ function renderGameStrip() {
   const strip = document.getElementById("game-strip");
   if (!strip) return;
   strip.innerHTML = "";
-  const games = [
-    { id: "sprint", name: "Спринт", icon: "i-flame" },
-    { id: "anagram", name: "Буквы", icon: "i-book" },
-    { id: "pairs", name: "Пары", icon: "i-target" },
-    { id: "quizgame", name: "Викторина", icon: "i-crown" },
+    const games = [
+    { id: "sprint", name: t("game_sprint"), icon: "i-flame" },
+    { id: "anagram", name: t("game_anagram"), icon: "i-book" },
+    { id: "pairs", name: t("game_pairs"), icon: "i-target" },
+    { id: "quizgame", name: t("game_quiz"), icon: "i-crown" },
   ];
   games.forEach(g => {
     const b = document.createElement("button");
@@ -1398,4 +1462,36 @@ function nextQg() {
   } else {
     renderQgQuestion();
   }
+}
+
+// ---------- Смена ника ----------
+async function editNickname() {
+  const me = await api("/me");
+  const name = await new Promise(resolve => {
+    showModal("Твой ник", "");
+    const modalText = document.getElementById("modal-text");
+    modalText.innerHTML = "";
+    const input = document.createElement("input");
+    input.className = "dictation-input";
+    input.value = me.first_name || "";
+    input.maxLength = 32;
+    modalText.appendChild(input);
+    const btn = document.getElementById("modal-btn");
+    btn.textContent = "Сохранить";
+    confirmCb = () => resolve(input.value.trim());
+    input.addEventListener("keydown", ev => { if (ev.key === "Enter") btn.click(); });
+    setTimeout(() => input.focus(), 100);
+  });
+  if (!name) { showProfile(); return; }
+  if (!isCleanText(name)) {
+    showModal("Ой!", "Такой ник не подойдёт — попробуй другой.");
+    return;
+  }
+  try {
+    await api("/me", "PATCH", { nickname: name });
+  } catch (e) {
+    showModal("Ошибка", e.message);
+    return;
+  }
+  showProfile();
 }

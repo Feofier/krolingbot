@@ -17,6 +17,7 @@ class User(Base):
     xp: Mapped[int] = mapped_column(Integer, default=0)
     streak: Mapped[int] = mapped_column(Integer, default=0)
     ui_language: Mapped[str] = mapped_column(String(8), default="ru")
+    nickname: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_lang_change: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     last_remind: Mapped[date | None] = mapped_column(Date, nullable=True)
     last_activity_date: Mapped[date | None] = mapped_column(Date)

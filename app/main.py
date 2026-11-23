@@ -35,6 +35,8 @@ async def init_db() -> None:
                 "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_lang_change TIMESTAMP"))
             await conn.execute(text(
                 "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_remind DATE"))
+            await conn.execute(text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS nickname VARCHAR(64)"))
         except Exception:
             pass
     async with SessionLocal() as session:
