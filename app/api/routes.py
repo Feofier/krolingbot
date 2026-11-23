@@ -32,6 +32,10 @@ class GameXpIn(BaseModel):
     points: int
 
 
+class BuyPlanIn(BaseModel):
+    plan: str
+
+
 UI_LANGUAGES = [
     {"code": "ru", "name": "Русский"},
     {"code": "en", "name": "English"},
@@ -460,6 +464,31 @@ async def open_chest(user_tg: dict = Depends(get_telegram_user),
 @router.get("/plans")
 async def plans():
     return [{"key": k, **v} for k, v in PLANS.items()]
+
+
+@router.post("/buy")
+async def buy_plan(data: BuyPlanIn,
+                   user_tg: dict = Depends(get_telegram_user)):
+    """Создаёт invoice-link: оплата открывается прямо в Mini App (tg.openInvoice)."""
+    import httpx
+    from ..config import BOT_TOKEN
+    info = PLANS.get(data.plan)
+    if not info:
+        raise HTTPException(404, "Plan not found")
+    async with httpx.AsyncClient(timeout=20) as client:
+        r = await client.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/createInvoiceLink",
+            json={
+                "title": info["title"],
+                "description": f"Krolingo Premium · {info['days']} дней",
+                "payload": data.plan,
+                "currency": "XTR",
+                "prices": [{"label": info["title"], "amount": info["stars"]}],
+            })
+    result = r.json()
+    if not result.get("ok"):
+        raise HTTPException(502, "Не удалось создать инвойс")
+    return {"url": result["result"]}
 
 
 @router.get("/history")
