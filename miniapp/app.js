@@ -65,67 +65,7 @@ const origModalClose = () => {
 document.getElementById("modal-btn").onclick = origModalClose;
 
 // ---------- Локализация интерфейса ----------
-const I18N = {
-  ru: { game_sprint: "Спринт", game_anagram: "Буквы", game_pairs: "Пары", game_quiz: "Викторина", change_lang: "Сменить язык обучения", tab_learn: "Учить", tab_games: "Игры", tab_board: "Рейтинг", tab_profile: "Профиль",
-        start_lesson: "Начать урок", check: "Проверить", dont_know: "Не знаю", back: "Назад",
-        continue: "Продолжить", lesson_done: "Урок пройден!", your_mistakes: "Твои ошибки",
-        mistakes_hint: "Без правильных ответов — вспомни сам, потом проверь в уроке", your_answer: "Твой ответ",
-        games: "Игры", games_hint: "Разминка между уроками — тоже даёт XP",
-        sprint_hint: "Перевод верный? Успей за 45 секунд!", anagram_hint: "Собери слово из букв",
-        score: "Очки", yes: "Верно", no: "Неверно", reset: "Сброс",
-        ui_lang: "Язык интерфейса", subscription: "Подписка", share: "Поделиться с другом",
-        exit_title: "Выйти из урока?", exit_text: "Прогресс этого урока не сохранится.", exit_ok: "Выйти" },
-  en: { game_sprint: "Sprint", game_anagram: "Letters", game_pairs: "Pairs", game_quiz: "Quiz", change_lang: "Change learning language", tab_learn: "Learn", tab_games: "Games", tab_board: "Leaderboard", tab_profile: "Profile",
-        start_lesson: "Start lesson", check: "Check", dont_know: "Don't know", back: "Back",
-        continue: "Continue", lesson_done: "Lesson complete!", your_mistakes: "Your mistakes",
-        mistakes_hint: "Correct answers hidden — recall them yourself", your_answer: "Your answer",
-        games: "Games", games_hint: "Warm up between lessons — also earns XP",
-        sprint_hint: "Is the translation right? 45 seconds!", anagram_hint: "Build the word from letters",
-        score: "Score", yes: "True", no: "False", reset: "Reset",
-        ui_lang: "Interface language", subscription: "Subscription", share: "Share with a friend",
-        exit_title: "Leave lesson?", exit_text: "This lesson's progress will be lost.", exit_ok: "Leave" },
-  es: { game_sprint: "Sprint", game_anagram: "Letras", game_pairs: "Pares", game_quiz: "Quiz", change_lang: "Cambiar idioma", tab_learn: "Aprender", tab_games: "Juegos", tab_board: "Clasificación", tab_profile: "Perfil",
-        start_lesson: "Empezar lección", check: "Comprobar", dont_know: "No sé", back: "Atrás",
-        continue: "Continuar", lesson_done: "¡Lección completada!", your_mistakes: "Tus errores",
-        mistakes_hint: "Sin respuestas correctas — recuérdate, luego comprueba", your_answer: "Tu respuesta",
-        games: "Juegos", games_hint: "Calienta entre lecciones — también da XP",
-        sprint_hint: "¿Traducción correcta? ¡45 segundos!", anagram_hint: "Forma la palabra con letras",
-        score: "Puntos", yes: "Verdadero", no: "Falso", reset: "Reiniciar",
-        ui_lang: "Idioma de la interfaz", subscription: "Suscripción", share: "Compartir",
-        exit_title: "¿Salir de la lección?", exit_text: "El progreso se perderá.", exit_ok: "Salir" },
-  de: { game_sprint: "Sprint", game_anagram: "Buchstaben", game_pairs: "Paare", game_quiz: "Quiz", change_lang: "Lernsprache ändern", tab_learn: "Lernen", tab_games: "Spiele", tab_board: "Rangliste", tab_profile: "Profil",
-        start_lesson: "Lektion starten", check: "Prüfen", dont_know: "Weiß nicht", back: "Zurück",
-        continue: "Weiter", lesson_done: "Lektion geschafft!", your_mistakes: "Deine Fehler",
-        mistakes_hint: "Ohne richtige Antworten — erst selbst erinnern", your_answer: "Deine Antwort",
-        games: "Spiele", games_hint: "Aufwärmen zwischen Lektionen — gibt auch XP",
-        sprint_hint: "Übersetzung richtig? 45 Sekunden!", anagram_hint: "Wort aus Buchstaben bilden",
-        score: "Punkte", yes: "Richtig", no: "Falsch", reset: "Reset",
-        ui_lang: "Oberflächensprache", subscription: "Abo", share: "Teilen",
-        exit_title: "Lektion verlassen?", exit_text: "Der Fortschritt geht verloren.", exit_ok: "Verlassen" },
-  fr: { game_sprint: "Sprint", game_anagram: "Lettres", game_pairs: "Paires", game_quiz: "Quiz", change_lang: "Changer de langue", tab_learn: "Apprendre", tab_games: "Jeux", tab_board: "Classement", tab_profile: "Profil",
-        start_lesson: "Commencer", check: "Vérifier", dont_know: "Je ne sais pas", back: "Retour",
-        continue: "Continuer", lesson_done: "Leçon terminée !", your_mistakes: "Tes erreurs",
-        mistakes_hint: "Sans bonnes réponses — souviens-toi d'abord", your_answer: "Ta réponse",
-        games: "Jeux", games_hint: "Échauffement entre les leçons — aussi de l'XP",
-        sprint_hint: "Traduction juste ? 45 secondes !", anagram_hint: "Forme le mot avec les lettres",
-        score: "Points", yes: "Vrai", no: "Faux", reset: "Réinitialiser",
-        ui_lang: "Langue de l'interface", subscription: "Abonnement", share: "Partager",
-        exit_title: "Quitter la leçon ?", exit_text: "La progression sera perdue.", exit_ok: "Quitter" },
-  uk: { game_sprint: "Спринт", game_anagram: "Літери", game_pairs: "Пари", game_quiz: "Вікторина", change_lang: "Змінити мову навчання", tab_learn: "Навчання", tab_games: "Ігри", tab_board: "Рейтинг", tab_profile: "Профіль",
-        start_lesson: "Почати урок", check: "Перевірити", dont_know: "Не знаю", back: "Назад",
-        continue: "Далі", lesson_done: "Урок пройдено!", your_mistakes: "Твої помилки",
-        mistakes_hint: "Без правильних відповідей — пригадай сам, потім перевір", your_answer: "Твоя відповідь",
-        games: "Ігри", games_hint: "Розминка між уроками — теж дає XP",
-        sprint_hint: "Переклад правильний? Встигни за 45 секунд!", anagram_hint: "Склади слово з літер",
-        score: "Очки", yes: "Вірно", no: "Невірно", reset: "Скидання",
-        ui_lang: "Мова інтерфейсу", subscription: "Підписка", share: "Поділитися",
-        exit_title: "Вийти з уроку?", exit_text: "Прогрес уроку не збережеться.", exit_ok: "Вийти" },
-};
-
 let uiLang = "ru";
-function t(key) {
-  return (I18N[uiLang] && I18N[uiLang][key]) || I18N.ru[key] || key;
-}
 
 function applyI18n() {
   document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -160,10 +100,8 @@ async function loadOnboarding() {
   meCache = me;
   const box = document.getElementById("lang-list");
   box.innerHTML = "";
-  if (me.has_subscription) {
-    document.getElementById("onboarding-hint").textContent =
-      "С подпиской можно учить несколько языков. Выбери один, потом добавишь ещё.";
-  }
+  document.getElementById("onboarding-hint").textContent =
+    me.has_subscription ? t("ob_sub_hint") : t("ob_hint");
   langs.forEach(l => {
     const btn = document.createElement("button");
     btn.className = "card";
@@ -186,7 +124,7 @@ async function loadOnboarding() {
       return;
     }
     document.getElementById("level-title").textContent =
-      `Как хорошо ты знаешь: ${chosenLangName}?`;
+      t("level_q_named", {name: chosenLangName});
     showScreen("screen-level");
   };
 }
@@ -251,7 +189,7 @@ async function nextQuizQuestion() {
     const res = await api("/placement/finish", "POST",
       { language_id: chosenLang, score: quizScore });
     document.getElementById("assigned-level").textContent =
-      `${res.level} · ${res.level_name}`;
+      `${res.level} · ${t("lvl_" + res.level)}`;
     showScreen("screen-level-result");
   } else {
     renderQuizQuestion();
@@ -422,8 +360,8 @@ async function goHome() {
   document.getElementById("streak").textContent = me.streak;
   document.getElementById("xp").textContent = me.xp;
   document.getElementById("limit-info").textContent = me.has_subscription
-    ? `Подписка активна · осталось ${me.subscription_days_left} дн.`
-    : `Сегодня: ${progress.lessons_done_today} из ${progress.free_daily_limit} бесплатных уроков`;
+    ? t("sub_left", {n: me.subscription_days_left})
+    : t("today_limit", {a: progress.lessons_done_today, b: progress.free_daily_limit});
 
   setPet("home-pet", me.pet_mood === "happy" ? "happy" : "sleep");
   const homePet = document.getElementById("home-pet");
@@ -434,7 +372,7 @@ async function goHome() {
   const facts = (uiLang === "ru") ? PET_FACTS : PET_FACTS_EN;
   const fact = facts[Math.floor(Math.random() * facts.length)];
   document.getElementById("pet-thought").textContent =
-    (me.pet_mood === "happy" ? "" : "Скучаю… давай урок! А пока — факт: ") + fact;
+    (me.pet_mood === "happy" ? "" : t("thought_sad")) + fact;
 
   const list = document.getElementById("progress-list");
   list.innerHTML = "";
@@ -451,7 +389,7 @@ async function goHome() {
   if (me.has_subscription) {
     const add = document.createElement("button");
     add.className = "card";
-    add.innerHTML = `<b>+ Добавить язык</b>`;
+    add.innerHTML = `<b>${t("add_lang")}</b>`;
     add.onclick = async () => { await loadOnboarding(); showScreen("screen-onboarding"); };
     list.appendChild(add);
   }
@@ -462,9 +400,10 @@ function renderPath(item, canStart) {
   const wrap = document.createElement("div");
   wrap.className = "path-wrap";
   const toNext = item.level_total - item.level_done;
+  const lvlName = t("lvl_" + item.level);
   wrap.innerHTML = `<div class="path-header">
-      <b>${item.language_name} · ${item.level} (${item.level_name})</b><br>
-      <span class="path-progress-line">до следующего уровня: ${toNext} уроков</span>
+      <b>${item.language_name} · ${item.level} (${lvlName})</b><br>
+      <span class="path-progress-line">${t("to_next", {n: toNext})}</span>
     </div>`;
   const path = document.createElement("div");
   path.className = "path";
@@ -613,7 +552,7 @@ function renderExamQuestion() {
   document.getElementById("exam-progress").style.width =
     (examIndex / examQuestions.length * 100) + "%";
   document.getElementById("exam-step").textContent =
-    `Экзамен · вопрос ${examIndex + 1} из ${examQuestions.length}`;
+    t("exam_step", {a: examIndex + 1, b: examQuestions.length});
   document.getElementById("exam-prompt").textContent = q.prompt;
   const sent = document.getElementById("exam-sentence");
   if (q.type === "gap" && q.sentence) {
@@ -652,12 +591,12 @@ async function nextExamQuestion() {
     const res = await api(`/exam/${examLang}/finish`, "POST",
       { score: examScore, total: examQuestions.length });
     if (res.passed) {
-      showModal("Экзамен сдан!",
-        `Результат: <b>${res.percent}%</b>. Новый уровень: <b>${res.level} (${res.level_name})</b>!`,
+      showModal(t("exam_passed"),
+        t("exam_passed_t", {p: res.percent, l: res.level, ln: t("lvl_" + res.level)}),
         "assets/pet_happy.svg");
     } else {
-      showModal("Пока не получилось",
-        `Результат: <b>${res.percent}%</b>, нужно минимум 70%. Повтори уроки и попробуй снова!`,
+      showModal(t("exam_failed"),
+        t("exam_failed_t", {p: res.percent}),
         "assets/pet_sad.svg");
     }
     goHome();
@@ -695,7 +634,7 @@ function renderExercise() {
     checkBtn.style.display = "none";
   } else {
     dontKnowBtn.style.display = "";
-    dontKnowBtn.textContent = "Не знаю";
+    dontKnowBtn.textContent = t("dont_know");
     dontKnowBtn.disabled = false;
     dontKnowBtn.onclick = () => dontKnow(ex);
     if (ex.type === "sentence") {
@@ -729,7 +668,7 @@ function dontKnow(ex) {
   if (line) line.classList.add("revealed");
   if (!retryRound) retryQueue.push(ex);
   const checkBtn = document.getElementById("btn-check");
-  checkBtn.textContent = "Дальше";
+  checkBtn.textContent = t("next");
   checkBtn.onclick = nextExercise;
   document.getElementById("btn-dontknow").disabled = true;
 }
@@ -850,14 +789,14 @@ function checkAnswer(ex) {
   if (!ok) {
     mistakes.push({ prompt: ex.prompt, your: selectedOption });
     if (ex.type === "sentence" || ex.type === "dictation") {
-      checkBtn.textContent = "Дальше";
+      checkBtn.textContent = t("next");
       checkBtn.onclick = nextExercise;
       return;
     }
     box.querySelectorAll(".option").forEach(b => {
       if (b.textContent === selectedOption) b.classList.add("wrong");
     });
-    checkBtn.textContent = "Дальше";
+    checkBtn.textContent = t("next");
     checkBtn.onclick = nextExercise;
   } else {
     correctCount++;
@@ -874,19 +813,19 @@ async function nextExercise() {
       retryRound = true;
       lesson = { ...lesson, exercises: retryQueue };
       exIndex = 0;
-      showModal("Время повторить", "Сейчас ещё раз покажем задания, где был выбран «Не знаю».");
+      showModal(t("next"), "");
       renderExercise();
       return;
     }
     document.getElementById("lesson-progress").style.width = "100%";
     const result = await api(`/lesson/${lesson.lesson_id}/complete`, "POST");
     if (result.gift) {
-      setTimeout(() => showModal("Подарок от Krolingo!",
-        "Ты занимаешься уже ${result.streak} дней подряд! Лови <b>+1 бонусный урок</b> на сегодня.",
+      setTimeout(() => showModal(t("gift_title"),
+        t("gift_text", {n: result.streak}),
         "assets/pet_happy.svg"), 400);
     } else if (result.level && !lesson.repeat && result.level !== lesson.level) {
-      setTimeout(() => showModal("Новый уровень!",
-        `Ты перешёл на уровень <b>${result.level}</b>! Уроки станут интереснее.`, "assets/pet_happy.svg"), 400);
+      setTimeout(() => showModal(t("level_up"),
+        t("level_up_t", {l: result.level}), "assets/pet_happy.svg"), 400);
     }
     document.getElementById("res-correct").textContent =
       `${correctCount}/${lesson.exercises.length}`;
@@ -914,7 +853,7 @@ async function showBoard() {
       <div class="board-rank">${item.rank <= 3
         ? `<svg class="ic" style="${item.rank === 1 ? '' : 'opacity:' + (0.9 - item.rank * 0.25)}"><use href="#i-crown"/></svg>`
         : item.rank}</div>
-      <div class="board-name">${item.name}${item.is_me ? " (ты)" : ""}</div>
+      <div class="board-name">${item.name}${item.is_me ? " " + t("you") : ""}</div>
       <div class="board-xp">${item.xp}<svg class="ic gem" style="width:16px;height:16px"><use href="#i-gem"/></svg></div>`;
     list.appendChild(row);
   });
@@ -927,16 +866,16 @@ async function showProfile() {
   const [me, board, progress, history] = await Promise.all(
     [api("/me"), api("/leaderboard"), api("/progress"), api("/history")]);
   let mood, caption;
-  if (me.pet_mood === "happy") {
+  if (me.streak >= 7) {
     mood = "happy";
-    caption = me.lessons_done_today > 0
-      ? "Кенгу доволен: ты сегодня занимался!"
-      : (me.streak >= 3 ? `Кенгу счастлив: стрик уже ${me.streak} дней!` : "Кенгу рад тебя видеть!");
+    caption = t("pet_proud", {n: me.streak});
+  } else if (me.pet_mood === "happy") {
+    mood = "happy";
+    caption = me.lessons_done_today > 0 ? t("pet_today")
+      : (me.streak >= 3 ? t("pet_streak", {n: me.streak}) : t("pet_idle"));
   } else {
     mood = "sleep";
-    caption = me.streak >= 7
-      ? `Стрик ${me.streak} дней! Но сегодня Кенгу ждёт тебя на уроке…`
-      : "Кенгу дремлет… пройди урок, чтобы он повеселел!";
+    caption = me.streak >= 7 ? t("pet_sleep_streak", {n: me.streak}) : t("pet_sleep");
   }
   setPet("profile-pet", mood);
   const petEl = document.getElementById("profile-pet");
@@ -953,13 +892,13 @@ async function showProfile() {
   const lessonsDone = progress.items.filter(i => i.completed).length;
   document.getElementById("profile-name").textContent = me.first_name || "Ученик";
   document.getElementById("profile-sub").textContent = me.has_subscription
-    ? `Подписка активна · ${me.subscription_days_left} дн.` : "Бесплатный аккаунт";
+    ? t("sub_left", {n: me.subscription_days_left}) : t("free_account");
   document.getElementById("p-xp").textContent = me.xp;
   document.getElementById("p-streak").textContent = me.streak;
   document.getElementById("p-lessons").textContent = history.items.length;
   document.getElementById("p-rank").textContent = board.my_rank;
   document.getElementById("btn-share").onclick = () => {
-    const text = `Учу языки в Krolingo вместе с кенгуру! Мой стрик: ${me.streak} дн.`;
+    const text = t("share_text", {n: me.streak});
     tg.openTelegramLink(
       `https://t.me/share/url?url=${encodeURIComponent("https://t.me/KrolingoBot")}&text=${encodeURIComponent(text)}`);
   };
@@ -970,8 +909,8 @@ async function showProfile() {
       banner.id = "sub-banner";
       banner.className = "sub-banner";
       banner.innerHTML = `<svg class="ic" style="width:30px;height:30px"><use href="#i-star"/></svg>
-        <div style="flex:1"><b>Krolingo Premium</b><br>
-        <span>Безлимит уроков · много языков · ×2 XP в играх</span></div>`;
+        <div style="flex:1"><b>${t("sub_banner_t")}</b><br>
+        <span>${t("sub_banner_s")}</span></div>`;
       document.querySelector("#screen-profile .profile-card").after(banner);
     }
     banner.onclick = showPlans;
@@ -980,7 +919,7 @@ async function showProfile() {
   const hlist = document.getElementById("history-list");
   hlist.innerHTML = "";
   if (!history.items.length) {
-    hlist.innerHTML = `<p class="muted">Пока нет пройденных уроков</p>`;
+    hlist.innerHTML = `<p class="muted">${t("history_empty")}</p>`;
   }
   history.items.forEach(h => {
     const row = document.createElement("button");
@@ -1000,13 +939,7 @@ async function showProfile() {
 const STAR_SVG = '<svg style="width:18px;height:18px;vertical-align:-3px"><use href="#i-star"/></svg>';
 
 function perksHtml() {
-  const perks = [
-    "Безлимитные уроки каждый день — лимит 2 урока снимается",
-    "Несколько языков сразу — учи английский и японский параллельно",
-    "Смена языка обучения в любой момент — без ожидания 7 дней",
-    "Экзамены без лимита — сдавай хоть каждый день",
-    "Поддержка развития Krolingo — новые уроки и игры выходят быстрее",
-  ];
+  const perks = [t("perk_1"), t("perk_2"), t("perk_3"), t("perk_4"), t("perk_5")];
   return perks.map(p =>
     `<div class="perk-row"><svg class="ic" style="width:20px;height:20px;color:var(--green)"><use href="#i-check"/></svg> ${p}</div>`
   ).join("");
@@ -1069,7 +1002,7 @@ async function openChest() {
     goHome();
   } catch (e) {
     if (e.message !== "limit") {
-      showConfirm("Сундук закрыт", e.message + " Хочешь открывать сундуки и получать больше XP?", "Смотреть тарифы", showPlans);
+      showConfirm(t("chest_locked"), e.message + t("chest_offer"), t("view_plans"), showPlans);
     }
   }
 }
@@ -1085,7 +1018,7 @@ function renderMistakes() {
     const card = document.createElement("div");
     card.className = "mistake-card";
     card.innerHTML = `<div class="m-q">${m.prompt}</div>
-      <div class="m-a">${t("your_answer") || "Твой ответ"}: ${m.your}</div>`;
+      <div class="m-a">${t("your_answer")}: ${m.your}</div>`;
     list.appendChild(card);
   });
 }
@@ -1127,7 +1060,7 @@ async function showGames() {
   const list = document.getElementById("games-list");
   list.innerHTML = "";
   if (!progress.items.length) {
-    list.innerHTML = `<p class="muted">Сначала выбери язык на вкладке «Учить»</p>`;
+    list.innerHTML = `<p class="muted">${t("games_notyet")}</p>`;
     showScreen("screen-games");
     return;
   }
@@ -1204,10 +1137,10 @@ async function endSprint() {
   clearInterval(sprintTimer);
   const gained = Math.min(sprintScore, 30);
   const res = await api("/game/xp", "POST", { points: gained });
-  showModal("Спринт окончен!",
-    `Результат: <b>${sprintScore}</b> верных ответов.<br>Заработано <b>+${res.granted} XP</b>!`,
+  showModal(t("sprint_end"),
+    `${t("correct_answers")}: <b>${sprintScore}</b>.<br>${t("earned")}: <b>+${res.granted} XP</b>${res.multiplier === 2 ? " (×2!)" : ""}!`,
     "assets/pet_happy.svg");
-  showGames();
+  goHome();
 }
 
 document.getElementById("btn-sprint-yes").onclick = () => sprintAnswer(true);
@@ -1304,7 +1237,7 @@ async function showChangeLanguage() {
           chosenLang = l.id;
           chosenLangName = l.name;
           document.getElementById("level-title").textContent =
-            `Как хорошо ты знаешь: ${l.name}?`;
+            t("level_q_named", {name: l.name});
           showScreen("screen-level");
         } catch (e) {
           if (e.message !== "limit") showModal("Пока нельзя", e.message || "Смена недоступна", "assets/pet_sleep.svg");
@@ -1388,8 +1321,8 @@ function flipPairCard(btn, card, idx) {
         if (pairsMatched === pairsCards.length) {
           const gained = Math.max(20 - pairsMoves, 5);
           api("/game/xp", "POST", { points: gained }).then(res => {
-            showModal("Все пары найдены!",
-              `Ходов: <b>${pairsMoves}</b>. Заработано <b>+${res.granted} XP</b>!`,
+            showModal(t("pairs_found"),
+              `${t("moves")}: <b>${pairsMoves}</b>. ${t("earned")}: <b>+${res.granted} XP</b>!`,
               "assets/pet_happy.svg");
             goHome();
           });
@@ -1418,7 +1351,7 @@ async function startQuizGame() {
 function renderQgQuestion() {
   const q = qgWords[qgIdx];
   document.getElementById("qg-progress").style.width = (qgIdx / qgWords.length * 100) + "%";
-  document.getElementById("qg-step").textContent = `Вопрос ${qgIdx + 1} из ${qgWords.length} · верных: ${qgScore}`;
+  document.getElementById("qg-step").textContent = `${t("quiz_step", {a: qgIdx + 1, b: qgWords.length})} · ${t("correct_cnt")}: ${qgScore}`;
   document.getElementById("qg-word").textContent = q.word;
   const opts = [q.translation];
   const others = qgWords.filter(w => w.translation !== q.translation);
@@ -1454,8 +1387,8 @@ function nextQg() {
   if (qgIdx >= qgWords.length) {
     const gained = qgScore * 2;
     api("/game/xp", "POST", { points: gained }).then(res => {
-      showModal("Викторина окончена!",
-        `Верных ответов: <b>${qgScore}/${qgWords.length}</b>. Заработано <b>+${res.granted} XP</b>!`,
+      showModal(t("quiz_end"),
+        `${t("correct_answers")}: <b>${qgScore}/${qgWords.length}</b>. ${t("earned")}: <b>+${res.granted} XP</b>!`,
         qgScore >= 7 ? "assets/pet_happy.svg" : "assets/logo.png");
       goHome();
     });
