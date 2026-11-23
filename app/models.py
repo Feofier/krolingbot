@@ -20,6 +20,9 @@ class User(Base):
     nickname: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_lang_change: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     last_remind: Mapped[date | None] = mapped_column(Date, nullable=True)
+    ref_code: Mapped[str] = mapped_column(String(32), unique=True, index=True)
+    referred_by: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    ref_bonus_given: Mapped[bool] = mapped_column(default=False)
     bonus_lessons: Mapped[int] = mapped_column(Integer, default=0)  # подаренные уроки сверх лимита
     last_activity_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

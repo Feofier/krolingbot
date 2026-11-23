@@ -399,9 +399,31 @@ async def finish_lesson(lesson_id: int, user_tg: dict = Depends(get_telegram_use
     if not ul:
         raise HTTPException(404, "Language not chosen")
     result = await complete_lesson(session, user, ul, lesson)
+    referral_reward = False
+    if user.referred_by and not user.ref_bonus_given:
+        referrer = (await session.execute(
+            select(User).where(User.telegram_id == user.referred_by))).scalar_one_or_none()
+        if referrer:
+            from ..services import grant_subscription
+            await grant_subscription(session, referrer.id, "ref", 30)
+            user.ref_bonus_given = True
+            session.add(user)
+            await session.commit()
+            referral_reward = True
+            import httpx
+            from ..config import BOT_TOKEN
+            try:
+                async with httpx.AsyncClient(timeout=15) as client:
+                    await client.post(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                        json={"chat_id": referrer.telegram_id,
+                              "text": "По твоей ссылке пришёл друг и начал заниматься! "
+                                      "Награда: +30 дней подписки Krolingo!"})
+            except Exception:
+                pass
     return {"ok": True, "xp": user.xp, "streak": user.streak,
             "level": ul.level, "current_lesson": ul.current_lesson,
-            "gift": result.get("gift", False)}
+            "gift": result.get("gift", False), "referral": referral_reward}
 
 
 @router.post("/placement/start")
@@ -479,6 +501,24 @@ async def open_chest(user_tg: dict = Depends(get_telegram_user),
     session.add(user)
     await session.commit()
     return {"ok": True, "xp": user.xp, "granted": 25}
+
+
+@router.get("/referral")
+async def referral(user_tg: dict = Depends(get_telegram_user),
+                   session: AsyncSession = Depends(get_session)):
+    user = await get_or_create_user(session, user_tg["id"])
+    invited = (await session.execute(
+        select(func.count(User.id)).where(User.referred_by == user.telegram_id))).scalar_one()
+    rewarded = (await session.execute(
+        select(func.count(User.id)).where(
+            User.referred_by == user.telegram_id,
+            User.ref_bonus_given.is_(True)))).scalar_one()
+    return {
+        "link": f"https://t.me/KrolingoBot?start=ref_{user.ref_code}",
+        "invited": invited,
+        "rewarded": rewarded,
+        "days_earned": rewarded * 30,
+    }
 
 
 @router.get("/plans")

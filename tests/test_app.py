@@ -251,3 +251,41 @@ async def test_exam_required_for_level_up():
             r = await c.post(f"/api/exam/{lang.id}/finish", headers=h,
                              json={"score": len(qs) // 2, "total": len(qs)})
             assert r.json()["passed"] is False
+
+
+@pytest.mark.asyncio
+async def test_referral_reward():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://t") as c:
+        hr = {"X-Init-Data": make_init_data(900)}
+        hf = {"X-Init-Data": make_init_data(901)}
+        # реферер создаётся и получает код
+        me = (await c.get("/api/me", headers=hr)).json()
+        assert me["first_name"] is not None
+        ref = (await c.get("/api/referral", headers=hr)).json()
+        assert ref["link"].startswith("https://t.me/KrolingoBot?start=ref_u900")
+        # друг регистрируется с referred_by
+        async with SessionLocal() as s:
+            referrer = await get_or_create_user(s, 900)
+            friend = await get_or_create_user(s, 901)
+            friend.referred_by = 900
+            await s.commit()
+        # друг проходит урок -> реферер получает 30 дней
+        langs = (await c.get("/api/languages", headers=hf)).json()
+        await c.post("/api/languages", headers=hf,
+                     json={"language_id": langs[0]["id"]})
+        lesson = (await c.get(f"/api/lesson/{langs[0]['id']}", headers=hf)).json()
+        r = await c.post(f"/api/lesson/{lesson['lesson_id']}/complete", headers=hf)
+        assert r.json()["referral"] is True
+        # проверим подписку реферера
+        async with SessionLocal() as s:
+            from app.services import active_subscription
+            referrer = await get_or_create_user(s, 900)
+            sub = await active_subscription(s, referrer.id)
+            assert sub is not None and sub.plan == "ref"
+        # повторный урок друга не даёт вторую награду
+        lesson2 = (await c.get(f"/api/lesson/{langs[0]['id']}", headers=hf)).json()
+        r2 = await c.post(f"/api/lesson/{lesson2['lesson_id']}/complete", headers=hf)
+        assert r2.json()["referral"] is False
+        ref2 = (await c.get("/api/referral", headers=hr)).json()
+        assert ref2["rewarded"] == 1 and ref2["days_earned"] == 30

@@ -29,7 +29,8 @@ async def get_or_create_user(session: AsyncSession, telegram_id: int,
     user = (await session.execute(
         select(User).where(User.telegram_id == telegram_id))).scalar_one_or_none()
     if user is None:
-        user = User(telegram_id=telegram_id, username=username, first_name=first_name)
+        user = User(telegram_id=telegram_id, username=username, first_name=first_name,
+                    ref_code=f"u{telegram_id}")
         session.add(user)
         await session.commit()
     return user

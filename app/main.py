@@ -38,6 +38,14 @@ async def init_db() -> None:
             await conn.execute(text(
                 "ALTER TABLE users ADD COLUMN IF NOT EXISTS nickname VARCHAR(64)"))
             await conn.execute(text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS ref_code VARCHAR(32)"))
+            await conn.execute(text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by BIGINT"))
+            await conn.execute(text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS ref_bonus_given BOOLEAN DEFAULT false"))
+            await conn.execute(text(
+                "UPDATE users SET ref_code = 'u' || telegram_id WHERE ref_code IS NULL"))
+            await conn.execute(text(
                 "ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_lessons INTEGER DEFAULT 0"))
         except Exception:
             pass

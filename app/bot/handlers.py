@@ -9,6 +9,7 @@ from aiogram.types import (CallbackQuery, InlineKeyboardButton,
                            PreCheckoutQuery, SuccessfulPayment)
 
 from ..config import MINIAPP_URL, PLANS
+from sqlalchemy import select
 from ..db import SessionLocal
 from ..models import User
 from ..services import get_or_create_user, grant_subscription, msk_today
@@ -19,11 +20,20 @@ router = Router()
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message) -> None:
+async def cmd_start(message: Message, command: CommandStart) -> None:
     async with SessionLocal() as session:
-        await get_or_create_user(session, message.from_user.id,
-                                 message.from_user.username,
-                                 message.from_user.first_name)
+        user = await get_or_create_user(session, message.from_user.id,
+                                        message.from_user.username,
+                                        message.from_user.first_name)
+        args = (command.args or "").strip()
+        if args.startswith("ref") and user.referred_by is None:
+            code = args[4:] if args.startswith("ref_") else args[3:]
+            referrer = (await session.execute(
+                select(User).where(User.ref_code == code))).scalar_one_or_none()
+            if referrer and referrer.telegram_id != user.telegram_id:
+                user.referred_by = referrer.telegram_id
+                session.add(user)
+                await session.commit()
     async with SessionLocal() as s2:
         u = await get_or_create_user(s2, message.from_user.id)
         lang = u.ui_language or "ru"

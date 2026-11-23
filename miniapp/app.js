@@ -1398,3 +1398,32 @@ async function editNickname() {
   }
   showProfile();
 }
+
+// ---------- Реферальная система ----------
+async function showReferral() {
+  showScreen("screen-loading");
+  const data = await api("/referral");
+  document.getElementById("ref-invited").textContent = data.invited;
+  document.getElementById("ref-rewarded").textContent = data.rewarded;
+  document.getElementById("ref-days").textContent = data.days_earned;
+  const linkInput = document.getElementById("ref-link");
+  linkInput.value = data.link;
+  document.getElementById("btn-ref-copy").onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(data.link);
+      showModal(t("ref_copied"), "", "assets/logo.png");
+    } catch (_) {
+      linkInput.select();
+      document.execCommand("copy");
+      showModal(t("ref_copied"), "", "assets/logo.png");
+    }
+  };
+  document.getElementById("btn-ref-share").onclick = () => {
+    const text = t("ref_sub").replace(/<[^>]+>/g, "") + " " + data.link;
+    tg.openTelegramLink("https://t.me/share/url?url=" +
+      encodeURIComponent(data.link) + "&text=" + encodeURIComponent(text));
+  };
+  showScreen("screen-referral");
+}
+
+document.getElementById("btn-referral").onclick = showReferral;

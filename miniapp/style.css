@@ -523,6 +523,15 @@ h2 { font-size: 21px; font-weight: 900; }
   margin: 18px 0 10px;
 }
 
+/* рефералка */
+.ref-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.ref-stats .stat-box { padding: 10px 6px; }
+.ref-stats .stat-box b { font-size: 18px; }
+.ref-link-box { margin-bottom: 14px; text-align: left; }
+.ref-link-row { display: flex; gap: 8px; }
+.ref-link-row .dictation-input { font-size: 12.5px; }
+.ref-copy { width: auto; padding: 10px 14px; font-size: 13px; }
+
 /* верхняя строка с кнопкой назад */
 .screen-top { display: flex; justify-content: flex-start; margin-bottom: 6px; min-height: 30px; }
 .screen-top:empty { display: none; }

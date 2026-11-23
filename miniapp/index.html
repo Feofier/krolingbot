@@ -151,6 +151,26 @@
       <button class="btn" onclick="showProfile()" data-i18n="back">Назад</button>
     </div>
 
+    <!-- Пригласить друга -->
+    <div id="screen-referral" class="screen">
+      <div class="screen-top"><button class="icon-btn" onclick="showProfile()"><svg class="ic"><use href="#i-back"/></svg></button></div>
+      <h1 data-i18n="ref_title">Пригласить друга</h1>
+      <p class="muted" data-i18n="ref_sub">За каждого друга, который начнёт заниматься по твоей ссылке, — <b>+30 дней подписки</b> бесплатно!</p>
+      <div class="ref-stats">
+        <div class="stat-box"><svg class="ic"><use href="#i-user"/></svg><b id="ref-invited">0</b><span data-i18n="ref_invited">приглашено</span></div>
+        <div class="stat-box"><svg class="ic"><use href="#i-crown"/></svg><b id="ref-rewarded">0</b><span data-i18n="ref_active">начали учиться</span></div>
+        <div class="stat-box"><svg class="ic"><use href="#i-star"/></svg><b id="ref-days">0</b><span data-i18n="ref_days">дней заработано</span></div>
+      </div>
+      <div class="ref-link-box">
+        <p class="muted small" data-i18n="ref_link_label">Твоя ссылка:</p>
+        <div class="ref-link-row">
+          <input class="dictation-input" id="ref-link" readonly>
+          <button class="btn btn-blue ref-copy" id="btn-ref-copy" data-i18n="ref_copy">Копировать</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-ref-share" data-i18n="ref_share">Поделиться ссылкой</button>
+    </div>
+
     <!-- Язык интерфейса -->
     <div id="screen-language" class="screen">
       <h1 data-i18n="ui_lang">Язык интерфейса</h1>
@@ -286,6 +306,7 @@
       <div class="screen-top"><button class="icon-btn" onclick="showProfile()"><svg class="ic"><use href="#i-back"/></svg></button></div>
       <h1 data-i18n="menu_settings">Настройки</h1>
       <div class="card-list">
+        <button class="card row" id="btn-referral"><svg class="ic"><use href="#i-crown"/></svg> <span data-i18n="menu_referral">Пригласить друга</span></button>
         <button class="card row" id="btn-share"><svg class="ic"><use href="#i-share"/></svg> <span data-i18n="btn_share">Поделиться с другом</span></button>
       </div>
     </div>
