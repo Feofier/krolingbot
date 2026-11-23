@@ -14,6 +14,30 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* плавные нажатия: все интерактивные элементы анимируются мягко */
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.btn, .card, .tab, .tab .ic, .game-chip, .word-chip, .letter-chip,
+.icon-btn, .pill-btn, .pair-card, .path-node, .sub-banner, .speak-btn {
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease,
+              border-color .16s ease, opacity .16s ease, filter .16s ease;
+}
+.card:active { transform: scale(.965); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.card.selected:active { transform: scale(.98); }
+.tab:active { transform: translateY(1px); }
+.tab:active .ic { transform: scale(.82); opacity: 1; }
+.icon-btn:active { transform: scale(.78); }
+.game-chip:active { transform: scale(.93); }
+.pill-btn:active { transform: scale(.92); }
+.path-node:not(.locked):active { transform: scale(.9); }
+.sub-banner:active { transform: translateY(3px); box-shadow: 0 1px 0 #3b8bb5; }
+.speak-btn:active { transform: scale(.75); }
+.pair-card { transition: transform .16s ease, background .16s ease, color .16s ease, border-color .16s ease; }
+@media (hover: hover) {
+  .card:hover { border-color: #cfcfcf; }
+  .btn:hover:not(:disabled) { filter: brightness(1.04); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+}
+
 body {
   background: var(--bg);
   color: var(--ink);
@@ -413,6 +437,15 @@ h2 { font-size: 21px; font-weight: 900; }
   animation: petBounce 2.4s ease-in-out infinite;
   filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
 }
+.profile-pet-img {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+}
+
+/* рост питомца: чем больше XP, тем крупнее и взрослее */
+.growth-box { max-width: 260px; margin: 0 auto 10px; }
+.growth-label { font-size: 13px; font-weight: 800; color: #8a6d00; margin-bottom: 5px; }
+.progress-bar.growth { height: 12px; }
+#growth-progress { background: linear-gradient(90deg, #ffc800, #58cc02); height: 100%; width: 0; border-radius: 8px; transition: width .5s ease; }
 .profile-pet.super { animation: petParty 1.3s ease-in-out infinite; }
 @keyframes petParty {
   0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }

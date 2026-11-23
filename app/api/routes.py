@@ -1,14 +1,14 @@
 from datetime import date as date_type, datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..config import FREE_DAILY_LESSONS, PLANS
+from ..config import ADMIN_TOKEN, FREE_DAILY_LESSONS, PLANS
 from ..db import get_session
-from ..models import (Exercise, Language, Lesson, LessonCompletion, User,
-                     UserLanguage)
+from ..models import (Broadcast, Exercise, Language, Lesson, LessonCompletion,
+                      User, UserLanguage)
 from ..services import (LEVELS, active_subscription, can_start_lesson,
                         complete_lesson, get_or_create_user,
                         lessons_done_today, msk_today, next_level, prev_level)
@@ -66,6 +66,12 @@ class PlacementFinishIn(BaseModel):
     score: int       # верных ответов 0..5
 
 
+async def active_broadcast(session: AsyncSession) -> Broadcast | None:
+    return (await session.execute(
+        select(Broadcast).where(Broadcast.until > datetime.utcnow())
+        .order_by(Broadcast.id.desc()))).scalars().first()
+
+
 @router.get("/me")
 async def me(user_tg: dict = Depends(get_telegram_user),
              session: AsyncSession = Depends(get_session)):
@@ -77,6 +83,7 @@ async def me(user_tg: dict = Depends(get_telegram_user),
         select(func.count(UserLanguage.id)).where(
             UserLanguage.user_id == user.id))).scalar_one()
     pet_mood = "happy" if user.last_activity_date == msk_today() else "sad"
+    bc = await active_broadcast(session)
     return {
         "id": user.id,
         "first_name": user.nickname or user.first_name,
@@ -89,6 +96,8 @@ async def me(user_tg: dict = Depends(get_telegram_user),
         "has_subscription": sub is not None,
         "can_add_language": sub is not None or lang_count == 0,
         "languages_count": lang_count,
+        "bonus_lessons": user.bonus_lessons,
+        "broadcast": bc.text if bc else None,
     }
 
 
@@ -575,3 +584,61 @@ async def leaderboard(user_tg: dict = Depends(get_telegram_user),
             select(func.count(User.id)).where(User.xp > user.xp))).scalar_one()
         my_rank = better + 1
     return {"items": items, "my_rank": my_rank, "my_xp": user.xp}
+
+
+# ---------- Админские операции (по секрету ADMIN_TOKEN) ----------
+def _admin_guard(request: Request) -> None:
+    if not ADMIN_TOKEN or request.headers.get("X-Admin-Token") != ADMIN_TOKEN:
+        raise HTTPException(403, "Forbidden")
+
+
+class GrantLessonsIn(BaseModel):
+    telegram_id: int
+    count: int = 1
+
+
+@router.post("/admin/grant_lessons")
+async def grant_lessons(data: GrantLessonsIn, request: Request,
+                        session: AsyncSession = Depends(get_session)):
+    """Подарить пользователю уроки сверх дневного лимита."""
+    _admin_guard(request)
+    user = (await session.execute(
+        select(User).where(User.telegram_id == data.telegram_id))).scalar_one_or_none()
+    if not user:
+        raise HTTPException(404, "User not found")
+    user.bonus_lessons = max(0, user.bonus_lessons + data.count)
+    session.add(user)
+    await session.commit()
+    return {"ok": True, "telegram_id": data.telegram_id,
+            "bonus_lessons": user.bonus_lessons}
+
+
+class BroadcastIn(BaseModel):
+    text: str
+    hours: float = 24          # сколько часов мысль будет видна всем
+    # user_id админа, чья мысль транслируется (0/None — от Krolingo)
+
+
+@router.post("/admin/broadcast")
+async def set_broadcast(data: BroadcastIn, request: Request,
+                        session: AsyncSession = Depends(get_session)):
+    """Трансляция мысли: текст появится в облачке над питомцем у всех."""
+    _admin_guard(request)
+    text = data.text.strip()[:500]
+    if not text:
+        raise HTTPException(400, "Empty text")
+    session.add(Broadcast(text=text,
+                          until=datetime.utcnow() + timedelta(hours=data.hours)))
+    await session.commit()
+    return {"ok": True, "text": text, "hours": data.hours}
+
+
+@router.delete("/admin/broadcast")
+async def clear_broadcast(request: Request,
+                          session: AsyncSession = Depends(get_session)):
+    """Снять активную трансляцию."""
+    _admin_guard(request)
+    await session.execute(
+        Broadcast.__table__.delete().where(Broadcast.until > datetime.utcnow()))
+    await session.commit()
+    return {"ok": True, "cleared": True}

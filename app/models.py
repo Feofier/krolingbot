@@ -20,6 +20,7 @@ class User(Base):
     nickname: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_lang_change: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     last_remind: Mapped[date | None] = mapped_column(Date, nullable=True)
+    bonus_lessons: Mapped[int] = mapped_column(Integer, default=0)  # подаренные уроки сверх лимита
     last_activity_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
@@ -107,6 +108,16 @@ class Subscription(Base):
     plan: Mapped[str] = mapped_column(String(16))  # week, month, halfyear
     starts_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires_at: Mapped[datetime] = mapped_column(DateTime)
+
+
+class Broadcast(Base):
+    """Трансляция мысли: текст в облачке над питомцем у всех пользователей."""
+    __tablename__ = "broadcasts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    text: Mapped[str] = mapped_column(String(512))
+    until: Mapped[datetime] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
 class Payment(Base):

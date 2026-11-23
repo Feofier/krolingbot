@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Krolingo — анимация питомца</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      background: #0f1420;
+      font-family: 'Nunito', system-ui, sans-serif;
+      color: #fff;
+    }
+    .row { display: flex; gap: 24px; align-items: flex-end; }
+    figure { margin: 0; text-align: center; }
+    figcaption { margin-top: 8px; opacity: .6; font-size: 14px; }
+    img.pet { width: 240px; border-radius: 24px; display: block; }
+    h1 { font-size: 20px; font-weight: 800; opacity: .9; }
+  </style>
+</head>
+<body>
+  <h1>Питомец Krolingo</h1>
+  <div class="row">
+    <figure>
+      <img class="pet" src="pet_animated.svg" alt="Анимированный кенгуру">
+      <figcaption>pet_animated.svg (SMIL, цикл 1.2 с)</figcaption>
+    </figure>
+    <figure>
+      <img class="pet" src="pet_happy.svg" alt="Статичный кенгуру">
+      <figcaption>pet_happy.svg (было)</figcaption>
+    </figure>
+  </div>
+</body>
+</html>

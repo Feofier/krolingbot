@@ -370,9 +370,12 @@ async function goHome() {
   homePet.className = "home-pet " + (me.streak >= 7 ? "super"
     : poses[Math.floor(Math.random() * poses.length)]);
   const facts = (uiLang === "ru") ? PET_FACTS : PET_FACTS_EN;
-  const fact = facts[Math.floor(Math.random() * facts.length)];
+  // трансляция от админа видна всем вместо факта, пока не истечёт
+  const thought = me.broadcast
+    ? "📢 " + me.broadcast
+    : facts[Math.floor(Math.random() * facts.length)];
   document.getElementById("pet-thought").textContent =
-    (me.pet_mood === "happy" ? "" : t("thought_sad")) + fact;
+    (me.pet_mood === "happy" || me.broadcast ? "" : t("thought_sad")) + thought;
 
   const list = document.getElementById("progress-list");
   list.innerHTML = "";
@@ -781,7 +784,8 @@ function checkAnswer(ex) {
   });
 
   showFeedback(ok, ex);
-  if (ex.payload.correct && (ex.type === "sentence" || ex.type === "gap")) {
+  if (ex.payload.correct && (ex.type === "sentence" || ex.type === "gap"
+      || (ok && ex.type === "choice"))) {
     speak(ex.payload.correct, 0.9);
   }
 
@@ -861,6 +865,15 @@ async function showBoard() {
 }
 
 // ---------- Профиль ----------
+// Стадии роста питомца по XP: детёныш -> мудрец
+const GROWTH_STAGES = [
+  { min: 0, key: "growth_1" },
+  { min: 100, key: "growth_2" },
+  { min: 500, key: "growth_3" },
+  { min: 1500, key: "growth_4" },
+];
+const GROWTH_SIZES = [130, 160, 190, 215];
+
 async function showProfile() {
   showScreen("screen-loading");
   const [me, board, progress, history] = await Promise.all(
@@ -880,6 +893,22 @@ async function showProfile() {
   setPet("profile-pet", mood);
   const petEl = document.getElementById("profile-pet");
   petEl.classList.toggle("super", me.streak >= 7);
+  // рост питомца: стадия зависит от XP — чем больше опыта, тем взрослее
+  const stageIdx = GROWTH_STAGES.reduce(
+    (acc, s, i) => (me.xp >= s.min ? i : acc), 0);
+  const stage = GROWTH_STAGES[stageIdx];
+  const nextStage = GROWTH_STAGES[stageIdx + 1];
+  petEl.style.width = petEl.style.height = GROWTH_SIZES[stageIdx] + "px";
+  // полноценная картинка маскота (реалистичная модель, прозрачный фон)
+  petEl.innerHTML = `<img class="profile-pet-img" src="assets/kangaroo_real.png" alt="Kengo">`;
+  document.getElementById("growth-label").textContent = nextStage
+    ? `🌱 ${t(stage.key)} · ${t("growth_to", {n: nextStage.min - me.xp, s: t(nextStage.key)})}`
+    : `🏆 ${t(stage.key)}`;
+  const prevMin = stage.min;
+  const pct = nextStage
+    ? Math.min(100, Math.round((me.xp - prevMin) / (nextStage.min - prevMin) * 100))
+    : 100;
+  document.getElementById("growth-progress").style.width = pct + "%";
   document.getElementById("pet-caption").textContent = caption;
   const nameEl = document.getElementById("profile-name");
   nameEl.innerHTML = "";
@@ -897,6 +926,10 @@ async function showProfile() {
   document.getElementById("p-streak").textContent = me.streak;
   document.getElementById("p-lessons").textContent = history.items.length;
   document.getElementById("p-rank").textContent = board.my_rank;
+  document.getElementById("btn-p-stats").onclick = () => showScreen("screen-p-stats");
+  document.getElementById("btn-p-lang").onclick = () => showScreen("screen-p-lang");
+  document.getElementById("btn-p-history").onclick = () => showScreen("screen-p-history");
+  document.getElementById("btn-p-settings").onclick = () => showScreen("screen-p-settings");
   document.getElementById("btn-share").onclick = () => {
     const text = t("share_text", {n: me.streak});
     tg.openTelegramLink(

@@ -54,7 +54,9 @@ async def lessons_done_today(session: AsyncSession, user_id: int) -> int:
 async def can_start_lesson(session: AsyncSession, user_id: int) -> bool:
     if await active_subscription(session, user_id):
         return True
-    return await lessons_done_today(session, user_id) < FREE_DAILY_LESSONS
+    user = await session.get(User, user_id)
+    limit = FREE_DAILY_LESSONS + (user.bonus_lessons if user else 0)
+    return await lessons_done_today(session, user_id) < limit
 
 
 async def complete_lesson(session: AsyncSession, user: User, user_lang: UserLanguage,
