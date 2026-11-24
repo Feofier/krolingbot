@@ -220,10 +220,53 @@ if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = lo
 function pickVoice(lang) {
   const base = lang.split("-")[0];
   const opts = voicesCache.filter(v => v.lang.replace("_", "-").toLowerCase().startsWith(base));
+  const saved = localStorage.getItem("tts_voice");
+  if (saved) {
+    const v = opts.find(v => v.voiceURI === saved);
+    if (v) return v;
+  }
   return opts.find(v => /google|natural|neural|online/i.test(v.name))
       || opts.find(v => /samantha|zira|aria|susan|female|milena|allison/i.test(v.name))
       || opts[0] || null;
 }
+
+async function showVoices() {
+  showScreen("screen-loading");
+  if (!voicesCache.length && window.speechSynthesis) {
+    await new Promise(res => {
+      loadVoices();
+      if (voicesCache.length) return res();
+      speechSynthesis.onvoiceschanged = () => { loadVoices(); res(); };
+      setTimeout(res, 2000);
+    });
+  }
+  const list = document.getElementById("voice-list");
+  list.innerHTML = "";
+  const current = localStorage.getItem("tts_voice");
+  const sorted = [...voicesCache].sort((a, b) => a.lang.localeCompare(b.lang));
+  if (!sorted.length) {
+    list.innerHTML = '<p class="muted">' + t("voices_empty") + '</p>';
+  }
+  sorted.slice(0, 50).forEach(v => {
+    const b = document.createElement("button");
+    b.className = "card" + (v.voiceURI === current ? " selected" : "");
+    b.innerHTML = '<div style="flex:1"><b>' + v.name + '</b><br>' +
+      '<span class="muted" style="margin:0">' + v.lang + '</span></div>' +
+      '<svg class="ic"><use href="#i-sound"/></svg>';
+    b.onclick = () => {
+      localStorage.setItem("tts_voice", v.voiceURI);
+      const keep = lessonLangCode;
+      lessonLangCode = v.lang.split(/[-_]/)[0];
+      speak("Hello! Hola! Привет!", 0.85);
+      lessonLangCode = keep;
+      showVoices();
+    };
+    list.appendChild(b);
+  });
+  showScreen("screen-voice");
+}
+
+document.getElementById("btn-voice").onclick = showVoices;
 
 function speak(text, rate = 0.72) {
   try {
@@ -586,6 +629,8 @@ function renderExercise() {
     dontKnowBtn.style.display = "none";
     renderPairs(ex, box);
     checkBtn.style.display = "none";
+  } else if (ex.type === "dictation") {
+    renderDictation(ex, box, checkBtn);
   } else {
     dontKnowBtn.style.display = "";
     dontKnowBtn.textContent = t("dont_know");
@@ -652,6 +697,57 @@ function renderPairs(ex, box) {
     };
     box.appendChild(btn);
   });
+}
+
+// Диктант: слушаешь слово и вписываешь его
+const BAD_WORDS = ["fuck","shit","bitch","хуй","пизд","еба","сука","бляд","kurwa","puta","merde"];
+function isCleanText(t) {
+  const low = t.toLowerCase();
+  return !BAD_WORDS.some(w => low.includes(w));
+}
+
+function renderDictation(ex, box, checkBtn) {
+  const dontKnowBtn = document.getElementById("btn-dontknow");
+  dontKnowBtn.style.display = "";
+  // убираем подсказку-перевод из текста задания
+  const cleanPrompt = ex.prompt.replace(/\s*\([^)]*\)\s*$/, "");
+  const h2 = document.querySelector("#exercise-box h2");
+  if (h2) h2.textContent = cleanPrompt;
+
+  const row = document.createElement("div");
+  row.className = "dictation-row";
+  const replay = document.createElement("button");
+  replay.className = "btn btn-blue dictation-play";
+  replay.innerHTML = '<svg class="ic"><use href="#i-sound"/></svg> ' + t("listen");
+  replay.onclick = () => speak(ex.payload.word, 0.72);
+  const input = document.createElement("input");
+  input.className = "dictation-input";
+  input.placeholder = t("write_heard");
+  input.autocapitalize = "none";
+  input.autocomplete = "off";
+  input.addEventListener("keydown", ev => {
+    if (ev.key === "Enter" && input.value.trim()) checkBtn.click();
+  });
+  row.appendChild(replay);
+  row.appendChild(input);
+  box.appendChild(row);
+  setTimeout(() => { input.focus(); }, 400);
+  // автопроигрывание дважды: сразу и повтор через паузу
+  setTimeout(() => speak(ex.payload.word, 0.72), 500);
+  setTimeout(() => speak(ex.payload.word, 0.72), 2400);
+
+  selectedOption = null;
+  checkBtn.onclick = () => {
+    const val = input.value.trim();
+    if (!val) return;
+    if (!isCleanText(val)) {
+      showModal("Ой!", "Такие слова мы не изучаем. Попробуй другое!");
+      input.value = "";
+      return;
+    }
+    selectedOption = val;
+    checkAnswer(ex);
+  };
 }
 
 // Сборка предложения из слов
@@ -1098,10 +1194,12 @@ function askGameRules(gameId) {
 }
 
 // Спринт
+let sprintOver = false;
 let sprintPairs = [], sprintIdx = 0, sprintScore = 0, sprintTimer = null;
 let sprintCurrentTrue = false;
 
 async function startSprint() {
+  sprintOver = false;
   const data = await api(`/game/words/${gameLangId}?n=40`);
   sprintPairs = data.pairs;
   sprintIdx = 0; sprintScore = 0;
@@ -1144,6 +1242,7 @@ function nextSprintRound() {
 }
 
 function sprintAnswer(saidTrue) {
+  if (sprintOver) return;
   if (saidTrue === sprintCurrentTrue) {
     sprintScore++;
     document.getElementById("sprint-score").textContent = sprintScore;
@@ -1154,6 +1253,8 @@ function sprintAnswer(saidTrue) {
 }
 
 async function endSprint() {
+  if (sprintOver) return;
+  sprintOver = true;
   clearInterval(sprintTimer);
   const gained = Math.min(sprintScore, 30);
   const res = await api("/game/xp", "POST", { points: gained });
