@@ -89,6 +89,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Krolingo", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def no_cache_miniapp(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/miniapp"):
+        response.headers["Cache-Control"] = "no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+    return response
+
+
 app.include_router(api_router)
 app.mount("/miniapp", StaticFiles(directory=MINIAPP_DIR, html=True), name="miniapp")
 
