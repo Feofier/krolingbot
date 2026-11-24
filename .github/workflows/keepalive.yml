@@ -1,0 +1,30 @@
+name: keepalive
+on:
+  schedule:
+    - cron: "*/5 * * * *"      # пингуем Render каждые 5 минут
+    - cron: "15 5 * * 1"       # раз в неделю активность, чтобы GitHub не отключал расписание
+
+jobs:
+  ping:
+    if: github.event.schedule == '*/5 * * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Krolingo (keeps Render awake)
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://krolingbot.onrender.com/
+          curl -s -o /dev/null --max-time 30 https://krolingbot.onrender.com/miniapp/
+
+  keep-active:
+    if: github.event.schedule == '15 5 * * 1'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git config user.name "keepalive-bot"
+          git config user.email "keepalive@krolingo.local"
+          date -u +%s > .keepalive
+          git add .keepalive
+          git commit -m "keepalive: weekly activity" || exit 0
+          git push

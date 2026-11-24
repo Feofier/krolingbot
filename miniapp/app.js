@@ -213,13 +213,31 @@ function setPet(containerId, mood) {
 
 // ---------- Озвучка ----------
 let lessonLangCode = "en";
-function speak(text, rate = 0.85) {
+let voicesCache = [];
+function loadVoices() { voicesCache = window.speechSynthesis ? speechSynthesis.getVoices() : []; }
+if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+function pickVoice(lang) {
+  const base = lang.split("-")[0];
+  const opts = voicesCache.filter(v => v.lang.replace("_", "-").toLowerCase().startsWith(base));
+  return opts.find(v => /google|natural|neural|online/i.test(v.name))
+      || opts.find(v => /samantha|zira|aria|susan|female|milena|allison/i.test(v.name))
+      || opts[0] || null;
+}
+
+function speak(text, rate = 0.72) {
   try {
+    if (!text) return;
+    // не озвучиваем русские слова (переводы), только изучаемый язык
+    if (/[а-яё]/i.test(text) && !["ru", "uk"].includes(lessonLangCode)) return;
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = ({en:"en-US", es:"es-ES", de:"de-DE", fr:"fr-FR", it:"it-IT",
-               pt:"pt-BR", tr:"tr-TR", pl:"pl-PL", uk:"uk-UA", ja:"ja-JP"})[lessonLangCode]
-             || lessonLangCode;
+    const langMap = {en:"en-US", es:"es-ES", de:"de-DE", fr:"fr-FR", it:"it-IT",
+                     pt:"pt-BR", tr:"tr-TR", pl:"pl-PL", uk:"uk-UA", ja:"ja-JP"};
+    u.lang = langMap[lessonLangCode] || lessonLangCode;
+    const v = pickVoice(u.lang);
+    if (v) u.voice = v;
     u.rate = rate;
+    u.pitch = 1.02;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
   } catch (_) {}
@@ -642,6 +660,14 @@ let placedWords = [];
 function renderSentence(ex, box) {
   placedWords = [];
   const wrap = document.createElement("div");
+  const playRow = document.createElement("div");
+  playRow.style.cssText = "margin-bottom:10px";
+  const playBtn = document.createElement("button");
+  playBtn.className = "btn btn-blue dictation-play";
+  playBtn.innerHTML = `<svg class="ic"><use href="#i-sound"/></svg> ${t("listen")}`;
+  playBtn.onclick = () => speak(ex.payload.correct, 0.75);
+  playRow.appendChild(playBtn);
+  wrap.appendChild(playRow);
 
   const line = document.createElement("div");
   line.className = "sentence-line";
@@ -851,8 +877,6 @@ async function showProfile() {
   editBtn.innerHTML = '<svg class="ic" style="width:16px;height:16px"><use href="#i-edit"/></svg>';
   editBtn.onclick = editNickname;
   nameEl.appendChild(editBtn);
-  const lessonsDone = progress.items.filter(i => i.completed).length;
-  document.getElementById("profile-name").textContent = me.first_name || "Ученик";
   document.getElementById("profile-sub").textContent = me.has_subscription
     ? t("sub_left", {n: me.subscription_days_left}) : t("free_account");
   document.getElementById("p-xp").textContent = me.xp;
@@ -868,22 +892,38 @@ async function showProfile() {
     tg.openTelegramLink(
       `https://t.me/share/url?url=${encodeURIComponent("https://t.me/KrolingoBot")}&text=${encodeURIComponent(text)}`);
   };
+  // реферальный баннер вверху профиля
+  let refBanner = document.getElementById("ref-top-banner");
+  if (!refBanner) {
+    refBanner = document.createElement("button");
+    refBanner.id = "ref-top-banner";
+    refBanner.className = "ref-top-banner";
+    const card = document.querySelector("#screen-profile .profile-card");
+    card.after(refBanner);
+  }
+  refBanner.innerHTML = `<svg class="ic" style="width:26px;height:26px"><use href="#i-share"/></svg>
+    <div style="flex:1;text-align:left"><b>${t("ref_title")}</b><br>
+    <span>${t("ref_banner_sub")}</span></div>`;
+  refBanner.onclick = showReferral;
+
   const subSection = document.getElementById("sub-section");
-  subSection.innerHTML = "";
-  if (!me.has_subscription) {
-    const banner = document.createElement("button");
-    banner.className = "sub-banner";
-    banner.innerHTML = `<svg class="ic" style="width:30px;height:30px"><use href="#i-star"/></svg>
-      <div style="flex:1"><b>${t("sub_banner_t")}</b><br>
-      <span>${t("sub_banner_s")}</span></div>`;
-    banner.onclick = showPlans;
-    subSection.appendChild(banner);
-  } else {
-    const active = document.createElement("div");
-    active.className = "card";
-    active.innerHTML = `<svg class="ic"><use href="#i-check"/></svg>
-      <b style="flex:1">${t("sub_left", {n: me.subscription_days_left})}</b>`;
-    subSection.appendChild(active);
+  if (subSection) {
+    subSection.innerHTML = "";
+    if (!me.has_subscription) {
+      const banner = document.createElement("button");
+      banner.className = "sub-banner";
+      banner.innerHTML = `<svg class="ic" style="width:30px;height:30px"><use href="#i-star"/></svg>
+        <div style="flex:1"><b>${t("sub_banner_t")}</b><br>
+        <span>${t("sub_banner_s")}</span></div>`;
+      banner.onclick = showPlans;
+      subSection.appendChild(banner);
+    } else {
+      const active = document.createElement("div");
+      active.className = "card";
+      active.innerHTML = `<svg class="ic"><use href="#i-check"/></svg>
+        <b style="flex:1">${t("sub_left", {n: me.subscription_days_left})}</b>`;
+      subSection.appendChild(active);
+    }
   }
 
   const hlist = document.getElementById("history-list");
@@ -1045,6 +1085,16 @@ async function showGames() {
     list.appendChild(btn);
   });
   showScreen("screen-games");
+}
+
+// Правила перед игрой
+function askGameRules(gameId) {
+  showConfirm(t("rules_" + gameId + "_t"), t("rules_" + gameId), t("play"), () => {
+    if (gameId === "sprint") startSprint();
+    else if (gameId === "anagram") startAnagram();
+    else if (gameId === "pairs") startPairs();
+    else startQuizGame();
+  });
 }
 
 // Спринт
@@ -1227,21 +1277,17 @@ function renderGameStrip() {
   if (!strip) return;
   strip.innerHTML = "";
     const games = [
-    { id: "sprint", name: t("game_sprint"), icon: "i-flame" },
-    { id: "anagram", name: t("game_anagram"), icon: "i-book" },
-    { id: "pairs", name: t("game_pairs"), icon: "i-target" },
-    { id: "quizgame", name: t("game_quiz"), icon: "i-crown" },
+    { id: "sprint", name: t("game_sprint"), icon: "i-flame", xp: 30 },
+    { id: "anagram", name: t("game_anagram"), icon: "i-book", xp: 15 },
+    { id: "pairs", name: t("game_pairs"), icon: "i-target", xp: 20 },
+    { id: "quizgame", name: t("game_quiz"), icon: "i-crown", xp: 20 },
   ];
   games.forEach(g => {
     const b = document.createElement("button");
     b.className = "game-chip";
-    b.innerHTML = `<svg class="ic"><use href="#${g.icon}"/></svg>${g.name}`;
-    b.onclick = () => {
-      if (g.id === "sprint") startSprint();
-      else if (g.id === "anagram") startAnagram();
-      else if (g.id === "pairs") startPairs();
-      else startQuizGame();
-    };
+    b.innerHTML = `<svg class="ic"><use href="#${g.icon}"/></svg>${g.name}
+      <span class="xp-badge">+${g.xp} XP</span>`;
+    b.onclick = () => askGameRules(g.id);
     strip.appendChild(b);
   });
 }

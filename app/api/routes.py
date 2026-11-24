@@ -145,8 +145,7 @@ async def game_words(language_id: int, n: int = 12,
             seen.add(w)
             pairs.append({"word": w, "translation": t})
     import random
-    rng = random.Random(user.id + language_id)
-    rng.shuffle(pairs)
+    random.shuffle(pairs)
     return {"pairs": pairs[:n]}
 
 
